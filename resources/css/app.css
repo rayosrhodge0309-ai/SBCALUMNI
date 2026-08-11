@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+:root {
+    --page-max-width: 1800px;
+    --page-width: 95%;
+    --page-gutter: clamp(1.5rem, 3.5vw, 3.75rem);
+}
+
+.main-wrapper,
+.site-container {
+    width: var(--page-width);
+    max-width: var(--page-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--page-gutter);
+    padding-right: var(--page-gutter);
+    box-sizing: border-box;
+}
+
+.landing-page,
+.guest-shell {
+    overflow-x: hidden;
+}
+
+.app-workspace-fluid {
+    width: 100%;
+}
+
+.app-workspace-wrapper {
+    max-width: var(--page-max-width);
+}
+
+.landing-page .main-wrapper,
+.landing-header .main-wrapper,
+.landing-footer .main-wrapper {
+    width: var(--page-width);
+}
+
+.hero-stage {
+    width: min(100%, var(--page-max-width));
+    max-width: var(--page-max-width);
+    min-height: clamp(38rem, 74vh, 50rem);
+    display: flex;
+    align-items: center;
+    border-radius: 1.75rem;
+    overflow: hidden;
+    padding: clamp(1.5rem, 2.5vw, 2.5rem);
+}
+
+.hero-stage > .row {
+    width: 100%;
+    min-height: clamp(28rem, 56vh, 38rem);
+}
+
+.campus-gallery-hero,
+.landing-showcase-stack,
+.landing-showcase-panel,
+.content-panel,
+.table-responsive {
+    width: 100%;
+}
+
+.landing-section {
+    padding: 2.75rem 0;
+}
+
+.hero-section {
+    padding-top: 1.5rem;
+}
+
+.landing-showcase-stack {
+    gap: 2rem;
+}
+
+.landing-showcase-panel,
+.page-card,
+.event-card,
+.activity-card,
+.process-card,
+.trustee-card,
+.officer-card,
+.footer-brand-panel,
+.footer-link-group,
+.footer-cta-panel {
+    border-radius: 1.3rem;
+}
+
+.app-main .content-panel {
+    max-width: none;
+}
+
+.app-main table {
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .school-system-bar > .container-fluid,
+    .navbar > .container-fluid,
+    .mobile-toolbar > .container-fluid {
+        width: 95%;
+        max-width: var(--page-max-width);
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: var(--page-gutter) !important;
+        padding-right: var(--page-gutter) !important;
+    }
+
+    .app-workspace-fluid {
+        padding-left: calc(var(--sidebar-width, 270px) + 1.5rem);
+        padding-right: clamp(1.5rem, 2.5vw, 3.125rem);
+    }
+
+    .app-workspace-wrapper {
+        width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 991.98px) {
+    :root {
+        --page-width: 100%;
+        --page-gutter: 1rem;
+    }
+
+    .hero-stage {
+        min-height: auto;
+    }
+}
+
+/* Alumni Officers specific styles */
+.officers-hero .section-title{margin-top:.2rem;margin-bottom:.4rem}
+.officers-hero .section-copy{max-width:60rem;color:var(--muted);margin-bottom:1rem}
+.officers-grid{--card-gap:1.25rem}
+.officer-card{border-radius:12px;border:1px solid rgba(4,0,120,0.06);background:#fff;box-shadow:0 10px 24px rgba(4,0,120,0.06);transition:transform .18s ease,box-shadow .18s ease;display:flex}
+.officer-card:hover{transform:translateY(-6px);box-shadow:0 28px 48px rgba(4,0,120,0.08)}
+.officer-avatar{width:96px;height:96px;border-radius:50%;overflow:hidden;background:var(--panel);display:inline-flex;align-items:center;justify-content:center;border:2px solid rgba(4,0,120,0.06)}
+.officer-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.officer-avatar-placeholder{font-weight:700;color:var(--wine);background:linear-gradient(180deg,#f6d31d14,#fff);}
+.officer-name{font-size:1.02rem}
+.officer-role{font-size:0.95rem}
+.officer-dept{font-size:0.82rem}
+
+@media (min-width:1200px){
+    .officers-grid > .col-lg-3{padding-left:var(--card-gap);padding-right:var(--card-gap)}
+}
+
+@media (max-width:575.98px){
+    .officer-avatar{width:84px;height:84px}
+}
+

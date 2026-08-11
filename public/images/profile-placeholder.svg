@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title>Profile placeholder</title>
+  <desc>Simple circular avatar placeholder for leadership profiles.</desc>
+  <defs>
+    <linearGradient id="bg" x1="96" y1="64" x2="416" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0F2FE"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="128" y1="112" x2="384" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D6EFD"/>
+      <stop offset="1" stop-color="#075985"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  <circle cx="256" cy="208" r="92" fill="url(#ring)" opacity="0.15"/>
+  <circle cx="256" cy="192" r="64" fill="url(#ring)"/>
+  <path d="M144 392C160.5 330.9 204.1 296 256 296C307.9 296 351.5 330.9 368 392" stroke="url(#ring)" stroke-width="44" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="192" stroke="#0D6EFD" stroke-opacity="0.12" stroke-width="8"/>
+</svg>

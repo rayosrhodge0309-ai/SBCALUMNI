@@ -1,0 +1,21 @@
+
+   ErrorException 
+
+  Writing to directory C:/Users/Althea Honey Rayos/AppData/Roaming/PsySH is not allowed.
+
+  at vendor\psy\psysh\src\ConfigPaths.php:456
+    452▕             @\mkdir($dir, 0700, true);
+    453▕         }
+    454▕ 
+    455▕         if (!\is_dir($dir) || !\is_writable($dir)) {
+  ➜ 456▕             \trigger_error(\sprintf('Writing to directory %s is not allowed.', $dir), \E_USER_NOTICE);
+    457▕ 
+    458▕             return false;
+    459▕         }
+    460▕
+
+  1   vendor\psy\psysh\src\ConfigPaths.php:456
+
+  2   vendor\psy\psysh\src\ConfigPaths.php:485
+      Psy\ConfigPaths::ensureDir("C:/Users/Althea Honey Rayos/AppData/Roaming/PsySH")
+

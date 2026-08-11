@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-labelledby="title desc">
+  <title id="title">St. Bridget College Alumni Association Seal</title>
+  <desc id="desc">Circular blue seal with alumni association text, ribbons, triangle, lamp, and 1920 mark.</desc>
+  <defs>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#13045c"/>
+      <stop offset="35%" stop-color="#3047a6"/>
+      <stop offset="55%" stop-color="#6dbdf3"/>
+      <stop offset="78%" stop-color="#2f479f"/>
+      <stop offset="100%" stop-color="#14045d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2a2d8f"/>
+      <stop offset="50%" stop-color="#69b9f2"/>
+      <stop offset="100%" stop-color="#18086b"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0f2162" flood-opacity="0.18"/>
+    </filter>
+    <path id="topArc" d="M 120 500 A 380 380 0 0 1 880 500"/>
+    <path id="bottomArc" d="M 880 500 A 380 380 0 0 1 120 500"/>
+    <path id="leftRibbonPath" d="M 242 338 C 210 420 210 575 242 665"/>
+    <path id="rightRibbonPath" d="M 758 338 C 790 420 790 575 758 665"/>
+  </defs>
+
+  <circle cx="500" cy="500" r="486" fill="#ffffff"/>
+  <circle cx="500" cy="500" r="472" fill="none" stroke="#d7deea" stroke-width="2"/>
+  <circle cx="500" cy="500" r="410" fill="none" stroke="url(#ring)" stroke-width="78"/>
+  <circle cx="500" cy="500" r="360" fill="#ffffff"/>
+
+  <g fill="#ffffff" font-family="Georgia, 'Times New Roman', serif" letter-spacing="7">
+    <text font-size="58">
+      <textPath href="#topArc" startOffset="50%" text-anchor="middle">ST. BRIDGET COLLEGE ALUMNI ASSOCIATION</textPath>
+    </text>
+    <text font-size="46">
+      <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">Batangas City</textPath>
+    </text>
+  </g>
+
+  <g fill="#ffffff">
+    <circle cx="86" cy="500" r="10"/>
+    <circle cx="914" cy="500" r="10"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M212 326 C238 326 260 340 272 376 C248 440 248 558 272 622 C260 662 238 676 212 676 C235 560 235 443 212 326 Z" fill="url(#accent)"/>
+    <path d="M788 326 C762 326 740 340 728 376 C752 440 752 558 728 622 C740 662 762 676 788 676 C765 560 765 443 788 326 Z" fill="url(#accent)"/>
+    <path d="M286 690 L500 188 L714 690 Z" fill="none" stroke="url(#accent)" stroke-width="20" stroke-linejoin="round"/>
+  </g>
+
+  <g fill="#ffffff" font-family="'Trebuchet MS', Arial, sans-serif" font-size="38" letter-spacing="3">
+    <text>
+      <textPath href="#leftRibbonPath" startOffset="50%" text-anchor="middle">LUCEAT</textPath>
+    </text>
+    <text>
+      <textPath href="#rightRibbonPath" startOffset="50%" text-anchor="middle">LUX VESTRA</textPath>
+    </text>
+  </g>
+
+  <g fill="#3040a0" font-family="Georgia, 'Times New Roman', serif">
+    <text x="410" y="520" font-size="72" transform="rotate(-58 410 520)">Wisdom</text>
+    <text x="590" y="520" font-size="72" transform="rotate(58 590 520)">Zeal</text>
+    <text x="430" y="638" font-size="74" font-style="italic">Truth</text>
+  </g>
+
+  <g fill="#3540aa">
+    <circle cx="500" cy="305" r="12"/>
+    <circle cx="322" cy="632" r="12"/>
+    <circle cx="678" cy="632" r="12"/>
+    <circle cx="500" cy="418" r="20"/>
+    <circle cx="488" cy="402" r="16"/>
+    <circle cx="512" cy="402" r="16"/>
+    <circle cx="482" cy="430" r="16"/>
+    <circle cx="518" cy="430" r="16"/>
+    <path d="M500 438 C505 452 502 464 492 475" fill="none" stroke="#3540aa" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="310" cy="620" r="20"/>
+    <circle cx="295" cy="604" r="16"/>
+    <circle cx="325" cy="604" r="16"/>
+    <circle cx="288" cy="635" r="16"/>
+    <circle cx="326" cy="635" r="16"/>
+    <path d="M310 640 C316 654 313 666 302 677" fill="none" stroke="#3540aa" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="690" cy="620" r="20"/>
+    <circle cx="675" cy="604" r="16"/>
+    <circle cx="705" cy="604" r="16"/>
+    <circle cx="668" cy="635" r="16"/>
+    <circle cx="706" cy="635" r="16"/>
+    <path d="M690 640 C696 654 693 666 682 677" fill="none" stroke="#3540aa" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <g fill="url(#accent)" filter="url(#softShadow)">
+    <path d="M435 486 C458 454 477 471 494 486 C503 476 514 469 528 469 C548 469 562 490 592 487 C580 496 572 510 553 518 L448 518 C435 512 427 501 416 493 C424 492 430 490 435 486 Z"/>
+    <path d="M482 452 C482 435 490 424 500 416 C510 424 518 435 518 452 Z"/>
+    <rect x="494" y="405" width="12" height="11" rx="2"/>
+    <path d="M470 538 C486 531 514 531 530 538 L546 549 C530 551 514 553 500 553 C486 553 470 551 454 549 Z"/>
+    <path d="M464 560 C479 556 521 556 536 560 L548 571 L452 571 Z"/>
+  </g>
+
+  <text x="500" y="810" text-anchor="middle" fill="#3040a0" font-family="'Trebuchet MS', Arial, sans-serif" font-size="74" font-weight="700" letter-spacing="10">1920</text>
+</svg>
