@@ -13,6 +13,7 @@
                         <th>School Level</th>
                         <th>Request</th>
                         <th>Year</th>
+                        <th>Alumni Message</th>
                         <th>Status</th>
                         <th>Admin Update</th>
                     </tr>
@@ -27,6 +28,7 @@
                             <td data-label="School Level">{{ $recordRequest->alumni?->education_level ?? 'Unknown' }}</td>
                             <td data-label="Request">{{ $recordRequest->request_type }}</td>
                             <td data-label="Year">{{ $recordRequest->year_requested }}</td>
+                            <td data-label="Alumni Message">{!! $recordRequest->requester_note ? nl2br(e($recordRequest->requester_note)) : '-' !!}</td>
                             <td data-label="Status">
                                 <span class="badge bg-secondary-subtle text-secondary-emphasis">
                                     {{ $statusOptions[$recordRequest->status] ?? ucfirst(str_replace('_', ' ', $recordRequest->status)) }}
@@ -51,14 +53,14 @@
                                                 <option value="{{ $statusValue }}" @selected($recordRequest->status === $statusValue)>{{ $statusLabel }}</option>
                                             @endforeach
                                         </select>
-                                        <button class="btn btn-sm btn-primary" type="submit">Save</button>
+                                        <button class="btn btn-sm btn-primary" type="submit" style="min-width: 4.5rem; white-space: nowrap;">Save</button>
                                     </div>
                                 </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-secondary py-5">No alumni requests are waiting for processing.</td>
+                            <td colspan="7" class="text-center text-secondary py-5">No alumni requests are waiting for processing.</td>
                         </tr>
                     @endforelse
                 </tbody>

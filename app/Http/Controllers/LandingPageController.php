@@ -43,6 +43,8 @@ class LandingPageController extends Controller
             ],
             'announcements' => $contentService->announcements(null),
             'announcementTotal' => $contentService->announcementsCount(),
+            'upcomingEvents' => $contentService->events(null),
+            'upcomingEventTotal' => $contentService->upcomingEventsCount(),
             'activities' => $contentService->activities(null),
             'boardMembers' => $boardMembers,
             'alumniOfficeTeam' => $alumniOfficeTeam,

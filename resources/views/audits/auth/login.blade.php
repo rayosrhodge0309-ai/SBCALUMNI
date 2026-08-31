@@ -23,11 +23,6 @@
                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
             </div>
 
-            <div class="form-check mb-4">
-                <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                <label class="form-check-label" for="remember">Remember me</label>
-            </div>
-
             <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
 

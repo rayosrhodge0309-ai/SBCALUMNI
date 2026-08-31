@@ -27,6 +27,7 @@
         <div class="d-grid gap-2 mt-3">
             <a href="{{ route('portal.requests.index') }}" class="btn btn-light">Open My Requests</a>
             <a href="{{ route('profile.edit') }}" class="btn btn-outline-light">Update Profile</a>
+            <button type="button" class="btn btn-outline-light" data-enable-notifications>Enable Notifications</button>
         </div>
 
         <div class="row row-cols-3 g-2 mt-3">
@@ -62,6 +63,7 @@
                 <div class="d-flex flex-wrap gap-2">
                     <a href="{{ route('portal.requests.index') }}" class="btn btn-success">Open My Requests</a>
                     <a href="{{ route('profile.edit') }}" class="btn btn-outline-dark">Update Profile</a>
+                    <button type="button" class="btn btn-outline-dark" data-enable-notifications>Enable Notifications</button>
                 </div>
             </div>
             <div class="col-lg-4">
@@ -127,6 +129,41 @@
             </div>
         </div>
     </div>
+
+    @if ($requestUpdates->isNotEmpty())
+        <div class="page-card p-3 p-md-4 mb-4 request-update-notifications">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+                <div>
+                    <div class="small text-secondary text-uppercase fw-semibold">Request Notifications</div>
+                    <h3 class="h5 mb-0">Admin updates about your requests</h3>
+                </div>
+                <a href="{{ route('portal.requests.index') }}" class="btn btn-sm btn-outline-dark align-self-start align-self-md-center">View All Requests</a>
+            </div>
+
+            <div class="d-grid gap-2">
+                @foreach ($requestUpdates as $requestUpdate)
+                    <div class="request-update-alert">
+                        <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+                            <div>
+                                <div class="fw-semibold">{{ $requestUpdate->request_type }}</div>
+                                <div class="small text-secondary">
+                                    {{ $statusOptions[$requestUpdate->status] ?? ucfirst(str_replace('_', ' ', $requestUpdate->status)) }}
+                                    for {{ $requestUpdate->year_requested }}
+                                </div>
+                            </div>
+                            <div class="small text-secondary">
+                                {{ $requestUpdate->admin_replied_at?->format('M d, Y h:i A') }}
+                            </div>
+                        </div>
+
+                        @if ($requestUpdate->admin_notes)
+                            <div class="request-update-note mt-2">{{ $requestUpdate->admin_notes }}</div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     <div class="dashboard-tabs-shell page-card p-2 p-md-3 mb-4">
         <div class="dashboard-tabs-header d-flex align-items-center justify-content-between gap-2 mb-2">
@@ -238,6 +275,7 @@
                             <div class="d-grid gap-2 d-sm-flex">
                                 <a href="{{ route('portal.requests.index') }}" class="btn btn-success">Open Requests</a>
                                 <a href="{{ route('profile.edit') }}" class="btn btn-outline-dark">Update Profile</a>
+                                <button type="button" class="btn btn-outline-dark" data-enable-notifications>Enable Notifications</button>
                             </div>
 
                             <div class="page-card mt-4 p-3 bg-body-tertiary border-0">
@@ -249,10 +287,10 @@
                                             <div class="profile-avatar-placeholder">{{ $user->initials }}</div>
                                         @endif
                                     </div>
-                                    <div>
+                                    <div class="connected-account-copy">
                                         <div class="small text-secondary mb-1">Connected account</div>
                                         <div class="fw-semibold">{{ $user->name }}</div>
-                                        <div class="text-secondary small">{{ $user->email }}</div>
+                                        <div class="text-secondary small connected-account-email">{{ $user->email }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -281,6 +319,30 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="request-type-details mb-3 d-none" data-request-details>
+                                    <div class="request-requirements" data-standard-requirements>
+                                        <div class="fw-semibold small mb-2">Requirements</div>
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <label class="form-label" for="requester_name">Name</label>
+                                                <input id="requester_name" type="text" name="requester_name" class="form-control" value="{{ old('requester_name', $alumnus->full_name) }}" placeholder="e.g. Juan Dela Cruz" data-standard-requirement-input>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label" for="requester_course">Course</label>
+                                                <input id="requester_course" type="text" name="requester_course" class="form-control" value="{{ old('requester_course', $alumnus->course) }}" placeholder="e.g. BS Information Technology" data-standard-requirement-input>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label" for="requester_year_graduate">Yr Graduate</label>
+                                                <input id="requester_year_graduate" type="number" min="1900" max="{{ now()->year + 1 }}" name="requester_year_graduate" class="form-control" value="{{ old('requester_year_graduate', $alumnus->year_graduated) }}" placeholder="e.g. 2025" data-standard-requirement-input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-none mt-3" data-facility-note>
+                                        <label class="form-label" for="requester_note">Message / Note</label>
+                                        <textarea id="requester_note" name="requester_note" class="form-control" rows="4" placeholder="e.g. Our Batch 2025 would like to request facility use for a reunion. Preferred date: June 15, 2026.">{{ old('requester_note') }}</textarea>
+                                        <div class="form-text">Include the purpose, preferred date, batch year, and facility you want to use.</div>
+                                    </div>
+                                </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="year_requested">Graduation / Record Year</label>
                                     <input id="year_requested" type="number" min="1900" max="{{ now()->year + 1 }}" name="year_requested" class="form-control" value="{{ old('year_requested', $alumnus->year_graduated) }}" required>
@@ -301,6 +363,7 @@
                                         <tr>
                                             <th>Request</th>
                                             <th>Year</th>
+                                            <th>Message</th>
                                             <th>Status</th>
                                             <th>Admin Notes</th>
                                         </tr>
@@ -310,12 +373,13 @@
                                             <tr>
                                                 <td data-label="Request">{{ $request->request_type }}</td>
                                                 <td data-label="Year">{{ $request->year_requested }}</td>
+                                                <td data-label="Message">{!! $request->requester_note ? nl2br(e($request->requester_note)) : '-' !!}</td>
                                                 <td class="fw-semibold" data-label="Status">{{ $statusOptions[$request->status] ?? ucfirst(str_replace('_', ' ', $request->status)) }}</td>
                                                 <td data-label="Admin Notes">{{ $request->admin_notes ?: 'No notes from the school yet.' }}</td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="4" class="text-center text-secondary py-5">You have not submitted any requests yet.</td>
+                                                <td colspan="5" class="text-center text-secondary py-5">You have not submitted any requests yet.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -590,6 +654,49 @@
             font-size: 1.05rem;
         }
 
+        .connected-account-copy {
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .connected-account-email {
+            display: block;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.35;
+        }
+
+        .request-update-notifications {
+            border-color: rgba(11, 69, 184, 0.2);
+        }
+
+        .request-update-alert {
+            padding: 1rem;
+            border: 1px solid rgba(11, 69, 184, 0.18);
+            border-left: 0.35rem solid #0b45b8;
+            border-radius: 0.75rem;
+            background: #f7fbff;
+        }
+
+        .request-update-note {
+            color: #172033;
+            line-height: 1.55;
+            overflow-wrap: anywhere;
+        }
+
+        .request-type-details {
+            border: 1px solid rgba(11, 69, 184, 0.18);
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.62);
+            padding: 0.85rem;
+        }
+
+        .request-requirements {
+            color: var(--action-dark);
+        }
+
         @media (max-width: 767.98px) {
             .dashboard-tabs-shell {
                 padding: 0.65rem !important;
@@ -648,6 +755,40 @@
 
 @push('scripts')
     <script>
+        (function () {
+            const requestType = document.getElementById('request_type');
+            const details = document.querySelector('[data-request-details]');
+            const requirements = document.querySelector('[data-standard-requirements]');
+            const facilityNote = document.querySelector('[data-facility-note]');
+            const requesterNote = document.getElementById('requester_note');
+            const standardInputs = document.querySelectorAll('[data-standard-requirement-input]');
+            const facilityType = 'Facility Use-(Message/Note)';
+
+            if (!requestType || !details || !requirements || !facilityNote || !requesterNote) {
+                return;
+            }
+
+            const updateDetails = () => {
+                const selectedType = requestType.value;
+                const isFacilityUse = selectedType === facilityType;
+                const hasRequestType = selectedType !== '';
+
+                details.classList.toggle('d-none', !hasRequestType);
+                requirements.classList.toggle('d-none', !hasRequestType || isFacilityUse);
+                facilityNote.classList.toggle('d-none', !isFacilityUse);
+                requesterNote.required = isFacilityUse;
+                requesterNote.disabled = !isFacilityUse;
+
+                standardInputs.forEach((input) => {
+                    input.required = hasRequestType && !isFacilityUse;
+                    input.disabled = !hasRequestType || isFacilityUse;
+                });
+            };
+
+            requestType.addEventListener('change', updateDetails);
+            updateDetails();
+        })();
+
         (function () {
             const tabStrip = document.querySelector('.dashboard-tabstrip');
             const tabList = document.getElementById('portalDashboardTabs');

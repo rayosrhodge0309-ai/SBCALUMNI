@@ -7,8 +7,12 @@ use App\Models\Event;
 use App\Models\SiteSetting;
 use App\Models\RecordRequest;
 use App\Models\User;
+use App\Notifications\AlumniAccountApproved;
+use App\Notifications\RecordRequestSubmitted;
+use App\Notifications\RecordRequestUpdated;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
@@ -756,7 +760,7 @@ test('an alumnus can claim an imported record and access the alumni portal', fun
         'password_confirmation' => 'password12',
     ]);
 
-    $response->assertRedirect(route('portal.otp.create'));
+    $response->assertRedirect(route('portal.dashboard'));
     $this->assertDatabaseHas('alumni', [
         'id' => $alumnus->id,
         'student_id' => '2015211',
@@ -810,6 +814,8 @@ test('admins can edit student ids without automatic formatting', function () {
 });
 
 test('alumni can submit requests but only admins can process them', function () {
+    Notification::fake();
+
     $alumnus = Alumni::create([
         'student_id' => '2016-0010',
         'first_name' => 'Nina',
@@ -843,11 +849,24 @@ test('alumni can submit requests but only admins can process them', function () 
 
     $requestRecord = RecordRequest::first();
     expect($requestRecord)->not->toBeNull();
+    Notification::assertSentTo($admin, RecordRequestSubmitted::class);
 
     $this->get(route('requests.index'))->assertForbidden();
     $this->get(route('portal.requests.index'))->assertOk()->assertSee('Transcript of Records');
 
     $this->actingAs($admin);
+
+    $this->getJson(route('requests.notifications', ['after' => 0]))
+        ->assertOk()
+        ->assertJsonPath('count', 1)
+        ->assertJsonPath('latest_id', $requestRecord->id)
+        ->assertJsonFragment([
+            'id' => $requestRecord->id,
+            'alumni_name' => 'Nina Reyes',
+            'request_type' => 'Transcript of Records',
+            'year_requested' => 2021,
+            'review_url' => route('requests.index'),
+        ]);
 
     $this->get(route('requests.index'))->assertOk()->assertSee('Record Request Processing');
 
@@ -856,12 +875,37 @@ test('alumni can submit requests but only admins can process them', function () 
         'admin_notes' => 'Bring your school ID when claiming the document.',
     ])->assertRedirect(route('requests.index'));
 
+    Notification::assertSentTo($alumniUser, RecordRequestUpdated::class);
+
     $this->assertDatabaseHas('requests', [
         'id' => $requestRecord->id,
         'status' => 'ready_for_pickup',
         'admin_notes' => 'Bring your school ID when claiming the document.',
         'processed_by' => $admin->id,
     ]);
+
+    $requestRecord->refresh();
+    expect($requestRecord->admin_replied_at)->not->toBeNull();
+
+    $this->actingAs($alumniUser)
+        ->getJson(route('portal.requests.notifications', ['after' => 0]))
+        ->assertOk()
+        ->assertJsonPath('latest_timestamp', $requestRecord->admin_replied_at->timestamp)
+        ->assertJsonFragment([
+            'id' => $requestRecord->id,
+            'request_type' => 'Transcript of Records',
+            'year_requested' => 2021,
+            'status' => 'Ready for Pickup',
+            'admin_notes' => 'Bring your school ID when claiming the document.',
+            'review_url' => route('portal.dashboard'),
+        ]);
+
+    $this->actingAs($alumniUser)
+        ->get(route('portal.dashboard'))
+        ->assertOk()
+        ->assertSee('Request Notifications')
+        ->assertSee('Transcript of Records')
+        ->assertSee('Bring your school ID when claiming the document.');
 });
 
 test('users can upload a profile photo from the profile settings page', function () {
@@ -1398,6 +1442,44 @@ test('admins can edit user accounts and keep linked alumni records aligned', fun
     expect($alumnus->first_name)->toBe('Cristina Dela');
     expect($alumnus->last_name)->toBe('Cruz');
     expect($alumnus->email)->toBe('cristina@example.com');
+});
+
+test('an alumni account approval notifies the alumni user', function () {
+    Notification::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $alumnus = Alumni::create([
+        'student_id' => '2015-4455',
+        'first_name' => 'Lara',
+        'last_name' => 'Reyes',
+        'education_level' => 'College',
+        'course' => 'BS Information Technology',
+        'year_graduated' => 2020,
+        'email' => 'lara@example.com',
+    ]);
+
+    $alumniUser = User::factory()->create([
+        'name' => $alumnus->full_name,
+        'email' => 'lara@example.com',
+        'role' => 'alumni',
+        'account_status' => 'pending',
+        'approved_at' => null,
+        'portal_otp_verified_at' => now(),
+        'alumni_id' => $alumnus->id,
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('users.approve', $alumniUser))
+        ->assertRedirect();
+
+    $alumniUser->refresh();
+
+    expect($alumniUser->isApproved())->toBeTrue();
+    expect($alumniUser->approved_at)->not->toBeNull();
+    expect($alumniUser->portal_otp_verified_at)->not->toBeNull();
+
+    Notification::assertSentTo($alumniUser, AlumniAccountApproved::class);
 });
 
 function buildXlsxImportFile(array $rows, array $additionalSheets = [], int $activeSheetIndex = 0): UploadedFile

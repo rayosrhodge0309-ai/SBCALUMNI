@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -90,6 +91,17 @@ class EventController extends Controller
         return $response->file(Storage::disk('public')->path($event->media_path), [
             'Cache-Control' => 'public, max-age=86400',
             'Accept-Ranges' => 'bytes',
+        ]);
+    }
+
+    public function recordView(Event $event): JsonResponse
+    {
+        abort_unless($event->is_published, 404);
+
+        $event->increment('views_count');
+
+        return response()->json([
+            'views_count' => $event->views_count,
         ]);
     }
 

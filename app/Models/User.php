@@ -27,8 +27,10 @@ class User extends Authenticatable
         'role',
         'account_status',
         'approved_at',
+        'portal_otp_verified_at',
         'alumni_id',
         'profile_photo_path',
+        'fcm_token',
     ];
 
     /**
@@ -52,6 +54,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'approved_at' => 'datetime',
+            'portal_otp_verified_at' => 'datetime',
+            'fcm_token' => 'string',
         ];
     }
 
@@ -83,6 +87,11 @@ class User extends Authenticatable
     public function isRejected(): bool
     {
         return $this->account_status === 'rejected';
+    }
+
+    public function hasCompletedPortalOtp(): bool
+    {
+        return $this->portal_otp_verified_at !== null;
     }
 
     public function getProfilePhotoUrlAttribute(): ?string

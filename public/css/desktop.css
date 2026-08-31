@@ -6,7 +6,7 @@
    - Targeted sizes for 1366x768, 1440x900, 1920x1080
 */
 :root{
-  --topbar-height:4.6rem;
+  --topbar-height:5rem;
   --sidebar-width:270px;
   --content-max-width:1800px;
   --page-gutter:clamp(1.5rem,3vw,3.125rem);
@@ -115,6 +115,9 @@ h3{font-size:1.4rem}
 /* Navbar styling to stretch and space items */
 .school-system-bar, .navbar{
   background: linear-gradient(90deg, var(--wine) 0%, var(--school-sidebar) 100%);
+}
+.school-system-bar{
+  min-height:var(--topbar-height);
 }
 .school-system-bar .site-container, .navbar .site-container, .navbar .main-wrapper{
   display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-left:0;padding-right:0
@@ -251,4 +254,10 @@ html,body{overflow-x:hidden}
   .container-fluid{padding-left:1rem;padding-right:1rem}
   .main-wrapper,.site-container{width:100%;padding-left:1rem;padding-right:1rem}
   .app-main{padding-top:1rem}
+}
+
+/* Keep full-guest landing pages flush with the top edge. */
+.guest-shell > main.app-main:first-child{
+  margin-top:0;
+  padding-top:0 !important;
 }

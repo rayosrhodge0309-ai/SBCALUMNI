@@ -3,6 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @auth
+        <meta name="fcm-token-url" content="{{ route('fcm-token.store') }}">
+    @endauth
+    <meta name="firebase-messaging-sw-url" content="{{ asset('firebase-messaging-sw.js') }}">
+    <meta name="notification-icon-url" content="{{ asset('icons/icon-192.png') }}">
     <meta name="theme-color" content="#07116f">
     <meta name="application-name" content="Alumni Link">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -94,7 +100,7 @@
         }
 
         .school-system-bar {
-            min-height: 4.6rem;
+            min-height: 5rem;
             background: linear-gradient(90deg, #07116f 0%, #0b45b8 58%, #0a86b7 100%);
             color: #fff;
             border-bottom: 4px solid var(--gold);
@@ -103,7 +109,8 @@
 
         .school-system-title {
             font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(1.6rem, 4vw, 3.2rem);
+            font-size: clamp(1.75rem, 4.4vw, 3.55rem);
+            color: #fff;
             letter-spacing: 0.24em;
             line-height: 1;
             text-transform: uppercase;
@@ -111,8 +118,8 @@
         }
 
         .school-system-subtitle {
-            color: var(--gold);
-            font-size: 0.9rem;
+            color: #fff;
+            font-size: 0.98rem;
             letter-spacing: 0.7em;
             text-transform: lowercase;
         }
@@ -123,6 +130,8 @@
 
         .sidebar-portal {
             background: linear-gradient(180deg, #0b45b8 0%, #07116f 100%);
+            --gold: #0b45b8;
+            --wine: #fff;
         }
 
         .sidebar .nav-link {
@@ -259,6 +268,45 @@
             --action-dark: #07116f;
         }
 
+        .admin-workspace .content-panel,
+        .admin-workspace .page-card {
+            background: #fff !important;
+            border-color: rgba(11, 69, 184, 0.32) !important;
+            box-shadow: 0 10px 24px rgba(11, 69, 184, 0.08);
+        }
+
+        .admin-workspace .sidebar .page-card,
+        .admin-workspace .offcanvas-mobile-nav .page-card {
+            background: transparent !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: none;
+            color: #fff;
+        }
+
+        .admin-workspace .page-card h1,
+        .admin-workspace .page-card h2,
+        .admin-workspace .page-card h3,
+        .admin-workspace .page-card h4,
+        .admin-workspace .page-card h5,
+        .admin-workspace .page-card h6 {
+            color: var(--action-dark);
+        }
+
+        .admin-workspace .table {
+            --bs-table-bg: #fff;
+            --bs-table-striped-bg: #fff;
+            --bs-table-hover-bg: #fff;
+            --bs-table-border-color: rgba(11, 69, 184, 0.18);
+            --bs-table-color: var(--action-dark);
+            color: var(--action-dark);
+        }
+
+        .admin-workspace .table > :not(caption) > * > * {
+            background-color: #fff !important;
+            border-color: rgba(11, 69, 184, 0.18);
+            color: var(--action-dark);
+        }
+
         .admin-workspace .sidebar .nav-link:hover,
         .admin-workspace .sidebar .nav-link.active {
             color: var(--wine);
@@ -283,9 +331,13 @@
             color: #fff !important;
         }
 
-        .admin-workspace .school-system-subtitle,
         .admin-workspace .text-primary {
             color: var(--action) !important;
+        }
+
+        .admin-workspace .school-system-title,
+        .admin-workspace .school-system-subtitle {
+            color: #fff !important;
         }
 
         .admin-workspace .bg-primary-subtle {
@@ -300,13 +352,34 @@
         }
 
         .admin-workspace .table-light {
-            --bs-table-bg: rgba(11, 69, 184, 0.12);
+            --bs-table-bg: #fff;
             --bs-table-color: #07116f;
         }
 
         .admin-workspace .table-light th {
-            background-color: rgba(11, 69, 184, 0.12) !important;
+            background-color: #fff !important;
             color: #07116f !important;
+        }
+
+        .admin-approval-toast {
+            --bs-toast-max-width: 24rem;
+            border: 1px solid rgba(11, 69, 184, 0.24);
+            border-radius: 0.75rem;
+            box-shadow: 0 16px 36px rgba(7, 17, 111, 0.18);
+        }
+
+        .admin-approval-toast .toast-header {
+            color: #07116f;
+            background: #fff;
+            border-bottom-color: rgba(11, 69, 184, 0.12);
+        }
+
+        .admin-approval-toast-dot {
+            width: 0.62rem;
+            height: 0.62rem;
+            border-radius: 999px;
+            background: #0b45b8;
+            box-shadow: 0 0 0 0.22rem rgba(11, 69, 184, 0.14);
         }
 
         .hero-stage {
@@ -579,7 +652,7 @@
 
         .school-identity-motto {
             margin-top: 0.4rem;
-            color: #9c7a00;
+            color: #fff;
             font-size: clamp(0.78rem, 1.4vw, 1.05rem);
             font-weight: 700;
             text-transform: uppercase;
@@ -638,8 +711,8 @@
         }
 
         .school-system-brand-crest {
-            width: 3rem;
-            height: 3rem;
+            width: 3.35rem;
+            height: 3.35rem;
             flex-shrink: 0;
         }
 
@@ -1287,8 +1360,8 @@
 
         .mobile-portal-stat {
             border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.56);
+            border: 1px solid rgba(7, 17, 111, 0.12);
             padding: 0.8rem 0.7rem;
             min-height: 100%;
         }
@@ -1298,6 +1371,7 @@
             font-size: 1.12rem;
             font-weight: 700;
             line-height: 1.1;
+            color: #111827;
         }
 
         .mobile-portal-stat-label {
@@ -1306,7 +1380,7 @@
             font-size: 0.68rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: rgba(255, 255, 255, 0.72);
+            color: #111827;
         }
 
         .offcanvas-mobile-nav {
@@ -1649,12 +1723,35 @@
 </head>
 @php
     $layoutUser = auth()->user();
+    $fullGuest = View::hasSection('full_guest');
+    $workspacePreview = View::hasSection('workspace_preview');
+    $centeredGuest = View::hasSection('centered_guest');
+    $showWorkspaceShell = $layoutUser && ! $fullGuest;
 @endphp
-<body class="{{ $layoutUser?->isAdmin() ? 'admin-workspace' : '' }}">
-    @if ($layoutUser)
+<body class="{{ $showWorkspaceShell && $layoutUser?->isAdmin() ? 'admin-workspace' : '' }}">
+    @if ($showWorkspaceShell)
         @php
             $pendingAccountCount = $layoutUser->isAdmin()
                 ? rescue(fn () => \App\Models\User::query()->where('role', 'alumni')->where('account_status', 'pending')->count(), 0, false)
+                : 0;
+            $latestPendingAccountId = $layoutUser->isAdmin()
+                ? rescue(fn () => (int) \App\Models\User::query()->where('role', 'alumni')->where('account_status', 'pending')->max('id'), 0, false)
+                : 0;
+            $pendingRecordRequestCount = $layoutUser->isAdmin()
+                ? rescue(fn () => \App\Models\RecordRequest::query()->where('status', 'pending')->count(), 0, false)
+                : 0;
+            $latestPendingRecordRequestId = $layoutUser->isAdmin()
+                ? rescue(fn () => (int) \App\Models\RecordRequest::query()->where('status', 'pending')->max('id'), 0, false)
+                : 0;
+            $latestAlumniRequestUpdateTimestamp = $layoutUser->isAlumni()
+                ? rescue(function () use ($layoutUser) {
+                    $latestUpdate = \App\Models\RecordRequest::query()
+                        ->where('alumni_id', $layoutUser->alumni_id)
+                        ->whereNotNull('admin_replied_at')
+                        ->max('admin_replied_at');
+
+                    return $latestUpdate ? \Illuminate\Support\Carbon::parse($latestUpdate)->timestamp : 0;
+                }, 0, false)
                 : 0;
         @endphp
         @php
@@ -1681,32 +1778,27 @@
                         @endif
                     </div>
                     <div class="min-w-0">
-                        <div class="small text-uppercase text-white-50">{{ auth()->user()->isAdmin() ? 'Records Admin' : 'SBC Alumni Link' }}</div>
-                        <div class="fw-semibold text-truncate">{{ auth()->user()->isAdmin() ? 'Admin Workspace' : 'Alumni Portal' }}</div>
+                        @if (auth()->user()->isAdmin())
+                            <div class="small text-uppercase text-white-50">Alumni Link</div>
+                        @endif
+                        <div class="fw-semibold text-truncate">{{ auth()->user()->isAdmin() ? 'Administrator' : 'Alumni Portal' }}</div>
                     </div>
                 </a>
-                <div class="d-flex align-items-center gap-2">
-                    <a href="{{ auth()->user()->isAdmin() ? route('dashboard') : route('portal.requests.index') }}" class="btn btn-sm btn-light">{{ auth()->user()->isAdmin() ? 'Home' : 'Requests' }}</a>
-                    @if (auth()->user()->isAdmin())
+                @if (auth()->user()->isAdmin())
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ route('dashboard') }}" class="btn btn-sm btn-light">Home</a>
                         <a href="{{ route('home', ['preview' => 1]) }}" class="btn btn-sm btn-outline-light">Landing</a>
-                    @endif
-                    <button
-                        class="btn btn-sm btn-outline-light"
-                        type="button"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#mobileSidebar"
-                        aria-controls="mobileSidebar"
-                    >
-                        Menu
-                    </button>
-                </div>
+                    </div>
+                @endif
             </div>
         </div>
 
         <div class="offcanvas offcanvas-start offcanvas-mobile-nav d-lg-none" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header border-bottom border-white border-opacity-10">
                 <div>
-                    <div class="brand-pill mb-2">{{ auth()->user()->isAdmin() ? 'Records Admin' : 'SBC Alumni Link' }}</div>
+                    @if (auth()->user()->isAdmin())
+                        <div class="brand-pill mb-2">Records Admin</div>
+                    @endif
                     <h1 id="mobileSidebarLabel" class="h5 fw-bold mb-0">{{ auth()->user()->isAdmin() ? 'Admin Workspace' : 'Alumni Portal' }}</h1>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -1715,12 +1807,12 @@
                 @if (! auth()->user()->isAdmin())
                     <div class="page-card p-3 bg-transparent border border-white border-opacity-10">
                         <div class="small text-white-50 text-uppercase fw-semibold mb-2">Quick access</div>
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('portal.requests.index') }}" class="btn btn-light">My Requests</a>
-                            <a href="{{ route('profile.edit') }}" class="btn btn-outline-light">Update Profile</a>
-                        </div>
-                    </div>
-                @endif
+                <div class="d-grid gap-2">
+                    <a href="{{ route('portal.requests.index') }}" class="btn btn-light">My Requests</a>
+                    <a href="{{ route('profile.edit') }}" class="btn btn-outline-light">Update Profile</a>
+                </div>
+            </div>
+        @endif
 
                 <nav class="nav flex-column gap-2">
                     <a href="{{ auth()->user()->isAdmin() ? route('dashboard') : route('portal.dashboard') }}" class="nav-link {{ request()->routeIs(auth()->user()->isAdmin() ? 'dashboard' : 'portal.dashboard') ? 'active' : '' }}">Dashboard</a>
@@ -1729,12 +1821,13 @@
                         <a href="{{ route('alumni.index') }}" class="nav-link {{ request()->routeIs('alumni.*') ? 'active' : '' }}">Alumni Records</a>
                         <a href="{{ route('users.pending') }}" class="nav-link {{ request()->routeIs('users.pending') ? 'active' : '' }}">
                             Pending Accounts
-                            @if (($pendingAccountCount ?? 0) > 0)
-                                <span class="badge rounded-pill text-bg-light ms-2">{{ $pendingAccountCount }}</span>
-                            @endif
+                            <span class="badge rounded-pill text-bg-light ms-2 {{ ($pendingAccountCount ?? 0) > 0 ? '' : 'd-none' }}" data-pending-account-badge>{{ $pendingAccountCount }}</span>
                         </a>
                         <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.index', 'users.edit', 'users.update', 'users.approve', 'users.reject') ? 'active' : '' }}">User Accounts</a>
-                        <a href="{{ route('requests.index') }}" class="nav-link {{ request()->routeIs('requests.*') ? 'active' : '' }}">Record Requests</a>
+                        <a href="{{ route('requests.index') }}" class="nav-link {{ request()->routeIs('requests.*') ? 'active' : '' }}">
+                            Record Requests
+                            <span class="badge rounded-pill text-bg-light ms-2 {{ ($pendingRecordRequestCount ?? 0) > 0 ? '' : 'd-none' }}" data-pending-record-request-badge>{{ $pendingRecordRequestCount }}</span>
+                        </a>
                         <a href="{{ route('events.index') }}" class="nav-link {{ request()->routeIs('events.*') ? 'active' : '' }}">Events</a>
                         <a href="{{ route('announcements.index') }}" class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}">Announcements</a>
                         <a href="{{ route('activities.index') }}" class="nav-link {{ request()->routeIs('activities.*') ? 'active' : '' }}">Activities</a>
@@ -1818,11 +1911,9 @@
                 <div class="d-flex align-items-center gap-3">
                     <div class="text-end">
                         <div class="h4 fw-bold mb-0">Alumni Link</div>
-                        <div class="small text-white-50 text-uppercase">{{ auth()->user()->isAdmin() ? 'Admin Workspace' : 'Alumni Portal' }}</div>
+                        <div class="small text-white-50 text-uppercase">{{ auth()->user()->isAdmin() ? 'Administrator' : 'Alumni Portal' }}</div>
                     </div>
-                    @if (auth()->user()->isAdmin())
-                        <a href="{{ route('home', ['preview' => 1]) }}" class="btn btn-light">View Landing Page</a>
-                    @endif
+                    <a href="{{ auth()->user()->isAdmin() ? route('home', ['preview' => 1]) : route('home') }}" class="btn btn-light">Home Page</a>
                 </div>
             </div>
         </div>
@@ -1832,33 +1923,38 @@
                 <div class="row min-vh-100">
                 <aside class="sidebar {{ auth()->user()->isAdmin() ? 'sidebar-admin' : 'sidebar-portal' }} d-none d-lg-flex col-lg-3 col-xl-2 p-4 flex-column gap-4">
                     <div>
-                        <div class="brand-pill mb-3">{{ auth()->user()->isAdmin() ? 'Records Admin' : 'SBC Alumni Link' }}</div>
+                        @if (auth()->user()->isAdmin())
+                            <div class="brand-pill mb-3">Records Admin</div>
+                        @endif
                         <h1 class="h4 fw-bold mb-2">{{ auth()->user()->isAdmin() ? 'Admin Workspace' : 'Alumni Portal' }}</h1>
-                        <p class="mb-0 text-white-50 small">
-                            {{ auth()->user()->isAdmin() ? 'Manage imports, requests, and event postings for alumni services.' : 'Track requests, read announcements, and stay engaged with campus updates.' }}
-                        </p>
+                        @if (auth()->user()->isAdmin())
+                            <p class="mb-0 text-white-50 small">
+                                Manage imports, requests, and event postings for alumni services.
+                            </p>
+                        @endif
                     </div>
 
                     <nav class="nav flex-column gap-2">
                         <a href="{{ auth()->user()->isAdmin() ? route('dashboard') : route('portal.dashboard') }}" class="nav-link {{ request()->routeIs(auth()->user()->isAdmin() ? 'dashboard' : 'portal.dashboard') ? 'active' : '' }}">Dashboard</a>
 
-                        @if (auth()->user()->isAdmin())
-                            <a href="{{ route('alumni.index') }}" class="nav-link {{ request()->routeIs('alumni.*') ? 'active' : '' }}">Alumni Records</a>
-                            <a href="{{ route('users.pending') }}" class="nav-link {{ request()->routeIs('users.pending') ? 'active' : '' }}">
-                                Pending Accounts
-                                @if (($pendingAccountCount ?? 0) > 0)
-                                    <span class="badge rounded-pill text-bg-light ms-2">{{ $pendingAccountCount }}</span>
-                                @endif
-                            </a>
+                    @if (auth()->user()->isAdmin())
+                        <a href="{{ route('alumni.index') }}" class="nav-link {{ request()->routeIs('alumni.*') ? 'active' : '' }}">Alumni Records</a>
+                        <a href="{{ route('users.pending') }}" class="nav-link {{ request()->routeIs('users.pending') ? 'active' : '' }}">
+                            Pending Accounts
+                            <span class="badge rounded-pill text-bg-light ms-2 {{ ($pendingAccountCount ?? 0) > 0 ? '' : 'd-none' }}" data-pending-account-badge>{{ $pendingAccountCount }}</span>
+                        </a>
                             <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.index', 'users.edit', 'users.update', 'users.approve', 'users.reject') ? 'active' : '' }}">User Accounts</a>
-                            <a href="{{ route('requests.index') }}" class="nav-link {{ request()->routeIs('requests.*') ? 'active' : '' }}">Record Requests</a>
+                            <a href="{{ route('requests.index') }}" class="nav-link {{ request()->routeIs('requests.*') ? 'active' : '' }}">
+                                Record Requests
+                                <span class="badge rounded-pill text-bg-light ms-2 {{ ($pendingRecordRequestCount ?? 0) > 0 ? '' : 'd-none' }}" data-pending-record-request-badge>{{ $pendingRecordRequestCount }}</span>
+                            </a>
                             <a href="{{ route('events.index') }}" class="nav-link {{ request()->routeIs('events.*') ? 'active' : '' }}">Events</a>
                             <a href="{{ route('announcements.index') }}" class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}">Announcements</a>
-                            <a href="{{ route('activities.index') }}" class="nav-link {{ request()->routeIs('activities.*') ? 'active' : '' }}">Activities</a>
-                            <a href="{{ route('admin.settings.landing-video.edit') }}" class="nav-link {{ request()->routeIs('admin.settings.landing-video.*', 'admin.settings.landing-profiles.*') ? 'active' : '' }}">School Administration</a>
-                        @else
-                            <a href="{{ route('portal.requests.index') }}" class="nav-link {{ request()->routeIs('portal.requests.*') ? 'active' : '' }}">My Requests</a>
-                        @endif
+                        <a href="{{ route('activities.index') }}" class="nav-link {{ request()->routeIs('activities.*') ? 'active' : '' }}">Activities</a>
+                        <a href="{{ route('admin.settings.landing-video.edit') }}" class="nav-link {{ request()->routeIs('admin.settings.landing-video.*', 'admin.settings.landing-profiles.*') ? 'active' : '' }}">School Administration</a>
+                    @else
+                        <a href="{{ route('portal.requests.index') }}" class="nav-link {{ request()->routeIs('portal.requests.*') ? 'active' : '' }}">My Requests</a>
+                    @endif
 
                         <a href="{{ route('profile.edit') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">Profile</a>
                     </nav>
@@ -1885,43 +1981,67 @@
                     </div>
                 </aside>
 
-                <main class="app-main col-12 p-3 p-lg-4 p-xl-5">
-                    <div class="content-panel p-3 p-lg-4">
-                        @if (session('success'))
-                            <div class="alert alert-success">{{ session('success') }}</div>
-                        @endif
+                <main class="app-main col-12 {{ $workspacePreview ? 'p-0' : 'p-3 p-lg-4 p-xl-5' }}">
+                    @if ($workspacePreview)
+                        @if (session('success') || session('warning') || $errors->any())
+                            <div class="main-wrapper py-3">
+                                @if (session('success'))
+                                    <div class="alert alert-success">{{ session('success') }}</div>
+                                @endif
 
-                        @if (session('warning'))
-                            <div class="alert alert-warning">{{ session('warning') }}</div>
-                        @endif
+                                @if (session('warning'))
+                                    <div class="alert alert-warning">{{ session('warning') }}</div>
+                                @endif
 
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <div class="fw-semibold mb-2">Please fix the following:</div>
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
+                                @if ($errors->any())
+                                    <div class="alert alert-danger">
+                                        <div class="fw-semibold mb-2">Please fix the following:</div>
+                                        <ul class="mb-0">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
                             </div>
                         @endif
 
                         @yield('content')
-                    </div>
+                    @else
+                        <div class="content-panel p-3 p-lg-4">
+                            @if (session('success'))
+                                <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+
+                            @if (session('warning'))
+                                <div class="alert alert-warning">{{ session('warning') }}</div>
+                            @endif
+
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <div class="fw-semibold mb-2">Please fix the following:</div>
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
+                            @yield('content')
+                        </div>
+                    @endif
                 </main>
             </div>
             </div>
         </div>
     @else
-        @php
-            $fullGuest = View::hasSection('full_guest');
-        @endphp
         <div class="guest-shell d-flex flex-column">
             @unless ($fullGuest)
                 <nav class="navbar navbar-expand-lg bg-white border-bottom">
                     <div class="main-wrapper">
                         <div class="main-wrapper d-flex align-items-center justify-content-between">
-                            <a class="navbar-brand fw-semibold" href="{{ route('home') }}">Alumni Link</a>
+                            <a class="navbar-brand fw-semibold text-white" href="{{ route('home') }}">HOME</a>
                             <div class="d-flex gap-2">
                                 <a href="{{ route('portal.login') }}" class="btn btn-primary">Alumni Portal</a>
                             </div>
@@ -1953,7 +2073,7 @@
                     @yield('content')
                 </main>
             @else
-                <main class="app-main main-wrapper flex-grow-1 d-flex align-items-center justify-content-center py-5">
+                <main class="app-main {{ $centeredGuest ? 'guest-centered-main' : 'main-wrapper' }} flex-grow-1 d-flex align-items-center justify-content-center py-5">
                     <div class="w-100">
                         @if (session('success'))
                             <div class="alert alert-success">{{ session('success') }}</div>
@@ -2001,12 +2121,16 @@
         </div>
     @endif
 
+    @if ($showWorkspaceShell)
+        <div class="toast-container position-fixed top-0 end-0 p-3" data-admin-approval-toast-container style="z-index: 1080;"></div>
+    @endif
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         (function () {
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function () {
-                    navigator.serviceWorker.register('/sw.js').catch(function () {
+                    navigator.serviceWorker.register(@json(asset('firebase-messaging-sw.js'))).catch(function () {
                         return null;
                     });
                 });
@@ -2072,6 +2196,914 @@
             });
         })();
     </script>
+    @if ($showWorkspaceShell && $layoutUser?->isAdmin())
+        <script>
+            (function () {
+                var notificationUrl = @json(route('users.pending.notifications'));
+                var pendingUrl = @json(route('users.pending'));
+                var storageKey = 'adminPendingApprovalLatestId';
+                var initialLatestId = Number(@json((int) ($latestPendingAccountId ?? 0))) || 0;
+                var lastSeenId = initialLatestId;
+                var isPolling = false;
+                var pollDelay = 10000;
+                var audioContext = null;
+                var cleanTitle = document.title.replace(/^\(\d+\)\s+/, '');
+
+                try {
+                    lastSeenId = Math.max(lastSeenId, Number(window.localStorage.getItem(storageKey)) || 0);
+                    window.localStorage.setItem(storageKey, String(lastSeenId));
+                } catch (error) {
+                    // Local storage can be disabled; notifications still work for the current page.
+                }
+
+                function updatePendingBadge(count) {
+                    document.querySelectorAll('[data-pending-account-badge]').forEach(function (badge) {
+                        badge.textContent = String(count);
+                        badge.classList.toggle('d-none', Number(count) <= 0);
+                    });
+
+                    document.title = Number(count) > 0
+                        ? '(' + count + ') ' + cleanTitle
+                        : cleanTitle;
+                }
+
+                function requestBrowserNotificationPermission() {
+                    if (!('Notification' in window) || Notification.permission !== 'default') {
+                        return;
+                    }
+
+                    var permissionRequest = Notification.requestPermission();
+
+                    if (permissionRequest && typeof permissionRequest.catch === 'function') {
+                        permissionRequest.catch(function () {
+                            return null;
+                        });
+                    }
+                }
+
+                function getAudioContext() {
+                    var AudioConstructor = window.AudioContext || window.webkitAudioContext;
+
+                    if (!AudioConstructor) {
+                        return null;
+                    }
+
+                    if (!audioContext) {
+                        audioContext = new AudioConstructor();
+                    }
+
+                    return audioContext;
+                }
+
+                function unlockAudio() {
+                    var context = getAudioContext();
+
+                    if (context && context.state === 'suspended') {
+                        context.resume().catch(function () {
+                            return null;
+                        });
+                    }
+                }
+
+                function playApprovalSound() {
+                    var context = getAudioContext();
+
+                    if (!context) {
+                        return;
+                    }
+
+                    function ring() {
+                        var start = context.currentTime;
+                        var gain = context.createGain();
+                        var firstTone = context.createOscillator();
+                        var secondTone = context.createOscillator();
+
+                        gain.gain.setValueAtTime(0.0001, start);
+                        gain.gain.exponentialRampToValueAtTime(0.16, start + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.62);
+
+                        firstTone.type = 'sine';
+                        firstTone.frequency.setValueAtTime(880, start);
+                        firstTone.connect(gain);
+                        firstTone.start(start);
+                        firstTone.stop(start + 0.22);
+
+                        secondTone.type = 'sine';
+                        secondTone.frequency.setValueAtTime(660, start + 0.24);
+                        secondTone.connect(gain);
+                        secondTone.start(start + 0.24);
+                        secondTone.stop(start + 0.62);
+
+                        gain.connect(context.destination);
+                    }
+
+                    if (context.state === 'suspended') {
+                        context.resume().then(function () {
+                            if (context.state === 'running') {
+                                ring();
+                            }
+                        }).catch(function () {
+                            return null;
+                        });
+                        return;
+                    }
+
+                    if (context.state === 'running') {
+                        ring();
+                    }
+                }
+
+                function showSystemNotification(request) {
+                    if (!('Notification' in window) || Notification.permission !== 'granted') {
+                        return;
+                    }
+
+                    var notification = new Notification('New account approval request', {
+                        body: (request.name || 'New applicant') + ' submitted an alumni account request.',
+                        tag: 'pending-account-' + request.id,
+                    });
+
+                    notification.onclick = function () {
+                        window.focus();
+                        window.location.href = request.review_url || pendingUrl;
+                    };
+                }
+
+                function showToast(request) {
+                    var container = document.querySelector('[data-admin-approval-toast-container]');
+
+                    if (!container) {
+                        return;
+                    }
+
+                    var toast = document.createElement('div');
+                    toast.className = 'toast admin-approval-toast';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+
+                    var header = document.createElement('div');
+                    header.className = 'toast-header';
+
+                    var dot = document.createElement('span');
+                    dot.className = 'admin-approval-toast-dot me-2';
+
+                    var title = document.createElement('strong');
+                    title.className = 'me-auto';
+                    title.textContent = 'New account approval';
+
+                    var time = document.createElement('small');
+                    time.className = 'text-secondary';
+                    time.textContent = 'now';
+
+                    var closeButton = document.createElement('button');
+                    closeButton.type = 'button';
+                    closeButton.className = 'btn-close';
+                    closeButton.setAttribute('data-bs-dismiss', 'toast');
+                    closeButton.setAttribute('aria-label', 'Close');
+
+                    header.appendChild(dot);
+                    header.appendChild(title);
+                    header.appendChild(time);
+                    header.appendChild(closeButton);
+
+                    var body = document.createElement('div');
+                    body.className = 'toast-body';
+
+                    var name = document.createElement('div');
+                    name.className = 'fw-semibold text-primary';
+                    name.textContent = request.name || 'New applicant';
+
+                    var email = document.createElement('div');
+                    email.className = 'small text-secondary mb-3';
+                    email.textContent = request.email || 'Account request submitted';
+
+                    var actions = document.createElement('div');
+                    actions.className = 'd-flex flex-wrap gap-2';
+
+                    var reviewLink = document.createElement('a');
+                    reviewLink.className = 'btn btn-sm btn-primary';
+                    reviewLink.href = request.review_url || pendingUrl;
+                    reviewLink.textContent = 'Review';
+
+                    var pendingLink = document.createElement('a');
+                    pendingLink.className = 'btn btn-sm btn-outline-primary';
+                    pendingLink.href = pendingUrl;
+                    pendingLink.textContent = 'Pending Accounts';
+
+                    actions.appendChild(reviewLink);
+                    actions.appendChild(pendingLink);
+                    body.appendChild(name);
+                    body.appendChild(email);
+                    body.appendChild(actions);
+
+                    toast.appendChild(header);
+                    toast.appendChild(body);
+                    container.appendChild(toast);
+
+                    if (window.bootstrap && window.bootstrap.Toast) {
+                        var toastInstance = new bootstrap.Toast(toast, {
+                            delay: 9000,
+                        });
+
+                        toast.addEventListener('hidden.bs.toast', function () {
+                            toast.remove();
+                        });
+
+                        toastInstance.show();
+                        return;
+                    }
+
+                    toast.classList.add('show');
+                    window.setTimeout(function () {
+                        toast.remove();
+                    }, 9000);
+                }
+
+                function rememberLatestId(latestId) {
+                    if (latestId <= lastSeenId) {
+                        return;
+                    }
+
+                    lastSeenId = latestId;
+
+                    try {
+                        window.localStorage.setItem(storageKey, String(lastSeenId));
+                    } catch (error) {
+                        // Keep going even when local storage is unavailable.
+                    }
+                }
+
+                function handleNewRequests(requests, pendingCount, latestId) {
+                    if (requests.length > 0) {
+                        requests.forEach(function (request) {
+                            showToast(request);
+                            showSystemNotification(request);
+                        });
+
+                        playApprovalSound();
+                        document.dispatchEvent(new CustomEvent('admin:pending-account-request', {
+                            detail: {
+                                requests: requests,
+                                count: pendingCount,
+                            },
+                        }));
+                    }
+
+                    rememberLatestId(latestId);
+                }
+
+                function pollPendingAccounts() {
+                    if (isPolling) {
+                        return;
+                    }
+
+                    isPolling = true;
+
+                    fetch(notificationUrl + '?after=' + encodeURIComponent(lastSeenId), {
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('Pending account notification check failed.');
+                            }
+
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            var pendingCount = Number(data.count) || 0;
+                            var latestId = Number(data.latest_id) || lastSeenId;
+                            var requests = Array.isArray(data.new) ? data.new : [];
+
+                            updatePendingBadge(pendingCount);
+                            handleNewRequests(requests, pendingCount, latestId);
+                        })
+                        .catch(function () {
+                            return null;
+                        })
+                        .finally(function () {
+                            isPolling = false;
+                        });
+                }
+
+                document.addEventListener('pointerdown', function () {
+                    unlockAudio();
+                    requestBrowserNotificationPermission();
+                }, { once: true });
+
+                document.addEventListener('keydown', function () {
+                    unlockAudio();
+                    requestBrowserNotificationPermission();
+                }, { once: true });
+
+                document.addEventListener('visibilitychange', function () {
+                    if (!document.hidden) {
+                        pollPendingAccounts();
+                    }
+                });
+
+                window.setTimeout(pollPendingAccounts, 1500);
+                window.setInterval(pollPendingAccounts, pollDelay);
+            })();
+        </script>
+    @endif
+    @if ($showWorkspaceShell && $layoutUser?->isAdmin())
+        <script>
+            (function () {
+                var notificationUrl = @json(route('requests.notifications'));
+                var requestsUrl = @json(route('requests.index'));
+                var storageKey = 'adminPendingRecordRequestLatestId';
+                var initialLatestId = Number(@json((int) ($latestPendingRecordRequestId ?? 0))) || 0;
+                var lastSeenId = initialLatestId;
+                var isPolling = false;
+                var pollDelay = 10000;
+                var audioContext = null;
+
+                try {
+                    lastSeenId = Math.max(lastSeenId, Number(window.localStorage.getItem(storageKey)) || 0);
+                    window.localStorage.setItem(storageKey, String(lastSeenId));
+                } catch (error) {
+                    // Local storage can be disabled; notifications still work for the current page.
+                }
+
+                function updateRequestBadge(count) {
+                    document.querySelectorAll('[data-pending-record-request-badge]').forEach(function (badge) {
+                        badge.textContent = String(count);
+                        badge.classList.toggle('d-none', Number(count) <= 0);
+                    });
+                }
+
+                function requestBrowserNotificationPermission() {
+                    if (!('Notification' in window) || Notification.permission !== 'default') {
+                        return;
+                    }
+
+                    var permissionRequest = Notification.requestPermission();
+
+                    if (permissionRequest && typeof permissionRequest.catch === 'function') {
+                        permissionRequest.catch(function () {
+                            return null;
+                        });
+                    }
+                }
+
+                function getAudioContext() {
+                    var AudioConstructor = window.AudioContext || window.webkitAudioContext;
+
+                    if (!AudioConstructor) {
+                        return null;
+                    }
+
+                    if (!audioContext) {
+                        audioContext = new AudioConstructor();
+                    }
+
+                    return audioContext;
+                }
+
+                function unlockAudio() {
+                    var context = getAudioContext();
+
+                    if (context && context.state === 'suspended') {
+                        context.resume().catch(function () {
+                            return null;
+                        });
+                    }
+                }
+
+                function playRequestSound() {
+                    var context = getAudioContext();
+
+                    if (!context) {
+                        return;
+                    }
+
+                    function ring() {
+                        var start = context.currentTime;
+                        var gain = context.createGain();
+                        var firstTone = context.createOscillator();
+                        var secondTone = context.createOscillator();
+
+                        gain.gain.setValueAtTime(0.0001, start);
+                        gain.gain.exponentialRampToValueAtTime(0.14, start + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.56);
+
+                        firstTone.type = 'sine';
+                        firstTone.frequency.setValueAtTime(760, start);
+                        firstTone.connect(gain);
+                        firstTone.start(start);
+                        firstTone.stop(start + 0.2);
+
+                        secondTone.type = 'sine';
+                        secondTone.frequency.setValueAtTime(980, start + 0.22);
+                        secondTone.connect(gain);
+                        secondTone.start(start + 0.22);
+                        secondTone.stop(start + 0.56);
+
+                        gain.connect(context.destination);
+                    }
+
+                    if (context.state === 'suspended') {
+                        context.resume().then(function () {
+                            if (context.state === 'running') {
+                                ring();
+                            }
+                        }).catch(function () {
+                            return null;
+                        });
+                        return;
+                    }
+
+                    if (context.state === 'running') {
+                        ring();
+                    }
+                }
+
+                function showSystemNotification(recordRequest) {
+                    if (!('Notification' in window) || Notification.permission !== 'granted') {
+                        return;
+                    }
+
+                    var notification = new Notification('New record request', {
+                        body: (recordRequest.alumni_name || 'An alumni') + ' submitted ' + (recordRequest.request_type || 'a document request') + '.',
+                        tag: 'record-request-' + recordRequest.id,
+                    });
+
+                    notification.onclick = function () {
+                        window.focus();
+                        window.location.href = recordRequest.review_url || requestsUrl;
+                    };
+                }
+
+                function showToast(recordRequest) {
+                    var container = document.querySelector('[data-admin-approval-toast-container]');
+
+                    if (!container) {
+                        return;
+                    }
+
+                    var toast = document.createElement('div');
+                    toast.className = 'toast admin-approval-toast';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+
+                    var header = document.createElement('div');
+                    header.className = 'toast-header';
+
+                    var dot = document.createElement('span');
+                    dot.className = 'admin-approval-toast-dot me-2';
+
+                    var title = document.createElement('strong');
+                    title.className = 'me-auto';
+                    title.textContent = 'New record request';
+
+                    var time = document.createElement('small');
+                    time.className = 'text-secondary';
+                    time.textContent = 'now';
+
+                    var closeButton = document.createElement('button');
+                    closeButton.type = 'button';
+                    closeButton.className = 'btn-close';
+                    closeButton.setAttribute('data-bs-dismiss', 'toast');
+                    closeButton.setAttribute('aria-label', 'Close');
+
+                    header.appendChild(dot);
+                    header.appendChild(title);
+                    header.appendChild(time);
+                    header.appendChild(closeButton);
+
+                    var body = document.createElement('div');
+                    body.className = 'toast-body';
+
+                    var alumniName = document.createElement('div');
+                    alumniName.className = 'fw-semibold text-primary';
+                    alumniName.textContent = recordRequest.alumni_name || 'Unknown alumni';
+
+                    var requestLabel = document.createElement('div');
+                    requestLabel.className = 'small text-secondary mb-3';
+                    requestLabel.textContent = (recordRequest.request_type || 'Document request') + ' - ' + (recordRequest.year_requested || 'No year');
+
+                    var actions = document.createElement('div');
+                    actions.className = 'd-flex flex-wrap gap-2';
+
+                    var reviewLink = document.createElement('a');
+                    reviewLink.className = 'btn btn-sm btn-primary';
+                    reviewLink.href = recordRequest.review_url || requestsUrl;
+                    reviewLink.textContent = 'Open Requests';
+
+                    actions.appendChild(reviewLink);
+                    body.appendChild(alumniName);
+                    body.appendChild(requestLabel);
+                    body.appendChild(actions);
+
+                    toast.appendChild(header);
+                    toast.appendChild(body);
+                    container.appendChild(toast);
+
+                    if (window.bootstrap && window.bootstrap.Toast) {
+                        var toastInstance = new bootstrap.Toast(toast, {
+                            delay: 9000,
+                        });
+
+                        toast.addEventListener('hidden.bs.toast', function () {
+                            toast.remove();
+                        });
+
+                        toastInstance.show();
+                        return;
+                    }
+
+                    toast.classList.add('show');
+                    window.setTimeout(function () {
+                        toast.remove();
+                    }, 9000);
+                }
+
+                function rememberLatestId(latestId) {
+                    if (latestId <= lastSeenId) {
+                        return;
+                    }
+
+                    lastSeenId = latestId;
+
+                    try {
+                        window.localStorage.setItem(storageKey, String(lastSeenId));
+                    } catch (error) {
+                        // Keep going even when local storage is unavailable.
+                    }
+                }
+
+                function handleNewRecordRequests(recordRequests, pendingCount, latestId) {
+                    if (recordRequests.length > 0) {
+                        recordRequests.forEach(function (recordRequest) {
+                            showToast(recordRequest);
+                            showSystemNotification(recordRequest);
+                        });
+
+                        playRequestSound();
+                    }
+
+                    rememberLatestId(latestId);
+                }
+
+                function pollPendingRecordRequests() {
+                    if (isPolling) {
+                        return;
+                    }
+
+                    isPolling = true;
+
+                    fetch(notificationUrl + '?after=' + encodeURIComponent(lastSeenId), {
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('Pending record request notification check failed.');
+                            }
+
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            var pendingCount = Number(data.count) || 0;
+                            var latestId = Number(data.latest_id) || lastSeenId;
+                            var recordRequests = Array.isArray(data.new) ? data.new : [];
+
+                            updateRequestBadge(pendingCount);
+                            handleNewRecordRequests(recordRequests, pendingCount, latestId);
+                        })
+                        .catch(function () {
+                            return null;
+                        })
+                        .finally(function () {
+                            isPolling = false;
+                        });
+                }
+
+                document.addEventListener('pointerdown', function () {
+                    unlockAudio();
+                    requestBrowserNotificationPermission();
+                }, { once: true });
+
+                document.addEventListener('keydown', function () {
+                    unlockAudio();
+                    requestBrowserNotificationPermission();
+                }, { once: true });
+
+                document.addEventListener('visibilitychange', function () {
+                    if (!document.hidden) {
+                        pollPendingRecordRequests();
+                    }
+                });
+
+                window.setTimeout(pollPendingRecordRequests, 1800);
+                window.setInterval(pollPendingRecordRequests, pollDelay);
+            })();
+        </script>
+    @endif
+    @if ($showWorkspaceShell && $layoutUser?->isAlumni())
+        <script>
+            (function () {
+                var notificationUrl = @json(route('portal.requests.notifications'));
+                var dashboardUrl = @json(route('portal.dashboard'));
+                var storageKey = 'alumniRequestUpdateLatestTimestamp';
+                var initialLatestTimestamp = Number(@json((int) ($latestAlumniRequestUpdateTimestamp ?? 0))) || 0;
+                var lastSeenTimestamp = initialLatestTimestamp;
+                var isPolling = false;
+                var pollDelay = 10000;
+                var audioContext = null;
+
+                try {
+                    lastSeenTimestamp = Math.max(lastSeenTimestamp, Number(window.localStorage.getItem(storageKey)) || 0);
+                    window.localStorage.setItem(storageKey, String(lastSeenTimestamp));
+                } catch (error) {
+                    // Local storage can be disabled; notifications still work for the current page.
+                }
+
+                function requestBrowserNotificationPermission() {
+                    if (!('Notification' in window) || Notification.permission !== 'default') {
+                        return;
+                    }
+
+                    var permissionRequest = Notification.requestPermission();
+
+                    if (permissionRequest && typeof permissionRequest.catch === 'function') {
+                        permissionRequest.catch(function () {
+                            return null;
+                        });
+                    }
+                }
+
+                function getAudioContext() {
+                    var AudioConstructor = window.AudioContext || window.webkitAudioContext;
+
+                    if (!AudioConstructor) {
+                        return null;
+                    }
+
+                    if (!audioContext) {
+                        audioContext = new AudioConstructor();
+                    }
+
+                    return audioContext;
+                }
+
+                function unlockAudio() {
+                    var context = getAudioContext();
+
+                    if (context && context.state === 'suspended') {
+                        context.resume().catch(function () {
+                            return null;
+                        });
+                    }
+                }
+
+                function playUpdateSound() {
+                    var context = getAudioContext();
+
+                    if (!context) {
+                        return;
+                    }
+
+                    function ring() {
+                        var start = context.currentTime;
+                        var gain = context.createGain();
+                        var firstTone = context.createOscillator();
+                        var secondTone = context.createOscillator();
+
+                        gain.gain.setValueAtTime(0.0001, start);
+                        gain.gain.exponentialRampToValueAtTime(0.14, start + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.62);
+
+                        firstTone.type = 'sine';
+                        firstTone.frequency.setValueAtTime(660, start);
+                        firstTone.connect(gain);
+                        firstTone.start(start);
+                        firstTone.stop(start + 0.22);
+
+                        secondTone.type = 'sine';
+                        secondTone.frequency.setValueAtTime(880, start + 0.24);
+                        secondTone.connect(gain);
+                        secondTone.start(start + 0.24);
+                        secondTone.stop(start + 0.62);
+
+                        gain.connect(context.destination);
+                    }
+
+                    if (context.state === 'suspended') {
+                        context.resume().then(function () {
+                            if (context.state === 'running') {
+                                ring();
+                            }
+                        }).catch(function () {
+                            return null;
+                        });
+                        return;
+                    }
+
+                    if (context.state === 'running') {
+                        ring();
+                    }
+                }
+
+                function showSystemNotification(update) {
+                    if (!('Notification' in window) || Notification.permission !== 'granted') {
+                        return;
+                    }
+
+                    var notification = new Notification('Request update from admin', {
+                        body: (update.request_type || 'Your request') + ' is now ' + (update.status || 'updated') + '.',
+                        tag: 'alumni-request-update-' + update.id + '-' + update.updated_timestamp,
+                    });
+
+                    notification.onclick = function () {
+                        window.focus();
+                        window.location.href = update.review_url || dashboardUrl;
+                    };
+                }
+
+                function showToast(update) {
+                    var container = document.querySelector('[data-admin-approval-toast-container]');
+
+                    if (!container) {
+                        return;
+                    }
+
+                    var toast = document.createElement('div');
+                    toast.className = 'toast admin-approval-toast';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+
+                    var header = document.createElement('div');
+                    header.className = 'toast-header';
+
+                    var dot = document.createElement('span');
+                    dot.className = 'admin-approval-toast-dot me-2';
+
+                    var title = document.createElement('strong');
+                    title.className = 'me-auto';
+                    title.textContent = 'Request update';
+
+                    var time = document.createElement('small');
+                    time.className = 'text-secondary';
+                    time.textContent = 'now';
+
+                    var closeButton = document.createElement('button');
+                    closeButton.type = 'button';
+                    closeButton.className = 'btn-close';
+                    closeButton.setAttribute('data-bs-dismiss', 'toast');
+                    closeButton.setAttribute('aria-label', 'Close');
+
+                    header.appendChild(dot);
+                    header.appendChild(title);
+                    header.appendChild(time);
+                    header.appendChild(closeButton);
+
+                    var body = document.createElement('div');
+                    body.className = 'toast-body';
+
+                    var requestTitle = document.createElement('div');
+                    requestTitle.className = 'fw-semibold text-primary';
+                    requestTitle.textContent = update.request_type || 'Record request';
+
+                    var status = document.createElement('div');
+                    status.className = 'small text-secondary mb-2';
+                    status.textContent = (update.status || 'Updated') + ' - ' + (update.year_requested || 'No year');
+
+                    body.appendChild(requestTitle);
+                    body.appendChild(status);
+
+                    if (update.admin_notes) {
+                        var note = document.createElement('div');
+                        note.className = 'small mb-3';
+                        note.textContent = update.admin_notes;
+                        body.appendChild(note);
+                    }
+
+                    var actions = document.createElement('div');
+                    actions.className = 'd-flex flex-wrap gap-2';
+
+                    var dashboardLink = document.createElement('a');
+                    dashboardLink.className = 'btn btn-sm btn-primary';
+                    dashboardLink.href = update.review_url || dashboardUrl;
+                    dashboardLink.textContent = 'Open Dashboard';
+
+                    actions.appendChild(dashboardLink);
+                    body.appendChild(actions);
+
+                    toast.appendChild(header);
+                    toast.appendChild(body);
+                    container.appendChild(toast);
+
+                    if (window.bootstrap && window.bootstrap.Toast) {
+                        var toastInstance = new bootstrap.Toast(toast, {
+                            delay: 10000,
+                        });
+
+                        toast.addEventListener('hidden.bs.toast', function () {
+                            toast.remove();
+                        });
+
+                        toastInstance.show();
+                        return;
+                    }
+
+                    toast.classList.add('show');
+                    window.setTimeout(function () {
+                        toast.remove();
+                    }, 10000);
+                }
+
+                function rememberLatestTimestamp(latestTimestamp) {
+                    if (latestTimestamp <= lastSeenTimestamp) {
+                        return;
+                    }
+
+                    lastSeenTimestamp = latestTimestamp;
+
+                    try {
+                        window.localStorage.setItem(storageKey, String(lastSeenTimestamp));
+                    } catch (error) {
+                        // Keep going even when local storage is unavailable.
+                    }
+                }
+
+                function handleUpdates(updates, latestTimestamp) {
+                    if (updates.length > 0) {
+                        updates.forEach(function (update) {
+                            showToast(update);
+                            showSystemNotification(update);
+                        });
+
+                        playUpdateSound();
+                    }
+
+                    rememberLatestTimestamp(latestTimestamp);
+                }
+
+                function pollRequestUpdates() {
+                    if (isPolling) {
+                        return;
+                    }
+
+                    isPolling = true;
+
+                    fetch(notificationUrl + '?after=' + encodeURIComponent(lastSeenTimestamp), {
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('Request update notification check failed.');
+                            }
+
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            var latestTimestamp = Number(data.latest_timestamp) || lastSeenTimestamp;
+                            var updates = Array.isArray(data.new) ? data.new : [];
+
+                            handleUpdates(updates, latestTimestamp);
+                        })
+                        .catch(function () {
+                            return null;
+                        })
+                        .finally(function () {
+                            isPolling = false;
+                        });
+                }
+
+                document.addEventListener('pointerdown', function () {
+                    unlockAudio();
+                    requestBrowserNotificationPermission();
+                }, { once: true });
+
+                document.addEventListener('keydown', function () {
+                    unlockAudio();
+                    requestBrowserNotificationPermission();
+                }, { once: true });
+
+                document.addEventListener('visibilitychange', function () {
+                    if (!document.hidden) {
+                        pollRequestUpdates();
+                    }
+                });
+
+                window.setTimeout(pollRequestUpdates, 1800);
+                window.setInterval(pollRequestUpdates, pollDelay);
+            })();
+        </script>
+    @endif
     @stack('scripts')
+
 </body>
 </html>

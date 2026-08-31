@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Alumni;
 use App\Models\User;
-use App\Support\StudentIdFormatter;
 use App\Services\LinkedAccountSyncService;
+use App\Support\StudentIdFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,16 +20,20 @@ class PortalAuthController extends Controller
     {
         $user = $request->user();
 
-        if ($user?->isAlumni()) {
-            return redirect()->route('portal.dashboard');
-        }
-
-        if ($request->boolean('switch') && $user) {
+        if ($request->boolean('switch') && $user?->isAlumni()) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             return redirect()->route('portal.login');
+        }
+
+        if ($user?->isAlumni()) {
+            return redirect()->route('portal.dashboard');
+        }
+
+        if ($user?->isAdmin()) {
+            return redirect()->route('dashboard');
         }
 
         return view('portal.auth.login');
@@ -42,7 +46,7 @@ class PortalAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, false)) {
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors([
@@ -83,7 +87,16 @@ class PortalAuthController extends Controller
                 ]);
         }
 
-        return redirect()->route('portal.otp.create');
+        if (! $user->hasCompletedPortalOtp()) {
+            $user->forceFill([
+                'portal_otp_verified_at' => now(),
+            ])->save();
+        }
+
+        $syncService = app(LinkedAccountSyncService::class);
+        $syncService->resolveOrCreateAlumniForUser($user);
+
+        return redirect()->intended(route('portal.dashboard'));
     }
 
     public function register(): View
@@ -215,9 +228,13 @@ class PortalAuthController extends Controller
             $request->session()->regenerate();
             PortalOtpController::resetSessionState($request);
 
+            $portalUser->forceFill([
+                'portal_otp_verified_at' => now(),
+            ])->save();
+
             return redirect()
-                ->route('portal.otp.create')
-                ->with('success', 'Your alumni record has been verified. Please check your email for the OTP.');
+                ->route('portal.dashboard')
+                ->with('success', 'Your alumni record has been verified. Welcome to your dashboard.');
         }
 
         $emailUsedByAnotherUser = User::query()

@@ -14,6 +14,7 @@ class Announcement extends Model
         'media_path',
         'media_type',
         'is_published',
+        'views_count',
         'published_at',
     ];
 
@@ -33,6 +34,7 @@ class Announcement extends Model
     {
         return [
             'is_published' => 'boolean',
+            'views_count' => 'integer',
             'published_at' => 'datetime',
         ];
     }

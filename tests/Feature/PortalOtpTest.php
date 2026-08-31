@@ -21,6 +21,7 @@ test('unverified alumni are redirected to otp verification before dashboard acce
     $user = User::factory()->create([
         'email' => 'kyla@example.com',
         'role' => 'alumni',
+        'account_status' => 'pending',
         'alumni_id' => $alumnus->id,
         'email_verified_at' => now(),
     ]);
@@ -47,17 +48,60 @@ test('verified alumni can open the dashboard directly', function () {
         'role' => 'alumni',
         'alumni_id' => $alumnus->id,
         'email_verified_at' => now(),
+        'portal_otp_verified_at' => now(),
     ]);
 
     $this->actingAs($user);
 
-    $this->withSession([
-        'portal_otp_verified_user_id' => $user->id,
-    ])->get('/portal/dashboard')
+    $this->get('/portal/dashboard')
         ->assertOk();
 });
 
-test('alumni otp verification stores session verification and allows dashboard access', function () {
+test('approved alumni without a linked record can open the dashboard', function () {
+    $user = User::factory()->create([
+        'email' => 'unlinked-alumni@example.com',
+        'name' => 'Unlinked Alumni',
+        'role' => 'alumni',
+        'account_status' => 'approved',
+        'approved_at' => now(),
+        'alumni_id' => null,
+        'email_verified_at' => now(),
+        'portal_otp_verified_at' => now(),
+    ]);
+
+    $this->actingAs($user);
+
+    $this->get('/portal/dashboard')
+        ->assertOk()
+        ->assertSee('Unlinked Alumni');
+
+    $user->refresh();
+
+    expect($user->alumni_id)->not->toBeNull()
+        ->and($user->alumni?->student_id)->toBe('UNLINKED-'.$user->id);
+});
+
+test('approved alumni without a linked record can open requests', function () {
+    $user = User::factory()->create([
+        'email' => 'unlinked-requests@example.com',
+        'name' => 'Request Alumni',
+        'role' => 'alumni',
+        'account_status' => 'approved',
+        'approved_at' => now(),
+        'alumni_id' => null,
+        'email_verified_at' => now(),
+        'portal_otp_verified_at' => now(),
+    ]);
+
+    $this->actingAs($user);
+
+    $this->get('/portal/requests')
+        ->assertOk();
+
+    expect($user->fresh()->alumni_id)->not->toBeNull();
+});
+
+test('alumni otp verification stores permanent verification and allows dashboard access', function () {
     $alumnus = Alumni::create([
         'student_id' => '2020-0011',
         'first_name' => 'Mia',
@@ -71,6 +115,7 @@ test('alumni otp verification stores session verification and allows dashboard a
     $user = User::factory()->create([
         'email' => 'mia@example.com',
         'role' => 'alumni',
+        'account_status' => 'pending',
         'alumni_id' => $alumnus->id,
         'email_verified_at' => now(),
     ]);
@@ -85,10 +130,12 @@ test('alumni otp verification stores session verification and allows dashboard a
         'otp' => '123456',
     ])->assertRedirectToRoute('portal.dashboard');
 
+    expect($user->fresh()->portal_otp_verified_at)->not->toBeNull();
+
     $this->get('/portal/dashboard')->assertOk();
 });
 
-test('alumni login redirects to otp verification before dashboard', function () {
+test('approved alumni login skips otp and marks account verified', function () {
     $alumnus = Alumni::create([
         'student_id' => '2020-0012',
         'first_name' => 'Nora',
@@ -99,10 +146,13 @@ test('alumni login redirects to otp verification before dashboard', function () 
         'email' => 'nora@example.com',
     ]);
 
-    User::factory()->create([
+    $user = User::factory()->create([
         'email' => 'nora@example.com',
         'password' => 'password12',
         'role' => 'alumni',
+        'account_status' => 'approved',
+        'approved_at' => now(),
+        'portal_otp_verified_at' => null,
         'alumni_id' => $alumnus->id,
         'email_verified_at' => now(),
     ]);
@@ -110,5 +160,33 @@ test('alumni login redirects to otp verification before dashboard', function () 
     $this->post('/portal/login', [
         'email' => 'nora@example.com',
         'password' => 'password12',
-    ])->assertRedirectToRoute('portal.otp.create');
+    ])->assertRedirectToRoute('portal.dashboard');
+
+    expect($user->fresh()->portal_otp_verified_at)->not->toBeNull();
+});
+
+test('alumni login skips otp after first successful otp verification', function () {
+    $alumnus = Alumni::create([
+        'student_id' => '2020-0013',
+        'first_name' => 'Ana',
+        'last_name' => 'Reyes',
+        'education_level' => 'College',
+        'course' => 'BSCS',
+        'year_graduated' => 2025,
+        'email' => 'ana@example.com',
+    ]);
+
+    $user = User::factory()->create([
+        'email' => 'ana@example.com',
+        'password' => 'password12',
+        'role' => 'alumni',
+        'alumni_id' => $alumnus->id,
+        'email_verified_at' => now(),
+        'portal_otp_verified_at' => now(),
+    ]);
+
+    $this->post('/portal/login', [
+        'email' => $user->email,
+        'password' => 'password12',
+    ])->assertRedirectToRoute('portal.dashboard');
 });

@@ -9,6 +9,47 @@ use Illuminate\Support\Str;
 
 class LinkedAccountSyncService
 {
+    public function resolveOrCreateAlumniForUser(User $user): ?Alumni
+    {
+        if (! $user->isAlumni()) {
+            return null;
+        }
+
+        $user->loadMissing('alumni');
+
+        if ($user->alumni) {
+            return $user->alumni;
+        }
+
+        $normalizedEmail = Str::lower(trim((string) $user->email));
+        $matchingAlumnus = $normalizedEmail !== ''
+            ? Alumni::query()
+                ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
+                ->whereDoesntHave('user')
+                ->first()
+            : null;
+
+        if (! $matchingAlumnus) {
+            [$firstName, $lastName] = $this->splitFullName($user->name);
+
+            $matchingAlumnus = Alumni::create([
+                'student_id' => 'UNLINKED-'.$user->id,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'email' => $normalizedEmail !== '' ? $normalizedEmail : null,
+                'education_level' => 'Unspecified',
+                'course' => 'Unspecified',
+                'year_graduated' => now()->year,
+            ]);
+        }
+
+        $user->forceFill([
+            'alumni_id' => $matchingAlumnus->id,
+        ])->save();
+
+        return $matchingAlumnus;
+    }
+
     public function syncUserFromAlumni(Alumni $alumnus): void
     {
         $alumnus->loadMissing('user');
@@ -58,6 +99,7 @@ class LinkedAccountSyncService
                 'role' => 'alumni',
                 'account_status' => 'approved',
                 'approved_at' => now(),
+                'portal_otp_verified_at' => now(),
                 'alumni_id' => $alumnus->id,
             ]);
 
@@ -75,7 +117,10 @@ class LinkedAccountSyncService
         if ($activateExisting) {
             $updates['account_status'] = 'approved';
             $updates['approved_at'] = now();
+            $updates['portal_otp_verified_at'] = now();
         }
+
+        $updates['alumni_id'] = $alumnus->id;
 
         $user->fill($updates);
 

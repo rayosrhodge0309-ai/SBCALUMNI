@@ -13,10 +13,12 @@ class RecordRequest extends Model
         'alumni_id',
         'request_type',
         'year_requested',
+        'requester_note',
         'status',
         'admin_notes',
         'processed_by',
         'processed_at',
+        'admin_replied_at',
     ];
 
     /**
@@ -27,6 +29,7 @@ class RecordRequest extends Model
         return [
             'year_requested' => 'integer',
             'processed_at' => 'datetime',
+            'admin_replied_at' => 'datetime',
         ];
     }
 
@@ -46,11 +49,9 @@ class RecordRequest extends Model
     public static function requestTypes(): array
     {
         return [
-            'Transcript of Records',
-            'Diploma Copy',
-            'Good Moral Certificate',
-            'Alumni Certification',
-            'Enrollment Record',
+            'Alumni ID',
+            'Year Book',
+            'Facility Use-(Message/Note)',
         ];
     }
 

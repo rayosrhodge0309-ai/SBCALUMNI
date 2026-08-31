@@ -7,11 +7,16 @@
     @php
         $hasAlumni = $alumni->isNotEmpty();
         $courseGroups = $hasAlumni
-            ? $alumni->getCollection()->groupBy(function ($record) {
-                $course = trim((string) $record->course);
-
-                return $course !== '' ? $course : 'Unspecified Course';
-            })
+            ? $alumni->getCollection()
+                ->sortBy(function ($record) {
+                    return implode('|', [
+                        $record->program_group_sort_key,
+                        \Illuminate\Support\Str::lower((string) $record->last_name),
+                        \Illuminate\Support\Str::lower((string) $record->first_name),
+                        (string) $record->id,
+                    ]);
+                })
+                ->groupBy(fn ($record) => $record->program_group_label)
             : collect();
     @endphp
 
@@ -103,7 +108,7 @@
                 <tbody>
                     @forelse ($courseGroups as $course => $records)
                         <tr class="table-light">
-                            <th colspan="5" class="text-danger fw-semibold px-4 py-3">{{ $course }}</th>
+                            <th colspan="5" class="text-danger fw-semibold text-center px-4 py-3">{{ $course }}</th>
                         </tr>
                         @foreach ($records as $record)
                             <tr>

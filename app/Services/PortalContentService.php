@@ -36,11 +36,13 @@ class PortalContentService
             return $query
                 ->get()
                 ->map(fn (Announcement $announcement) => [
+                    'id' => $announcement->id,
                     'label' => $announcement->label ?: 'Announcement',
                     'title' => $announcement->title,
                     'description' => $announcement->content,
                     'media_url' => $announcement->media_url,
                     'media_type' => $announcement->media_type,
+                    'views_count' => $announcement->views_count ?? 0,
                     'published_at' => $announcement->published_at,
                 ]);
         } catch (Throwable) {

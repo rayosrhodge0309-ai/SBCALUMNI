@@ -17,6 +17,7 @@ class Event extends Model
         'media_path',
         'media_type',
         'is_published',
+        'views_count',
     ];
 
     protected static function booted(): void
@@ -36,6 +37,7 @@ class Event extends Model
         return [
             'event_date' => 'date',
             'is_published' => 'boolean',
+            'views_count' => 'integer',
         ];
     }
 

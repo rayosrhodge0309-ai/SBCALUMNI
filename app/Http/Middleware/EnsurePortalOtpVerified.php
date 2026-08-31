@@ -19,6 +19,10 @@ class EnsurePortalOtpVerified
             return $next($request);
         }
 
+        if ($user->isApproved() || $user->hasCompletedPortalOtp()) {
+            return $next($request);
+        }
+
         $verifiedUserId = (int) $request->session()->get(self::SESSION_VERIFIED_USER_ID, 0);
         if ($verifiedUserId !== (int) $user->id) {
             return redirect()->route('portal.otp.create');

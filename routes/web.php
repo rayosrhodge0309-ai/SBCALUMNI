@@ -14,6 +14,7 @@ use App\Http\Controllers\PortalDashboardController;
 use App\Http\Controllers\PortalOtpController;
 use App\Http\Controllers\PortalRequestController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\RecordRequestController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -31,17 +32,23 @@ Route::get('/alumni-posts/{activity}', [ActivityController::class, 'show'])
 Route::get('/events/{event}/media', [EventController::class, 'media'])
     ->whereNumber('event')
     ->name('events.media');
+Route::post('/events/{event}/view', [EventController::class, 'recordView'])
+    ->whereNumber('event')
+    ->name('events.view');
 Route::get('/announcements/{announcement}/media', [AnnouncementController::class, 'media'])
     ->whereNumber('announcement')
     ->name('announcements.media');
+Route::post('/announcements/{announcement}/view', [AnnouncementController::class, 'recordView'])
+    ->whereNumber('announcement')
+    ->name('announcements.view');
 Route::get('/activities/{activity}/media', [ActivityController::class, 'media'])
     ->whereNumber('activity')
     ->name('activities.media');
 
-// Guest middleware group
-Route::middleware(['guest'])->group(function () {
-    Route::prefix('portal')->name('portal.')->group(function () {
-        Route::get('/login', [PortalAuthController::class, 'create'])->name('login');
+Route::prefix('portal')->name('portal.')->group(function () {
+    Route::get('/login', [PortalAuthController::class, 'create'])->name('login');
+
+    Route::middleware(['guest'])->group(function () {
         Route::post('/login', [PortalAuthController::class, 'store'])->name('login.attempt');
 
         Route::get('/register', [PortalAuthController::class, 'register'])->name('register');
@@ -56,6 +63,8 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('user')
         ->name('profile.photo');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/save-fcm-token', [PushNotificationController::class, 'storeToken'])
+        ->name('fcm-token.store');
 
     Route::prefix('portal')->name('portal.')->middleware('role:alumni')->group(function () {
         Route::get('/verify-otp', [PortalOtpController::class, 'create'])->name('otp.create');
@@ -76,6 +85,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('announcements', AnnouncementController::class)->except('show');
     Route::resource('activities', ActivityController::class)->except('show');
     Route::get('/users/pending', [UserController::class, 'pending'])->name('users.pending');
+    Route::get('/users/pending/notifications', [UserController::class, 'pendingNotifications'])->name('users.pending.notifications');
     Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
     Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
     Route::resource('users', UserController::class)->only(['index', 'edit', 'update']);
@@ -87,12 +97,18 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->name('admin.settings.landing-profiles.update');
 
     Route::get('/requests', [RecordRequestController::class, 'index'])->name('requests.index');
+    Route::get('/requests/notifications', [RecordRequestController::class, 'pendingNotifications'])
+        ->name('requests.notifications');
     Route::patch('/requests/{recordRequest}/status', [RecordRequestController::class, 'updateStatus'])
         ->name('requests.status');
+    Route::get('/send-notification', [PushNotificationController::class, 'send'])
+        ->name('notifications.test');
 });
 
 Route::middleware(['auth', 'role:alumni', 'portal.otp'])->prefix('portal')->name('portal.')->group(function () {
     Route::get('/dashboard', [PortalDashboardController::class, 'index'])->name('dashboard');
     Route::get('/requests', [PortalRequestController::class, 'index'])->name('requests.index');
+    Route::get('/requests/notifications', [PortalRequestController::class, 'updateNotifications'])
+        ->name('requests.notifications');
     Route::post('/requests', [PortalRequestController::class, 'store'])->name('requests.store');
 });

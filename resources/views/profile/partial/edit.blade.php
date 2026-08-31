@@ -59,12 +59,32 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="password">New Password</label>
-                            <input id="password" type="password" name="password" class="form-control">
+                            <div class="password-toggle-field">
+                                <input id="password" type="password" name="password" class="form-control" autocomplete="new-password">
+                                <button type="button" class="password-toggle-button" data-password-toggle aria-label="Show new password" aria-controls="password" aria-pressed="false">
+                                    <span class="password-toggle-icon password-toggle-icon-show" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false"><path d="M12 5c5.1 0 8.4 4.2 9.5 6.1a1.8 1.8 0 0 1 0 1.8C20.4 14.8 17.1 19 12 19s-8.4-4.2-9.5-6.1a1.8 1.8 0 0 1 0-1.8C3.6 9.2 6.9 5 12 5Zm0 2C7.9 7 5.2 10.3 4.3 12c0.9 1.7 3.6 5 7.7 5s6.8-3.3 7.7-5C18.8 10.3 16.1 7 12 7Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"/></svg>
+                                    </span>
+                                    <span class="password-toggle-icon password-toggle-icon-hide" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false"><path d="m3.3 2 18.7 18.7-1.3 1.3-3.1-3.1A10.2 10.2 0 0 1 12 20c-5.1 0-8.4-4.2-9.5-6.1a1.8 1.8 0 0 1 0-1.8 16.5 16.5 0 0 1 4-4.5L2 3.3 3.3 2Zm4.6 7.1A14.4 14.4 0 0 0 4.3 13c0.9 1.7 3.6 5 7.7 5 1.5 0 2.9-.5 4-1.1l-2-2A3 3 0 0 1 9.1 10l-1.2-.9ZM12 6c5.1 0 8.4 4.2 9.5 6.1a1.8 1.8 0 0 1 0 1.8 14.8 14.8 0 0 1-2.1 2.8l-1.4-1.4a13 13 0 0 0 1.7-2.3C18.8 11.3 16.1 8 12 8c-.7 0-1.4.1-2 .3L8.5 6.8A9 9 0 0 1 12 6Zm2.8 6.4-3.2-3.2a3 3 0 0 1 3.2 3.2Z"/></svg>
+                                    </span>
+                                </button>
+                            </div>
                             <div class="form-text">Leave blank if you do not want to change your password.</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="password_confirmation">Confirm Password</label>
-                            <input id="password_confirmation" type="password" name="password_confirmation" class="form-control">
+                            <div class="password-toggle-field">
+                                <input id="password_confirmation" type="password" name="password_confirmation" class="form-control" autocomplete="new-password">
+                                <button type="button" class="password-toggle-button" data-password-toggle aria-label="Show confirm password" aria-controls="password_confirmation" aria-pressed="false">
+                                    <span class="password-toggle-icon password-toggle-icon-show" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false"><path d="M12 5c5.1 0 8.4 4.2 9.5 6.1a1.8 1.8 0 0 1 0 1.8C20.4 14.8 17.1 19 12 19s-8.4-4.2-9.5-6.1a1.8 1.8 0 0 1 0-1.8C3.6 9.2 6.9 5 12 5Zm0 2C7.9 7 5.2 10.3 4.3 12c0.9 1.7 3.6 5 7.7 5s6.8-3.3 7.7-5C18.8 10.3 16.1 7 12 7Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"/></svg>
+                                    </span>
+                                    <span class="password-toggle-icon password-toggle-icon-hide" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false"><path d="m3.3 2 18.7 18.7-1.3 1.3-3.1-3.1A10.2 10.2 0 0 1 12 20c-5.1 0-8.4-4.2-9.5-6.1a1.8 1.8 0 0 1 0-1.8 16.5 16.5 0 0 1 4-4.5L2 3.3 3.3 2Zm4.6 7.1A14.4 14.4 0 0 0 4.3 13c0.9 1.7 3.6 5 7.7 5 1.5 0 2.9-.5 4-1.1l-2-2A3 3 0 0 1 9.1 10l-1.2-.9ZM12 6c5.1 0 8.4 4.2 9.5 6.1a1.8 1.8 0 0 1 0 1.8 14.8 14.8 0 0 1-2.1 2.8l-1.4-1.4a13 13 0 0 0 1.7-2.3C18.8 11.3 16.1 8 12 8c-.7 0-1.4.1-2 .3L8.5 6.8A9 9 0 0 1 12 6Zm2.8 6.4-3.2-3.2a3 3 0 0 1 3.2 3.2Z"/></svg>
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

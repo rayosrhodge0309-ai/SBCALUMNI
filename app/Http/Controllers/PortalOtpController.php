@@ -29,17 +29,18 @@ class PortalOtpController extends Controller
             abort(403);
         }
 
-        if ($this->isVerifiedForCurrentUser($request)) {
+        if ($user->isApproved() || $user->hasCompletedPortalOtp() || $this->isVerifiedForCurrentUser($request)) {
             return redirect()->route('portal.dashboard');
         }
 
+        $recipientEmail = $this->resolveOtpRecipientEmail($request);
         $deliveryError = false;
         if (! $this->hasActiveCode($request)) {
             $deliveryError = ! $this->issueCode($request);
         }
 
         return view('portal.auth.verify-otp', [
-            'email' => $this->maskEmail((string) $user->email),
+            'email' => $this->maskEmail($recipientEmail ?? (string) $user->email),
             'resendCooldownSeconds' => $this->resendCooldownSeconds($request),
             'deliveryError' => $deliveryError,
         ]);
@@ -53,7 +54,7 @@ class PortalOtpController extends Controller
             abort(403);
         }
 
-        if ($this->isVerifiedForCurrentUser($request)) {
+        if ($user->isApproved() || $user->hasCompletedPortalOtp() || $this->isVerifiedForCurrentUser($request)) {
             return redirect()->route('portal.dashboard');
         }
 
@@ -97,6 +98,10 @@ class PortalOtpController extends Controller
             ]);
         }
 
+        $user->forceFill([
+            'portal_otp_verified_at' => now(),
+        ])->save();
+
         $request->session()->put(self::SESSION_VERIFIED_USER_ID, $user->id);
 
         $this->clearOtpChallenge($request);
@@ -110,6 +115,10 @@ class PortalOtpController extends Controller
 
         if (! $user || ! $user->isAlumni()) {
             abort(403);
+        }
+
+        if ($user->isApproved() || $user->hasCompletedPortalOtp()) {
+            return redirect()->route('portal.dashboard');
         }
 
         if ($this->resendCooldownSeconds($request) > 0) {
@@ -141,34 +150,42 @@ class PortalOtpController extends Controller
     private function issueCode(Request $request): bool
     {
         $user = $request->user();
+        $recipientEmail = $this->resolveOtpRecipientEmail($request);
 
-        if (! $user) {
+        if (! $user || ! $recipientEmail) {
+            Log::error('Unable to resolve alumni OTP recipient email.', [
+                'user_id' => $user?->id,
+                'email' => $user?->email,
+                'alumni_email' => $user?->alumni?->email,
+            ]);
+
             return false;
         }
 
         $otp = (string) random_int(100000, 999999);
 
-        $request->session()->put(self::SESSION_CODE_HASH, Hash::make($otp));
-        $request->session()->put(self::SESSION_CODE_EXPIRES_AT, now()->addMinutes(self::OTP_TTL_MINUTES)->timestamp);
-        $request->session()->put(self::SESSION_ATTEMPTS, 0);
-        $request->session()->put(self::SESSION_LAST_SENT_AT, now()->timestamp);
-
         try {
             Mail::raw(
                 "Your Alumni Portal OTP is {$otp}. It expires in ".self::OTP_TTL_MINUTES.' minutes.',
-                function ($message) use ($user): void {
-                    $message->to($user->email)->subject('Alumni Portal OTP Verification');
+                function ($message) use ($recipientEmail): void {
+                    $message->to($recipientEmail)->subject('Alumni Portal OTP Verification');
                 }
             );
         } catch (Throwable $exception) {
             Log::error('Failed to deliver alumni OTP email.', [
                 'user_id' => $user->id,
-                'email' => $user->email,
+                'email' => $recipientEmail,
                 'error' => $exception->getMessage(),
             ]);
 
+            $this->clearOtpChallenge($request);
             return false;
         }
+
+        $request->session()->put(self::SESSION_CODE_HASH, Hash::make($otp));
+        $request->session()->put(self::SESSION_CODE_EXPIRES_AT, now()->addMinutes(self::OTP_TTL_MINUTES)->timestamp);
+        $request->session()->put(self::SESSION_ATTEMPTS, 0);
+        $request->session()->put(self::SESSION_LAST_SENT_AT, now()->timestamp);
 
         return true;
     }
@@ -206,6 +223,24 @@ class PortalOtpController extends Controller
         $elapsed = now()->timestamp - $lastSentAt;
 
         return max(0, self::OTP_RESEND_COOLDOWN_SECONDS - $elapsed);
+    }
+
+    private function resolveOtpRecipientEmail(Request $request): ?string
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return null;
+        }
+
+        $alumniEmail = trim((string) $user->alumni?->email);
+        if ($alumniEmail !== '') {
+            return $alumniEmail;
+        }
+
+        $userEmail = trim((string) $user->email);
+
+        return $userEmail !== '' ? $userEmail : null;
     }
 
     private function maskEmail(string $email): string

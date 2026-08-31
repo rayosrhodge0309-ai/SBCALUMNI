@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Announcement;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -96,6 +97,17 @@ class AnnouncementController extends Controller
         return $response->file(Storage::disk('public')->path($announcement->media_path), [
             'Cache-Control' => 'public, max-age=86400',
             'Accept-Ranges' => 'bytes',
+        ]);
+    }
+
+    public function recordView(Announcement $announcement): JsonResponse
+    {
+        abort_unless($announcement->is_published, 404);
+
+        $announcement->increment('views_count');
+
+        return response()->json([
+            'views_count' => $announcement->views_count,
         ]);
     }
 

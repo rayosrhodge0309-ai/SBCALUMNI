@@ -1,7 +1,15 @@
 @extends('layouts.app')
 
+@php
+    $isAdminPreview = auth()->check() && auth()->user()?->isAdmin() && request()->boolean('preview');
+@endphp
+
 @section('title', 'St. Bridget College Batangas Alumni Link')
-@section('full_guest', true)
+@if ($isAdminPreview)
+    @section('workspace_preview', true)
+@else
+    @section('full_guest', true)
+@endif
 
 @section('content')
     @php
@@ -16,6 +24,8 @@
         $landingStats = is_array($landingStats ?? null) ? $landingStats : [];
         $announcements = collect($announcements ?? []);
         $announcementTotal = isset($announcementTotal) ? (int) $announcementTotal : $announcements->count();
+        $upcomingEvents = collect($upcomingEvents ?? []);
+        $upcomingEventTotal = isset($upcomingEventTotal) ? (int) $upcomingEventTotal : $upcomingEvents->count();
         $alumniPostTotal = (int) data_get($landingStats, '0.value', 0);
         $boardMemberTotal = (int) data_get($landingStats, '1.value', 0);
         $alumniOfficerTotal = (int) data_get($landingStats, '2.value', 0);
@@ -28,15 +38,6 @@
         $topbarXUrl = 'https://x.com/search?q='.rawurlencode('St. Bridget College Batangas alumni');
         $topbarInstagramUrl = 'https://www.instagram.com/explore/search/keyword/?q='.rawurlencode('St. Bridget College Batangas alumni');
         $topbarSearchPlaceholder = 'Search alumni posts, announcements, officers, or contact info';
-        $heroBuildingSlide = null;
-
-        foreach ($photoSlides as $slide) {
-            if (($slide['type'] ?? 'photo') === 'photo' && ! empty($slide['url'])) {
-                $heroBuildingSlide = $slide;
-                break;
-            }
-        }
-
         $sbcLogoPath = null;
         foreach (['images/sbc-logo.png', 'images/sbc-logo.jpg', 'images/sbc-logo.jpeg', 'images/sbc-logo.webp', 'images/sbc-logo.svg'] as $candidate) {
             if (is_file(public_path($candidate))) {
@@ -45,10 +46,18 @@
             }
         }
         $hasSbcLogo = is_string($sbcLogoPath);
+        $currentUser = auth()->user();
+        $isLoggedInAdmin = auth()->check() && $currentUser?->isAdmin();
+        $isLoggedInAlumni = auth()->check() && $currentUser?->isAlumni();
+        $portalLoginUrl = route('portal.login', ['switch' => 1]);
+        $portalRegisterUrl = route('portal.register');
+        $portalDashboardUrl = route('portal.dashboard');
+        $adminDashboardUrl = route('dashboard');
     @endphp
 
     <div class="landing-page">
-        <header class="landing-header">
+        @unless ($isAdminPreview)
+            <header class="landing-header">
             <div class="landing-topbar">
                 <div class="main-wrapper landing-topbar-shell">
                     <div class="landing-topbar-contact">
@@ -117,12 +126,14 @@
                         </a>
 
                         <div class="school-identity-actions">
-                        @auth
-                            <a href="{{ auth()->user()->isAdmin() ? route('dashboard') : route('portal.dashboard') }}" class="btn btn-outline-primary">Open Dashboard</a>
-                        @else
-                            <a href="{{ route('portal.login', ['switch' => 1]) }}" class="btn btn-outline-primary">Alumni Login</a>
-                            <a href="{{ route('portal.register') }}" class="btn btn-outline-primary">Claim Alumni Account</a>
-                        @endauth
+                            @if ($isLoggedInAdmin)
+                                <a href="{{ $adminDashboardUrl }}" class="btn btn-outline-primary">Dashboard</a>
+                            @elseif ($isLoggedInAlumni)
+                                <a href="{{ $portalDashboardUrl }}" class="btn btn-outline-primary">Dashboard</a>
+                            @else
+                                <a href="{{ $portalLoginUrl }}" class="btn btn-outline-primary">Alumni Login</a>
+                                <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-primary">Claim Alumni Account</a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -131,49 +142,39 @@
             <div class="landing-nav">
                 <div class="main-wrapper">
                     <div class="nav flex-nowrap flex-lg-wrap">
-                        <a class="nav-link" href="#home">Home</a>
-                        <a class="nav-link" href="#about">About</a>
-                        <a class="nav-link" href="#campus-gallery">Campus Gallery</a>
-                        <a class="nav-link" href="#alumni-feed">Alumni Feed</a>
-                        <a class="nav-link" href="#updates">Announcements</a>
-                        <a class="nav-link" href="#leadership">Board of Trustees</a>
-                        <a class="nav-link" href="#alumni-office">Alumni Office</a>
-                        <a class="nav-link" href="#contact">Contact</a>
+                        <a class="nav-link active" href="#home" data-landing-nav-link aria-current="page">Home</a>
+                        <a class="nav-link" href="#about" data-landing-nav-link>About</a>
+                        <a class="nav-link" href="#campus-gallery" data-landing-nav-link>Campus Gallery</a>
+                        <a class="nav-link" href="#alumni-feed" data-landing-nav-link>Alumni Feed</a>
+                        <a class="nav-link" href="#updates" data-landing-nav-link>Announcements</a>
+                        <a class="nav-link" href="#events" data-landing-nav-link>Events</a>
+                        <a class="nav-link" href="#leadership" data-landing-nav-link>Board of Trustees</a>
+                        <a class="nav-link" href="#alumni-office" data-landing-nav-link>Alumni Officers</a>
+                        <a class="nav-link" href="#contact" data-landing-nav-link>Contact</a>
                     </div>
                 </div>
             </div>
-        </header>
+            </header>
+        @endunless
 
         <div class="main-wrapper">
             <div class="event-card p-3 mt-3 landing-search-empty" hidden data-landing-search-empty>
-                No landing page matches found. Try an alumni post, announcement, officer name, contact detail, or a campus keyword.
+                No landing page matches found. Try an alumni post, announcement, event, officer name, contact detail, or a campus keyword.
             </div>
         </div>
 
-        <section class="landing-mobile-entry d-lg-none">
+        @unless ($isAdminPreview)
+            <section class="landing-mobile-entry d-lg-none">
             <div class="main-wrapper">
                 <div class="landing-mobile-hero p-3 mt-3">
-                    @if ($heroBuildingSlide)
-                        <img
-                            src="{{ $heroBuildingSlide['url'] }}"
-                            alt="{{ $heroBuildingSlide['title'] ?: 'St. Bridget College Batangas campus building' }}"
-                            class="hero-campus-backdrop">
-                    @else
-                        <div class="hero-campus-building" aria-hidden="true"></div>
-                    @endif
-                    <div class="d-flex align-items-start justify-content-between gap-3">
+                    <div class="hero-campus-building" aria-hidden="true"></div>
+                    <div class="landing-mobile-hero-head d-flex align-items-start justify-content-between gap-3">
                         <div class="min-w-0">
                             <div class="hero-badge mb-2">{{ $hero['eyebrow'] }}</div>
+                            <div class="mobile-portal-badge">{{ $brand['school'] }}</div>
                             <h2 class="h3 mb-2">{{ $hero['title'] }}</h2>
                             <p class="mb-0 text-white-50">{{ $hero['summary'] }}</p>
                         </div>
-                        <div class="mobile-portal-badge">{{ $brand['school'] }}</div>
-                    </div>
-
-                    <div class="d-grid gap-2 mt-3">
-                        <a href="{{ route('portal.login', ['switch' => 1]) }}" class="btn btn-light btn-lg">Open Alumni Portal</a>
-                        <a href="{{ route('portal.register') }}" class="btn btn-outline-light">Claim Alumni Account</a>
-                        <button type="button" class="btn btn-outline-light d-none" data-install-app>Install App</button>
                     </div>
 
                     <div class="row row-cols-3 g-2 mt-3">
@@ -193,53 +194,57 @@
                     <a href="#updates" class="landing-chip">Announcements</a>
                     <a href="#about" class="landing-chip">About</a>
                     <a href="#contact" class="landing-chip">Contact</a>
-                    <a href="{{ route('portal.login', ['switch' => 1]) }}" class="landing-chip">Login</a>
-                    <a href="{{ route('portal.register') }}" class="landing-chip">Register</a>
+                    @if ($isLoggedInAdmin)
+                        <a href="{{ $adminDashboardUrl }}" class="landing-chip">Dashboard</a>
+                    @elseif ($isLoggedInAlumni)
+                        <a href="{{ $portalDashboardUrl }}" class="landing-chip">Dashboard</a>
+                    @else
+                        <a href="{{ $portalLoginUrl }}" class="landing-chip">Login</a>
+                        <a href="{{ $portalRegisterUrl }}" class="landing-chip">Register</a>
+                    @endif
                 </div>
             </div>
-        </section>
+            </section>
 
-        <div class="landing-mobile-actions d-lg-none">
-            <div class="main-wrapper">
-                <div class="landing-mobile-actions-grid">
-                    <a href="{{ route('portal.login', ['switch' => 1]) }}" class="landing-mobile-action">
-                        <span class="landing-mobile-action-icon">P</span>
-                        <span class="landing-mobile-action-label">Portal</span>
-                    </a>
-                    <a href="{{ route('portal.register') }}" class="landing-mobile-action">
-                        <span class="landing-mobile-action-icon">R</span>
-                        <span class="landing-mobile-action-label">Register</span>
-                    </a>
-                    <a href="tel:{{ preg_replace('/[^0-9]/', '', $brand['phone']) }}" class="landing-mobile-action">
-                        <span class="landing-mobile-action-icon">C</span>
-                        <span class="landing-mobile-action-label">Call</span>
-                    </a>
-                    <a href="#contact" class="landing-mobile-action">
-                        <span class="landing-mobile-action-icon">M</span>
-                        <span class="landing-mobile-action-label">More</span>
-                    </a>
+            @if (! $isLoggedInAdmin && ! $isLoggedInAlumni)
+                <div class="landing-mobile-actions d-lg-none">
+                    <div class="main-wrapper">
+                        <div class="landing-mobile-actions-grid">
+                            <a href="{{ route('portal.login', ['switch' => 1]) }}" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon">P</span>
+                                <span class="landing-mobile-action-label">Portal</span>
+                            </a>
+                            <a href="{{ route('portal.register') }}" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon">R</span>
+                                <span class="landing-mobile-action-label">Register</span>
+                            </a>
+                            <a href="tel:{{ preg_replace('/[^0-9]/', '', $brand['phone']) }}" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon">C</span>
+                                <span class="landing-mobile-action-label">Call</span>
+                            </a>
+                            <a href="#contact" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon">M</span>
+                                <span class="landing-mobile-action-label">More</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            @endif
+        @endunless
 
         <section id="home" class="landing-section hero-section pt-3 pt-lg-5">
                 <div class="hero-stage reveal d-none d-lg-block">
-                    @if ($heroBuildingSlide)
-                        <img
-                            src="{{ $heroBuildingSlide['url'] }}"
-                            alt="{{ $heroBuildingSlide['title'] ?: 'St. Bridget College Batangas campus building' }}"
-                            class="hero-campus-backdrop">
-                    @else
-                        <div class="hero-campus-building" aria-hidden="true"></div>
-                    @endif
+                    <div class="hero-campus-building" aria-hidden="true"></div>
                     <div class="row gx-0 align-items-stretch position-relative hero-columns">
                         <div class="col-lg-12 hero-left-panel">
                             <div class="hero-badge">{{ $hero['eyebrow'] }}</div>
                             <h2 class="hero-heading">{{ $hero['title'] }}</h2>
                             <p class="hero-copy mb-4">{{ $hero['summary'] }}</p>
                             <div class="d-flex flex-wrap gap-2 mb-4">
-                                <a href="{{ route('portal.login', ['switch' => 1]) }}" class="btn btn-light btn-lg">Open Alumni Dashboard</a>
-                                <a href="{{ route('portal.register') }}" class="btn btn-outline-light btn-lg">Register Alumni Account</a>
+                                @if (! $isLoggedInAdmin && ! $isLoggedInAlumni)
+                                    <a href="{{ $portalLoginUrl }}" class="btn btn-light btn-lg">Open Alumni Dashboard</a>
+                                    <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-light btn-lg">Register Alumni Account</a>
+                                @endif
                             </div>
 
                             <div class="row g-3">
@@ -254,8 +259,9 @@
                             </div>
                         </div>
                 </div>
+                </div>
 
-                <div id="campus-gallery" class="campus-gallery-hero reveal mt-3 mt-lg-4" data-landing-search-group data-search-text="Campus Gallery St. Bridget College photos videos campus story">
+                <div id="campus-gallery" class="campus-gallery-hero hero-campus-gallery reveal" data-landing-search-group data-search-text="Campus Gallery St. Bridget College photos videos campus story">
                     <div
                         id="campusGalleryCarousel"
                         class="carousel slide carousel-fade campus-gallery-carousel"
@@ -328,7 +334,6 @@
                         @endif
                     </div>
                         </div>
-                    </div>
                 </section>
 
         <section id="about" class="landing-section pt-0" data-landing-search-group data-search-text="About Alumni Link claim alumni access submit requests stay involved">
@@ -351,144 +356,208 @@
             </div>
         </section>
 
-        <section id="alumni-feed" class="landing-section pt-0" data-landing-search-group data-search-text="SBC Alumni Feed recent alumni stories campus moments Bridgetine updates">
+        <section class="landing-section pt-0 landing-board-section" data-landing-search-group data-search-text="Events announcements activities community calendar school notices alumni stories Bridgetine updates">
             <div class="main-wrapper">
-                <div class="row g-4 align-items-end mb-3">
-                    <div class="col-lg-8 reveal">
-                        <div class="section-eyebrow">SBC Alumni Feed</div>
-                        <h2 class="section-title">Recent alumni stories, campus moments, and Bridgetine updates.</h2>
-                        <p class="section-copy">Tap a post to read the full story, view the date, and see how many readers have opened it.</p>
-                    </div>
-                    <div class="col-lg-4 text-lg-end reveal">
-                        <div class="small text-secondary">{{ $alumniPostTotal }} alumni posts published</div>
-                    </div>
-                </div>
-
-                <div class="row g-4">
-                    @forelse ($activities as $activity)
-                        <div class="col-md-6 col-xl-4 reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower(($activity['theme'] ?? '').' '.($activity['title'] ?? '').' '.($activity['description'] ?? '').' '.($activity['location'] ?? '').' '.(isset($activity['activity_date']) ? \Illuminate\Support\Carbon::parse($activity['activity_date'])->format('F d, Y') : '')) }}">
-                            <a href="{{ $activity['show_url'] }}" class="alumni-post-card text-decoration-none">
-                                <div class="alumni-post-media">
-                                    @if (! empty($activity['media_url']))
-                                        @if (($activity['media_type'] ?? null) === 'image')
-                                            <img src="{{ $activity['media_url'] }}" alt="{{ $activity['title'] }}" class="alumni-post-image">
-                                        @elseif (($activity['media_type'] ?? null) === 'video')
-                                            <video class="alumni-post-image alumni-post-video" muted playsinline preload="metadata">
-                                                <source src="{{ $activity['media_url'] }}">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        @endif
-                                    @else
-                                        <div class="alumni-post-placeholder">
-                                            <div class="alumni-post-placeholder-kicker">St. Bridget College</div>
-                                            <div class="alumni-post-placeholder-title">{{ $activity['theme'] ?: 'Alumni Story' }}</div>
+                <div class="landing-board reveal">
+                    <div id="events" class="landing-board-column">
+                        <div class="landing-board-header">
+                            <div class="landing-board-title">Events</div>
+                            <div class="landing-board-count">{{ $upcomingEventTotal }} {{ $upcomingEventTotal === 1 ? 'event' : 'events' }}</div>
+                        </div>
+                        <div class="landing-board-list">
+                            @forelse ($upcomingEvents as $event)
+                                @php
+                                    $eventModalId = 'event-detail-'.$event->id;
+                                    $eventViews = (int) ($event->views_count ?? 0);
+                                @endphp
+                                <div class="landing-board-item reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($event->title.' '.$event->description.' '.($event->location ?? '').' '.$event->event_date?->format('F d, Y')) }}">
+                                    <article class="landing-board-card"
+                                        role="button"
+                                        tabindex="0"
+                                        aria-haspopup="dialog"
+                                        aria-controls="{{ $eventModalId }}"
+                                        aria-label="Read full event: {{ $event->title }}"
+                                        data-event-card
+                                        data-event-target="#{{ $eventModalId }}"
+                                        data-event-view-url="{{ route('events.view', $event) }}">
+                                        <h3 class="landing-board-card-title">{{ $event->title }}</h3>
+                                        <div class="landing-board-card-meta">
+                                            By St. Bridget College <span>|</span> {{ $event->event_date->format('F d, Y') }}
                                         </div>
-                                    @endif
-                                </div>
-                                <div class="alumni-post-body">
-                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-                                        <div class="alumni-post-badge">{{ $activity['theme'] ?: 'SBC Alumni Post' }}</div>
-                                        @php
-                                            $activityViews = (int) ($activity['views_count'] ?? 0);
-                                        @endphp
-                                        <div class="alumni-post-meta">{{ number_format($activityViews) }} {{ $activityViews === 1 ? 'view' : 'views' }}</div>
-                                    </div>
-                                    <h3 class="alumni-post-title">{{ $activity['title'] }}</h3>
-                                    <div class="alumni-post-meta mb-2">
-                                        @if (! empty($activity['activity_date']))
-                                            <span>{{ \Illuminate\Support\Carbon::parse($activity['activity_date'])->format('F d, Y') }}</span>
-                                        @endif
-                                        @if (! empty($activity['location']))
-                                            <span>{{ $activity['location'] }}</span>
-                                        @endif
-                                    </div>
-                                    <p class="alumni-post-excerpt mb-3">{{ \Illuminate\Support\Str::limit($activity['description'], 160) }}</p>
-                                    <div class="alumni-post-link">Open post</div>
-                                </div>
-                            </a>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <div class="event-card p-4">
-                                <h3 class="h5 mb-2">No alumni posts yet.</h3>
-                                <p class="text-secondary mb-0">Administrators can publish SBC alumni stories from the activity manager, and they will appear here automatically.</p>
-                            </div>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </section>
-
-        <section id="updates" class="landing-section pt-0" data-landing-search-group data-search-text="Announcements school notices official updates records community Bridgetine announcements">
-            <div class="main-wrapper">
-                <div class="row g-4 align-items-end mb-3">
-                    <div class="col-lg-8 reveal">
-                        <div class="section-eyebrow">Announcements</div>
-                        <h2 class="section-title">Official school notices and alumni announcements.</h2>
-                        <p class="section-copy">Published admin announcements appear here automatically for visitors and alumni to read.</p>
-                    </div>
-                    <div class="col-lg-4 text-lg-end reveal">
-                        <div class="small text-secondary">
-                            {{ $announcementTotal }} {{ $announcementTotal === 1 ? 'announcement' : 'announcements' }} published
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-4">
-                    @forelse ($announcements as $announcement)
-                        @php
-                            $announcementLabel = $announcement['label'] ?? 'Announcement';
-                            $announcementTitle = $announcement['title'] ?? '';
-                            $announcementDescription = $announcement['description'] ?? '';
-                            $announcementPublishedAt = $announcement['published_at'] ?? null;
-                        @endphp
-                        <div class="col-md-6 col-xl-4 reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($announcementLabel.' '.$announcementTitle.' '.$announcementDescription.' '.($announcementPublishedAt ? \Illuminate\Support\Carbon::parse($announcementPublishedAt)->format('F d, Y') : '')) }}">
-                            <div class="alumni-post-card announcement-card h-100">
-                                <div class="alumni-post-media">
-                                    @if (! empty($announcement['media_url']))
-                                        @if (($announcement['media_type'] ?? null) === 'image')
-                                            <img src="{{ $announcement['media_url'] }}" alt="{{ $announcementTitle }}" class="alumni-post-image">
-                                        @elseif (($announcement['media_type'] ?? null) === 'video')
-                                            <video class="alumni-post-image alumni-post-video" controls playsinline preload="metadata">
-                                                <source src="{{ $announcement['media_url'] }}">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        @endif
-                                    @else
-                                        <div class="alumni-post-placeholder">
-                                            <div class="alumni-post-placeholder-kicker">St. Bridget College</div>
-                                            <div class="alumni-post-placeholder-title">{{ $announcementLabel ?: 'Official Update' }}</div>
+                                        <div class="landing-board-card-meta">
+                                            Views: <span data-event-views-count>{{ number_format($eventViews) }}</span>
                                         </div>
-                                    @endif
+                                    </article>
                                 </div>
-                                <div class="alumni-post-body">
-                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-                                        <div class="alumni-post-badge">{{ $announcementLabel ?: 'Announcement' }}</div>
+                            @empty
+                                <div class="landing-board-empty">No upcoming events yet.</div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <div id="updates" class="landing-board-column">
+                        <div class="landing-board-header">
+                            <div class="landing-board-title">Announcement</div>
+                            <div class="landing-board-count">{{ $announcementTotal }} {{ $announcementTotal === 1 ? 'notice' : 'notices' }}</div>
+                        </div>
+                        <div class="landing-board-list">
+                            @forelse ($announcements as $announcement)
+                                @php
+                                    $announcementLabel = $announcement['label'] ?? 'Announcement';
+                                    $announcementTitle = $announcement['title'] ?? '';
+                                    $announcementDescription = $announcement['description'] ?? '';
+                                    $announcementPublishedAt = $announcement['published_at'] ?? null;
+                                    $announcementModalId = 'announcement-detail-'.($announcement['id'] ?? $loop->index);
+                                    $announcementViews = (int) ($announcement['views_count'] ?? 0);
+                                @endphp
+                                <div class="landing-board-item reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($announcementLabel.' '.$announcementTitle.' '.$announcementDescription.' '.($announcementPublishedAt ? \Illuminate\Support\Carbon::parse($announcementPublishedAt)->format('F d, Y') : '')) }}">
+                                    <article class="landing-board-card"
+                                        role="button"
+                                        tabindex="0"
+                                        aria-haspopup="dialog"
+                                        aria-controls="{{ $announcementModalId }}"
+                                        aria-label="Read full announcement: {{ $announcementTitle }}"
+                                        data-announcement-view-url="{{ isset($announcement['id']) ? route('announcements.view', $announcement['id']) : '' }}"
+                                        data-announcement-card
+                                        data-announcement-target="#{{ $announcementModalId }}">
+                                        <h3 class="landing-board-card-title">{{ $announcementTitle }}</h3>
+                                        <div class="landing-board-card-meta">
+                                            By St. Bridget College
+                                            @if ($announcementPublishedAt)
+                                                <span>|</span> {{ \Illuminate\Support\Carbon::parse($announcementPublishedAt)->format('F d, Y') }}
+                                            @endif
+                                        </div>
+                                        <div class="landing-board-card-meta">
+                                            Views: <span data-announcement-views-count>{{ number_format($announcementViews) }}</span>
+                                        </div>
+                                    </article>
+                                </div>
+                            @empty
+                                <div class="landing-board-empty">No announcements yet.</div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <div id="alumni-feed" class="landing-board-column">
+                        <div class="landing-board-header">
+                            <div class="landing-board-title">Activities</div>
+                            <div class="landing-board-count">{{ $alumniPostTotal }} {{ $alumniPostTotal === 1 ? 'activity' : 'activities' }}</div>
+                        </div>
+                        <div class="landing-board-list">
+                            @forelse ($activities as $activity)
+                                @php
+                                    $activityViews = (int) ($activity['views_count'] ?? 0);
+                                @endphp
+                                <div class="landing-board-item reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower(($activity['theme'] ?? '').' '.($activity['title'] ?? '').' '.($activity['description'] ?? '').' '.($activity['location'] ?? '').' '.(isset($activity['activity_date']) ? \Illuminate\Support\Carbon::parse($activity['activity_date'])->format('F d, Y') : '')) }}">
+                                    <a href="{{ $activity['show_url'] }}" class="landing-board-card landing-board-card-link text-decoration-none">
+                                        <h3 class="landing-board-card-title">{{ $activity['title'] }}</h3>
+                                        <div class="landing-board-card-meta">
+                                            By St. Bridget College
+                                            @if (! empty($activity['activity_date']))
+                                                <span>|</span> {{ \Illuminate\Support\Carbon::parse($activity['activity_date'])->format('F d, Y') }}
+                                            @endif
+                                        </div>
+                                        <div class="landing-board-card-meta">
+                                            Views: {{ number_format($activityViews) }}
+                                        </div>
+                                    </a>
+                                </div>
+                            @empty
+                                <div class="landing-board-empty">No activities yet.</div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                @foreach ($announcements as $announcement)
+                    @php
+                        $announcementLabel = $announcement['label'] ?? 'Announcement';
+                        $announcementTitle = $announcement['title'] ?? '';
+                        $announcementDescription = $announcement['description'] ?? '';
+                        $announcementPublishedAt = $announcement['published_at'] ?? null;
+                        $announcementHasMedia = ! empty($announcement['media_url']);
+                        $announcementModalId = 'announcement-detail-'.($announcement['id'] ?? $loop->index);
+                    @endphp
+                    <div class="modal fade announcement-detail-modal" id="{{ $announcementModalId }}" tabindex="-1" aria-labelledby="{{ $announcementModalId }}-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div>
+                                        <div class="alumni-post-badge mb-2">{{ $announcementLabel ?: 'Announcement' }}</div>
+                                        <h3 class="modal-title" id="{{ $announcementModalId }}-title">{{ $announcementTitle }}</h3>
                                         @if ($announcementPublishedAt)
-                                            <div class="alumni-post-meta">{{ \Illuminate\Support\Carbon::parse($announcementPublishedAt)->format('M d, Y') }}</div>
+                                            <div class="alumni-post-meta mt-1">{{ \Illuminate\Support\Carbon::parse($announcementPublishedAt)->format('F d, Y') }}</div>
                                         @endif
                                     </div>
-                                    <h3 class="alumni-post-title">{{ $announcementTitle }}</h3>
-                                    <p class="alumni-post-excerpt mb-0">{{ \Illuminate\Support\Str::limit($announcementDescription, 180) }}</p>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @if ($announcementHasMedia)
+                                        <div class="announcement-detail-media mb-4">
+                                            @if (($announcement['media_type'] ?? null) === 'image')
+                                                <img src="{{ $announcement['media_url'] }}" alt="{{ $announcementTitle }}">
+                                            @elseif (($announcement['media_type'] ?? null) === 'video')
+                                                <video controls playsinline preload="metadata">
+                                                    <source src="{{ $announcement['media_url'] }}">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    <div class="announcement-detail-copy">{!! nl2br(e($announcementDescription)) !!}</div>
                                 </div>
                             </div>
                         </div>
-                    @empty
-                        <div class="col-12">
-                            <div class="event-card p-4">
-                                <h3 class="h5 mb-2">No announcements yet.</h3>
-                                <p class="text-secondary mb-0">Administrators can publish announcements from the admin workspace, and they will appear here automatically.</p>
+                    </div>
+                @endforeach
+
+                @foreach ($upcomingEvents as $event)
+                    @php
+                        $eventModalId = 'event-detail-'.$event->id;
+                        $eventHasMedia = (bool) $event->media_url;
+                    @endphp
+                    <div class="modal fade event-detail-modal" id="{{ $eventModalId }}" tabindex="-1" aria-labelledby="{{ $eventModalId }}-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div>
+                                        <div class="alumni-post-badge mb-2">Event</div>
+                                        <h3 class="modal-title" id="{{ $eventModalId }}-title">{{ $event->title }}</h3>
+                                        <div class="alumni-post-meta mt-1">
+                                            {{ $event->event_date->format('F d, Y') }}
+                                            @if ($event->location)
+                                                <span>| {{ $event->location }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @if ($eventHasMedia)
+                                        <div class="event-detail-media mb-4">
+                                            @if ($event->isImageMedia())
+                                                <img src="{{ $event->media_url }}" alt="{{ $event->title }}">
+                                            @elseif ($event->isVideoMedia())
+                                                <video controls playsinline preload="metadata">
+                                                    <source src="{{ $event->media_url }}">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    <div class="event-detail-copy">{!! nl2br(e($event->description)) !!}</div>
+                                </div>
                             </div>
                         </div>
-                    @endforelse
-                </div>
+                    </div>
+                @endforeach
             </div>
         </section>
 
         <section id="leadership" class="landing-section" data-landing-search-group data-search-text="Board of Trustees school leadership St. Bridget College Batangas">
             <div class="main-wrapper">
                 <div class="row g-4 align-items-end mb-3">
-                    <div class="col-lg-8 reveal">
+                    <div class="col-lg-8 reveal leadership-scroll-item" data-leadership-animate style="--leadership-delay: 0ms;">
                         <div class="section-eyebrow">School Leadership</div>
                         <h2 class="section-title">Board of Trustees of St. Bridget College Batangas</h2>
                     </div>
@@ -496,7 +565,7 @@
 
                 <div class="row g-4">
                     @foreach ($boardMembers as $member)
-                        <div class="col-md-6 col-xl-4 reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($member['name'].' '.$member['role']) }}">
+                        <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" data-leadership-animate style="--leadership-delay: {{ 120 + ($loop->index * 90) }}ms;" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($member['name'].' '.$member['role']) }}">
                             <div class="trustee-member text-center py-4">
                                 @if (! empty($member['photo_path']))
                                     <div class="trustee-avatar mx-auto mb-3">
@@ -614,6 +683,79 @@
                 justify-content: center;
                 border: 2px solid rgba(4,0,120,0.06);
             }
+
+            .leadership-motion-ready #leadership .leadership-scroll-item {
+                opacity: 0;
+                transform: translateY(34px) scale(0.96);
+                filter: blur(6px);
+                animation: none;
+                transition:
+                    opacity 0.7s ease,
+                    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                    filter 0.7s ease;
+                transition-delay: var(--leadership-delay, 0ms);
+                will-change: opacity, transform, filter;
+            }
+
+            .leadership-motion-ready #leadership .leadership-scroll-item.is-visible {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+
+            .leadership-motion-ready #leadership .leadership-scroll-item .trustee-avatar {
+                transform: scale(0.86);
+                transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+                transition-delay: calc(var(--leadership-delay, 0ms) + 120ms);
+            }
+
+            .leadership-motion-ready #leadership .leadership-scroll-item.is-visible .trustee-avatar {
+                transform: scale(1);
+            }
+
+            .leadership-motion-ready.leadership-is-scrolling #leadership .leadership-scroll-item.is-visible > * {
+                animation: leadershipScrollFloat 1.05s ease-in-out infinite alternate;
+                animation-delay: calc(var(--leadership-delay, 0ms) * 0.35);
+            }
+
+            .leadership-motion-ready.leadership-is-scrolling #leadership .leadership-scroll-item.is-visible .trustee-avatar {
+                animation: leadershipAvatarPulse 0.95s ease-in-out infinite alternate;
+                animation-delay: calc(var(--leadership-delay, 0ms) * 0.25);
+            }
+
+            @keyframes leadershipScrollFloat {
+                from {
+                    transform: translateY(0) scale(1);
+                }
+
+                to {
+                    transform: translateY(-8px) scale(1.015);
+                }
+            }
+
+            @keyframes leadershipAvatarPulse {
+                from {
+                    box-shadow: 0 0 0 rgba(11, 69, 184, 0);
+                    transform: scale(1);
+                }
+
+                to {
+                    box-shadow: 0 12px 24px rgba(11, 69, 184, 0.14);
+                    transform: scale(1.04);
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .leadership-motion-ready #leadership .leadership-scroll-item,
+                .leadership-motion-ready #leadership .leadership-scroll-item .trustee-avatar,
+                .leadership-motion-ready.leadership-is-scrolling #leadership .leadership-scroll-item.is-visible > * {
+                    opacity: 1;
+                    filter: none;
+                    transform: none;
+                    transition: none;
+                    animation: none;
+                }
+            }
         </style>
     @endpush
 
@@ -690,8 +832,14 @@
                                 <h3 class="footer-group-title">Bridgetine Highlights</h3>
                                 <a href="#alumni-office">Alumni Office Team</a>
                                 <a href="#campus-gallery">Campus Photo Gallery</a>
-                                <a href="{{ route('portal.register') }}">Claim Alumni Account</a>
-                                <a href="{{ route('portal.login', ['switch' => 1]) }}">Open Alumni Dashboard</a>
+                                @if ($isLoggedInAdmin)
+                                    <a href="{{ $adminDashboardUrl }}">Dashboard</a>
+                                @elseif ($isLoggedInAlumni)
+                                    <a href="{{ $portalDashboardUrl }}">Dashboard</a>
+                                @else
+                                    <a href="{{ $portalRegisterUrl }}">Claim Alumni Account</a>
+                                    <a href="{{ $portalLoginUrl }}">Open Alumni Dashboard</a>
+                                @endif
                                 <a href="#updates">School Notices</a>
                                 <a href="#events">Community Calendar</a>
                             </div>
@@ -705,8 +853,14 @@
                                     Access official updates, submit requests, and track alumni-related activities in one place.
                                 </p>
                                 <div class="d-grid gap-2">
-                                    <a href="{{ route('portal.login', ['switch' => 1]) }}" class="btn btn-light">Alumni Login</a>
-                                    <a href="{{ route('portal.register') }}" class="btn btn-outline-light">Create Alumni Account</a>
+                                    @if ($isLoggedInAdmin)
+                                        <a href="{{ $adminDashboardUrl }}" class="btn btn-light">Dashboard</a>
+                                    @elseif ($isLoggedInAlumni)
+                                        <a href="{{ $portalDashboardUrl }}" class="btn btn-light">Dashboard</a>
+                                    @else
+                                        <a href="{{ $portalLoginUrl }}" class="btn btn-light">Alumni Login</a>
+                                        <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-light">Create Alumni Account</a>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -780,6 +934,86 @@
             window.addEventListener('pagehide', pauseVideos);
             window.addEventListener('pageshow', syncVideoState);
             window.addEventListener('load', syncVideoState);
+        })();
+    </script>
+    <script>
+        (function () {
+            const links = Array.from(document.querySelectorAll('[data-landing-nav-link]'));
+
+            if (!links.length) {
+                return;
+            }
+
+            const sections = links
+                .map((link) => document.getElementById((link.getAttribute('href') || '').replace('#', '')))
+                .filter(Boolean);
+
+            const setActiveLink = (sectionId) => {
+                links.forEach((link) => {
+                    const isActive = link.getAttribute('href') === `#${sectionId}`;
+
+                    link.classList.toggle('active', isActive);
+
+                    if (isActive) {
+                        link.setAttribute('aria-current', 'page');
+                    } else {
+                        link.removeAttribute('aria-current');
+                    }
+                });
+            };
+
+            const syncActiveLink = () => {
+                const headerOffset = 140;
+                let currentSectionId = 'home';
+
+                sections.forEach((section) => {
+                    if (section.getBoundingClientRect().top <= headerOffset) {
+                        currentSectionId = section.id;
+                    }
+                });
+
+                setActiveLink(currentSectionId);
+            };
+
+            links.forEach((link) => {
+                link.addEventListener('click', () => {
+                    const targetId = (link.getAttribute('href') || '').replace('#', '');
+
+                    if (targetId) {
+                        setActiveLink(targetId);
+                    }
+                });
+            });
+
+            let ticking = false;
+
+            window.addEventListener('scroll', () => {
+                if (ticking) {
+                    return;
+                }
+
+                ticking = true;
+                window.requestAnimationFrame(() => {
+                    syncActiveLink();
+                    ticking = false;
+                });
+            }, { passive: true });
+
+            window.addEventListener('hashchange', () => {
+                const targetId = window.location.hash.replace('#', '');
+
+                if (targetId) {
+                    setActiveLink(targetId);
+                } else {
+                    syncActiveLink();
+                }
+            });
+
+            if (window.location.hash) {
+                setActiveLink(window.location.hash.replace('#', ''));
+            } else {
+                syncActiveLink();
+            }
         })();
     </script>
     <script>
@@ -878,31 +1112,242 @@
             applySearch(input.value, false);
         })();
     </script>
+    <script>
+        (function () {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            const formatViews = (value) => {
+                const count = Number.parseInt(value, 10);
+
+                return Number.isFinite(count) ? count.toLocaleString() : '0';
+            };
+
+            const recordAnnouncementView = (card) => {
+                const url = card.getAttribute('data-announcement-view-url');
+
+                if (!url || card.getAttribute('data-announcement-view-recorded') === 'true') {
+                    return;
+                }
+
+                card.setAttribute('data-announcement-view-recorded', 'true');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then((response) => response.ok ? response.json() : null)
+                    .then((data) => {
+                        if (!data || typeof data.views_count === 'undefined') {
+                            return;
+                        }
+
+                        const counter = card.querySelector('[data-announcement-views-count]');
+
+                        if (counter) {
+                            counter.textContent = formatViews(data.views_count);
+                        }
+                    })
+                    .catch(() => {});
+            };
+
+            const recordEventView = (card) => {
+                const url = card.getAttribute('data-event-view-url');
+
+                if (!url || card.getAttribute('data-event-view-recorded') === 'true') {
+                    return;
+                }
+
+                card.setAttribute('data-event-view-recorded', 'true');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then((response) => response.ok ? response.json() : null)
+                    .then((data) => {
+                        if (!data || typeof data.views_count === 'undefined') {
+                            return;
+                        }
+
+                        const counter = card.querySelector('[data-event-views-count]');
+
+                        if (counter) {
+                            counter.textContent = formatViews(data.views_count);
+                        }
+                    })
+                    .catch(() => {});
+            };
+
+            const openAnnouncement = (card) => {
+                const target = card.getAttribute('data-announcement-target');
+                const modal = target ? document.querySelector(target) : null;
+
+                if (!modal || !window.bootstrap || !window.bootstrap.Modal) {
+                    return;
+                }
+
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                recordAnnouncementView(card);
+            };
+
+            const openEvent = (card) => {
+                const target = card.getAttribute('data-event-target');
+                const modal = target ? document.querySelector(target) : null;
+
+                if (!modal || !window.bootstrap || !window.bootstrap.Modal) {
+                    return;
+                }
+
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                recordEventView(card);
+            };
+
+            document.addEventListener('click', function (event) {
+                const card = event.target.closest('[data-announcement-card]');
+
+                if (!card) {
+                    return;
+                }
+
+                if (event.target.closest('[data-announcement-media-control], a, button, input, select, textarea')) {
+                    return;
+                }
+
+                openAnnouncement(card);
+            });
+
+            document.addEventListener('click', function (event) {
+                const card = event.target.closest('[data-event-card]');
+
+                if (!card) {
+                    return;
+                }
+
+                if (event.target.closest('a, button, input, select, textarea')) {
+                    return;
+                }
+
+                openEvent(card);
+            });
+
+            document.addEventListener('keydown', function (event) {
+                const card = event.target.closest('[data-announcement-card]');
+
+                if (!card || event.target !== card || !['Enter', ' '].includes(event.key)) {
+                    return;
+                }
+
+                event.preventDefault();
+                openAnnouncement(card);
+            });
+
+            document.addEventListener('keydown', function (event) {
+                const card = event.target.closest('[data-event-card]');
+
+                if (!card || event.target !== card || !['Enter', ' '].includes(event.key)) {
+                    return;
+                }
+
+                event.preventDefault();
+                openEvent(card);
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            const items = Array.from(document.querySelectorAll('[data-leadership-animate]'));
+            const leadership = document.getElementById('leadership');
+
+            if (!items.length || !leadership) {
+                return;
+            }
+
+            document.documentElement.classList.add('leadership-motion-ready');
+
+            const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            let leadershipIsVisible = false;
+            let scrollTimer = null;
+
+            const stopScrollAnimation = () => {
+                document.documentElement.classList.remove('leadership-is-scrolling');
+            };
+
+            const startScrollAnimation = () => {
+                if (!leadershipIsVisible || motionQuery.matches) {
+                    stopScrollAnimation();
+                    return;
+                }
+
+                document.documentElement.classList.add('leadership-is-scrolling');
+                window.clearTimeout(scrollTimer);
+                scrollTimer = window.setTimeout(stopScrollAnimation, 170);
+            };
+
+            if (!('IntersectionObserver' in window)) {
+                items.forEach((item) => item.classList.add('is-visible'));
+                leadershipIsVisible = true;
+                window.addEventListener('scroll', startScrollAnimation, { passive: true });
+                return;
+            }
+
+            const itemObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    entry.target.classList.toggle('is-visible', entry.isIntersecting);
+                });
+            }, {
+                rootMargin: '0px 0px -12% 0px',
+                threshold: 0.18,
+            });
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                leadershipIsVisible = entries.some((entry) => entry.isIntersecting);
+
+                if (!leadershipIsVisible) {
+                    stopScrollAnimation();
+                }
+            }, {
+                rootMargin: '-12% 0px -12% 0px',
+                threshold: 0.12,
+            });
+
+            items.forEach((item) => itemObserver.observe(item));
+            sectionObserver.observe(leadership);
+            window.addEventListener('scroll', startScrollAnimation, { passive: true });
+        })();
+    </script>
 @endpush
 
 @push('styles')
     <style>
         .landing-page .school-identity-banner {
-            background: #fff;
-            color: #07116f;
-            border-bottom: 1px solid rgba(7, 17, 111, 0.12);
-            box-shadow: 0 8px 18px rgba(7, 17, 111, 0.08);
+            background: linear-gradient(90deg, #061069 0%, #123cad 46%, #0d75bb 100%);
+            color: #fff;
+            border-bottom: 3px solid #9c7a00;
+            box-shadow: 0 8px 18px rgba(7, 17, 111, 0.16);
         }
 
         .landing-page .school-identity-lockup {
-            color: #07116f;
+            color: #fff;
         }
 
         .landing-page .school-identity-title {
-            color: #07116f;
-            text-shadow: none;
+            color: #fff;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.28);
             letter-spacing: 0.02em;
             font-size: clamp(2rem, 5.0vw, 4rem);
             white-space: nowrap;
         }
 
         .landing-page .school-identity-motto {
-            color: #e5cd1d;
+            color: #fff;
             letter-spacing: 0.38em;
             text-transform: lowercase;
             font-size: clamp(0.74rem, 1.25vw, 0.95rem);
@@ -1119,12 +1564,68 @@
             transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
         }
 
+        .alumni-post-card[role="button"] {
+            cursor: pointer;
+        }
+
         .alumni-post-card:hover,
         .alumni-post-card:focus-visible {
             transform: translateY(-2px);
             border-color: rgba(11, 69, 184, 0.28);
             box-shadow: 0 20px 32px rgba(7, 17, 111, 0.12);
+        }
+
+        .alumni-post-card:hover {
             outline: none;
+        }
+
+        .alumni-post-card:focus-visible {
+            outline: 3px solid rgba(11, 69, 184, 0.12);
+            outline-offset: 2px;
+        }
+
+        .announcement-card--summary {
+            border: 0;
+            border-radius: 0;
+            background: #f4f4f4;
+            box-shadow: none;
+        }
+
+        .announcement-card--summary:hover,
+        .announcement-card--summary:focus-visible {
+            border-color: transparent;
+            box-shadow: 0 12px 24px rgba(11, 69, 184, 0.1);
+        }
+
+        .announcement-card--summary .alumni-post-body {
+            min-height: 7.85rem;
+            gap: 0.72rem;
+            justify-content: flex-start;
+            padding: 1.25rem 1.35rem;
+        }
+
+        .announcement-card--summary .alumni-post-title {
+            color: #0b45b8;
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+            font-size: 1.02rem;
+            line-height: 1.28;
+            font-weight: 800;
+        }
+
+        .announcement-card-byline,
+        .announcement-card-views {
+            color: #8e949d;
+            font-size: 0.82rem;
+            line-height: 1.3;
+        }
+
+        .announcement-card-byline {
+            color: #b5bac1;
+        }
+
+        .announcement-card-byline span {
+            color: #d3d6db;
+            margin: 0 0.25rem;
         }
 
         .alumni-post-media {
@@ -1222,6 +1723,284 @@
             line-height: 1.55;
         }
 
+        .announcement-detail-modal .modal-content,
+        .event-detail-modal .modal-content {
+            border: 0;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 24px 56px rgba(7, 17, 111, 0.2);
+        }
+
+        .announcement-detail-modal .modal-title,
+        .event-detail-modal .modal-title {
+            color: #07116f;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(1.35rem, 2vw, 1.85rem);
+            font-weight: 700;
+            line-height: 1.12;
+        }
+
+        .announcement-detail-media img,
+        .announcement-detail-media video,
+        .event-detail-media img,
+        .event-detail-media video {
+            display: block;
+            width: 100%;
+            max-height: 60vh;
+            border-radius: 0.85rem;
+            object-fit: contain;
+            background: #f7fbff;
+        }
+
+        .announcement-detail-copy {
+            color: #2f3340;
+            font-size: 1rem;
+            line-height: 1.7;
+            white-space: normal;
+        }
+
+        .event-detail-copy {
+            color: #2f3340;
+            font-size: 1rem;
+            line-height: 1.7;
+            white-space: normal;
+        }
+
+        .landing-event-summary-card {
+            display: flex;
+            min-height: 7.3rem;
+            border: 0;
+            border-radius: 0;
+            background: #f4f4f4;
+            box-shadow: none;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .landing-event-summary-card:hover,
+        .landing-event-summary-card:focus-visible {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(11, 69, 184, 0.1);
+            outline: none;
+        }
+
+        .landing-event-summary-card:focus-visible {
+            outline: 3px solid rgba(11, 69, 184, 0.14);
+            outline-offset: 2px;
+        }
+
+        .landing-event-summary-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.72rem;
+            justify-content: flex-start;
+            width: 100%;
+            padding: 1.25rem 1.35rem;
+        }
+
+        .landing-event-summary-title {
+            margin: 0;
+            color: #0b45b8;
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+            font-size: 1.02rem;
+            line-height: 1.28;
+            font-weight: 800;
+        }
+
+        .landing-event-summary-meta,
+        .landing-event-summary-views {
+            color: #8e949d;
+            font-size: 0.82rem;
+            line-height: 1.3;
+        }
+
+        .landing-event-summary-meta {
+            color: #b5bac1;
+        }
+
+        .landing-event-summary-meta span {
+            color: #d3d6db;
+            margin: 0 0.25rem;
+        }
+
+        .landing-board-section {
+            background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+        }
+
+        .landing-board {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            min-height: clamp(24rem, 52vh, 36rem);
+            overflow: hidden;
+            border: 1px solid rgba(11, 69, 184, 0.18);
+            border-radius: 0.5rem;
+            background: #fff;
+            box-shadow: 0 18px 42px rgba(7, 17, 111, 0.1);
+        }
+
+        .landing-board-column {
+            min-width: 0;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border-left: 1px solid rgba(11, 69, 184, 0.16);
+        }
+
+        .landing-board-column:first-child {
+            border-left: 0;
+        }
+
+        .landing-board-header {
+            min-height: 3.45rem;
+            padding: 0.85rem 1rem 0.75rem;
+            background: linear-gradient(90deg, #07116f 0%, #0b45b8 72%, #0a86b7 100%);
+            color: #fff;
+            text-align: center;
+        }
+
+        .landing-board-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .landing-board-count {
+            margin-top: 0.35rem;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 0.68rem;
+            font-weight: 700;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .landing-board-list {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+            padding: clamp(1rem, 2vw, 1.4rem);
+            max-height: clamp(22rem, 48vh, 32rem);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(11, 69, 184, 0.38) transparent;
+        }
+
+        .landing-board-list::-webkit-scrollbar {
+            width: 0.45rem;
+        }
+
+        .landing-board-list::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: rgba(11, 69, 184, 0.32);
+        }
+
+        .landing-board-item {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .landing-board-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            width: 100%;
+            min-height: 5.45rem;
+            padding: 0.9rem 1rem;
+            border: 1px solid rgba(11, 69, 184, 0.18);
+            border-left: 4px solid #0b45b8;
+            border-radius: 0.5rem;
+            background: #fff;
+            color: #07116f;
+            text-align: left;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(7, 17, 111, 0.07);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+        }
+
+        .landing-board-card:hover,
+        .landing-board-card:focus-visible {
+            transform: translateY(-2px);
+            border-color: #0b45b8;
+            background: #f7fbff;
+            box-shadow: 0 16px 28px rgba(11, 69, 184, 0.13);
+            outline: none;
+        }
+
+        .landing-board-card:focus-visible {
+            outline: 3px solid rgba(11, 69, 184, 0.16);
+            outline-offset: 3px;
+        }
+
+        .landing-board-card-link {
+            cursor: pointer;
+        }
+
+        .landing-board-card-title {
+            margin: 0;
+            color: #07116f;
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+            font-size: clamp(0.86rem, 1vw, 0.98rem);
+            font-weight: 800;
+            line-height: 1.22;
+            overflow-wrap: anywhere;
+            text-transform: uppercase;
+        }
+
+        .landing-board-card-meta {
+            margin-top: 0.42rem;
+            color: #5b6472;
+            font-size: clamp(0.72rem, 0.88vw, 0.8rem);
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+        }
+
+        .landing-board-card-meta span {
+            color: #0b45b8;
+            margin: 0 0.18rem;
+        }
+
+        .landing-board-empty {
+            width: 100%;
+            padding: 1rem;
+            border: 1px dashed rgba(11, 69, 184, 0.35);
+            border-radius: 0.5rem;
+            background: #fff;
+            color: #07116f;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        @media (max-width: 767.98px) {
+            .landing-board {
+                grid-template-columns: 1fr;
+                min-height: 0;
+            }
+
+            .landing-board-column,
+            .landing-board-column:first-child {
+                border-left: 0;
+                border-top: 1px solid rgba(11, 69, 184, 0.16);
+            }
+
+            .landing-board-column:first-child {
+                border-top: 0;
+            }
+
+            .landing-board-list {
+                gap: 1.2rem;
+                max-height: none;
+                overflow: visible;
+                padding: 1.25rem 1rem 1.75rem;
+            }
+
+            .landing-board-card,
+            .landing-board-empty {
+                width: 100%;
+            }
+        }
+
         .alumni-post-link {
             margin-top: auto;
             color: #0b45b8;
@@ -1236,15 +2015,33 @@
         }
 
         .landing-nav .nav {
-            flex-wrap: wrap;
+            flex-wrap: nowrap !important;
             justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(11, 69, 184, 0.35) transparent;
         }
 
         .landing-nav .nav-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.55rem;
+            border: 1px solid rgba(7, 17, 111, 0.14);
+            background: rgba(255, 255, 255, 0.9);
             color: #07116f;
             border-radius: 0.7rem;
             padding: 0.7rem 1rem;
-            transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 8px 16px rgba(7, 17, 111, 0.06);
+            font-weight: 700;
+            line-height: 1;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
         }
 
         .landing-nav .nav-link:hover,
@@ -1253,7 +2050,9 @@
         .landing-nav .nav-link.active {
             color: #fff;
             background: #0b45b8;
+            border-color: #0b45b8;
             box-shadow: 0 0 0 0.18rem rgba(11, 69, 184, 0.18);
+            transform: translateY(-1px);
             outline: none;
         }
 
@@ -1291,6 +2090,9 @@
 
         .hero-stage {
             isolation: isolate;
+            min-height: auto;
+            align-items: flex-start;
+            border-radius: 0.45rem;
             background: linear-gradient(112deg, #07116f 0%, #0b45b8 58%, #0a86b7 100%);
             box-shadow: 0 32px 70px rgba(4, 0, 120, 0.24);
             padding: clamp(1.75rem, 3vw, 3rem);
@@ -1305,6 +2107,19 @@
 
         .hero-stage > .row {
             z-index: 2;
+            min-height: auto;
+        }
+
+        .hero-campus-gallery {
+            width: min(var(--page-width, 95%), var(--page-max-width, 1800px));
+            max-width: var(--page-max-width, 1800px);
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: clamp(0.85rem, 1.7vw, 1.25rem) !important;
+            min-height: clamp(12rem, 28vh, 17rem);
+            aspect-ratio: 16 / 5;
+            border-radius: 0.45rem;
+            background: linear-gradient(112deg, #07116f 0%, #0b45b8 58%, #0a86b7 100%);
         }
 
         .hero-campus-backdrop {
@@ -1582,69 +2397,108 @@
             }
 
             .landing-topbar-shell {
+                display: grid;
+                grid-template-columns: 1fr;
                 min-height: auto;
                 padding-top: 0.65rem;
                 padding-bottom: 0.65rem;
-                align-items: flex-start;
+                align-items: stretch;
+                gap: 0.55rem;
             }
 
             .landing-topbar-contact {
-                flex: 1 1 auto;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.45rem;
+                width: 100%;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0.35rem 0.85rem;
+                font-size: 0.78rem;
+                line-height: 1.2;
             }
 
             .landing-topbar-actions {
-                flex: 0 0 auto;
-                gap: 0.5rem;
+                width: 100%;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto auto auto;
+                align-items: center;
+                gap: 0.4rem;
             }
 
             .landing-topbar-search-form {
                 min-width: 0;
-                width: min(100%, 17rem);
-                flex-wrap: wrap;
-                justify-content: flex-end;
+                width: 100%;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 2.45rem;
+                gap: 0.4rem;
             }
 
             .landing-topbar-search-input {
-                width: min(100%, 11rem);
-                flex: 1 1 11rem;
+                width: 100%;
+                height: 2.25rem;
+                font-size: 0.78rem;
             }
 
             .landing-topbar-search-button span:last-child {
                 display: none;
             }
 
-            .school-identity-shell {
-                gap: 0.75rem;
-                min-height: 3.75rem;
+            .landing-topbar-search-button {
+                width: 2.45rem;
+                min-width: 2.45rem;
+                height: 2.25rem;
+                justify-content: center;
+                padding: 0;
             }
 
-            .school-identity-actions {
+            .landing-topbar-social {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+            }
+
+            .landing-page .school-identity-shell {
+                gap: 0.75rem;
+                min-height: 3.75rem;
+                align-items: stretch;
+            }
+
+            .landing-page .school-identity-lockup {
+                width: 100%;
+                align-items: center;
+                gap: 0.65rem;
+            }
+
+            .landing-page .school-identity-copy {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            .landing-page .school-identity-actions {
                 width: 100%;
             }
 
-            .school-identity-actions .btn {
+            .landing-page .school-identity-actions .btn {
                 padding: 0.48rem 0.8rem;
             }
 
-            .school-identity-crest {
+            .landing-page .school-identity-crest {
                 width: 2.65rem;
                 height: 2.65rem;
                 font-size: 0.82rem;
             }
 
-            .school-identity-title {
-                font-size: clamp(1.35rem, 7.4vw, 2.1rem);
+            .landing-page .school-identity-title {
+                font-size: clamp(1.28rem, 6vw, 1.72rem);
+                line-height: 1.02;
+                max-width: 100%;
                 white-space: normal;
+                overflow-wrap: normal;
             }
 
-            .school-identity-motto {
+            .landing-page .school-identity-motto {
                 margin-top: 0.2rem;
-                font-size: 0.68rem;
-                color: #e5cd1d;
-                letter-spacing: 0.24em;
+                font-size: clamp(0.58rem, 2.4vw, 0.68rem);
+                color: #fff;
+                letter-spacing: 0.16em;
             }
 
             .brand-lockup {
@@ -1653,11 +2507,12 @@
 
             .landing-nav .nav {
                 gap: 0.5rem;
+                justify-content: flex-start;
                 flex-wrap: nowrap;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
-                padding-bottom: 0.1rem;
+                padding: 0.7rem 0 0.2rem;
             }
 
             .landing-nav .nav::-webkit-scrollbar {
@@ -1679,9 +2534,114 @@
                 border-color: #0b45b8;
             }
 
-            .campus-gallery-hero {
-                border-radius: 1.35rem;
-                min-height: 210px;
+            .landing-page .campus-gallery-hero {
+                width: 100%;
+                min-height: 0;
+                height: auto;
+                aspect-ratio: 4 / 3;
+                border-radius: 1rem;
+            }
+
+            .landing-page .hero-campus-gallery {
+                margin-top: 1rem !important;
+            }
+
+            .landing-page .campus-gallery-carousel,
+            .landing-page .campus-gallery-carousel .carousel-inner,
+            .landing-page .campus-gallery-carousel .carousel-item {
+                height: 100%;
+                min-height: 0;
+            }
+
+            .landing-page .campus-gallery-image,
+            .landing-page .campus-gallery-video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center center;
+            }
+
+            .landing-page .campus-gallery-caption {
+                left: 0.65rem;
+                right: 0.65rem;
+                bottom: 0.65rem;
+                max-width: calc(100% - 1.3rem);
+                padding: 0.75rem 0.8rem;
+                border-radius: 0.75rem;
+            }
+
+            .landing-page .campus-gallery-kicker {
+                margin-bottom: 0.35rem;
+                font-size: 0.58rem;
+                letter-spacing: 0.08em;
+            }
+
+            .landing-page .campus-gallery-title {
+                margin-bottom: 0.35rem;
+                font-size: clamp(1rem, 4.8vw, 1.35rem);
+                line-height: 1.08;
+            }
+
+            .landing-page .campus-gallery-detail {
+                font-size: 0.78rem;
+                line-height: 1.35;
+            }
+
+            .landing-page .campus-carousel-indicators {
+                margin-bottom: 0.35rem;
+            }
+
+            .landing-page .campus-carousel-indicators [data-bs-target] {
+                width: 1.35rem;
+                height: 0.2rem;
+            }
+
+            .landing-page .landing-mobile-hero-head {
+                display: grid !important;
+                grid-template-columns: 1fr;
+                gap: 0.55rem;
+            }
+
+            .landing-page .landing-mobile-hero .min-w-0 {
+                width: 100%;
+            }
+
+            .landing-page .landing-mobile-hero .hero-badge {
+                justify-content: center;
+                width: min(100%, 25rem);
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+                box-sizing: border-box;
+                min-height: 2.1rem;
+                margin-bottom: 0.6rem !important;
+                padding: 0.45rem 0.72rem;
+                border-radius: 0.9rem;
+                font-size: clamp(0.68rem, 2.8vw, 0.78rem);
+                line-height: 1.15;
+                letter-spacing: 0.04em;
+                text-align: center;
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+
+            .landing-page .landing-mobile-hero .mobile-portal-badge {
+                justify-content: center;
+                width: min(100%, 28rem);
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+                box-sizing: border-box;
+                min-height: 2.35rem;
+                margin-bottom: 0.75rem;
+                padding: 0.5rem 0.75rem;
+                border-radius: 0.85rem;
+                font-size: clamp(0.64rem, 2.6vw, 0.76rem);
+                line-height: 1.2;
+                letter-spacing: 0.05em;
+                text-align: center;
+                white-space: normal;
+                overflow-wrap: anywhere;
             }
 
             .landing-section {

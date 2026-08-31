@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\RecordRequest;
+use App\Services\LinkedAccountSyncService;
 use App\Services\PortalContentService;
 use Illuminate\View\View;
 
 class PortalDashboardController extends Controller
 {
-    public function index(PortalContentService $contentService): View
+    public function index(PortalContentService $contentService, LinkedAccountSyncService $syncService): View
     {
         $user = auth()->user();
-        $alumnus = $user->alumni;
+        $alumnus = $syncService->resolveOrCreateAlumniForUser($user);
 
         abort_if(! $alumnus, 403);
 
@@ -23,6 +24,11 @@ class PortalDashboardController extends Controller
             'readyCount' => $alumnus->requests()->where('status', 'ready_for_pickup')->count(),
             'recentRequests' => $alumnus->requests()
                 ->latest()
+                ->take(5)
+                ->get(),
+            'requestUpdates' => $alumnus->requests()
+                ->whereNotNull('admin_replied_at')
+                ->latest('admin_replied_at')
                 ->take(5)
                 ->get(),
             'announcements' => $contentService->announcements(),
