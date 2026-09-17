@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EventRegistration;
 use App\Models\RecordRequest;
 use App\Services\LinkedAccountSyncService;
 use App\Services\PortalContentService;
@@ -15,6 +16,12 @@ class PortalDashboardController extends Controller
         $alumnus = $syncService->resolveOrCreateAlumniForUser($user);
 
         abort_if(! $alumnus, 403);
+
+        $upcomingEvents = $contentService->events(null);
+        $eventRegistrationsByEventId = $alumnus->eventRegistrations()
+            ->whereIn('event_id', $upcomingEvents->pluck('id'))
+            ->get()
+            ->keyBy('event_id');
 
         return view('portal.dashboard', [
             'alumnus' => $alumnus,
@@ -33,7 +40,9 @@ class PortalDashboardController extends Controller
                 ->get(),
             'announcements' => $contentService->announcements(),
             'activities' => $contentService->activities(6),
-            'upcomingEvents' => $contentService->events(4),
+            'upcomingEvents' => $upcomingEvents,
+            'eventRegistrationsByEventId' => $eventRegistrationsByEventId,
+            'eventRegistrationStatuses' => EventRegistration::statusOptions(),
             'statusOptions' => RecordRequest::workflowStatuses(),
         ]);
     }

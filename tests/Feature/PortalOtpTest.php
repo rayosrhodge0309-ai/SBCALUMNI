@@ -135,7 +135,7 @@ test('alumni otp verification stores permanent verification and allows dashboard
     $this->get('/portal/dashboard')->assertOk();
 });
 
-test('approved alumni login skips otp and marks account verified', function () {
+test('approved alumni login requires otp until Gmail is verified', function () {
     $alumnus = Alumni::create([
         'student_id' => '2020-0012',
         'first_name' => 'Nora',
@@ -143,11 +143,11 @@ test('approved alumni login skips otp and marks account verified', function () {
         'education_level' => 'College',
         'course' => 'BSN',
         'year_graduated' => 2026,
-        'email' => 'nora@example.com',
+        'email' => 'nora@gmail.com',
     ]);
 
     $user = User::factory()->create([
-        'email' => 'nora@example.com',
+        'email' => 'nora@gmail.com',
         'password' => 'password12',
         'role' => 'alumni',
         'account_status' => 'approved',
@@ -158,11 +158,11 @@ test('approved alumni login skips otp and marks account verified', function () {
     ]);
 
     $this->post('/portal/login', [
-        'email' => 'nora@example.com',
+        'email' => 'nora@gmail.com',
         'password' => 'password12',
-    ])->assertRedirectToRoute('portal.dashboard');
+    ])->assertRedirectToRoute('portal.otp.create');
 
-    expect($user->fresh()->portal_otp_verified_at)->not->toBeNull();
+    expect($user->fresh()->portal_otp_verified_at)->toBeNull();
 });
 
 test('alumni login skips otp after first successful otp verification', function () {
@@ -173,11 +173,11 @@ test('alumni login skips otp after first successful otp verification', function 
         'education_level' => 'College',
         'course' => 'BSCS',
         'year_graduated' => 2025,
-        'email' => 'ana@example.com',
+        'email' => 'ana@gmail.com',
     ]);
 
     $user = User::factory()->create([
-        'email' => 'ana@example.com',
+        'email' => 'ana@gmail.com',
         'password' => 'password12',
         'role' => 'alumni',
         'alumni_id' => $alumnus->id,

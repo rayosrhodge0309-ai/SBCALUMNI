@@ -6,6 +6,7 @@ use App\Classes\FirebaseService;
 use App\Models\User;
 use App\Notifications\AlumniAccountApproved;
 use App\Services\LinkedAccountSyncService;
+use App\Support\GmailAddress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -106,20 +107,35 @@ class UserController extends Controller
 
     public function update(Request $request, User $user, LinkedAccountSyncService $syncService): RedirectResponse
     {
+        $emailRules = [
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('users', 'email')->ignore($user->id),
+            Rule::unique('alumni', 'email')->ignore($user->alumni_id),
+        ];
+
+        if ($user->isAlumni()) {
+            $emailRules[] = GmailAddress::validationRule();
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
-                Rule::unique('alumni', 'email')->ignore($user->alumni_id),
-            ],
+            'email' => $emailRules,
             'password' => ['nullable', 'confirmed', Password::min(8)->letters()->numbers()],
         ]);
 
+        $newEmail = $user->isAlumni()
+            ? GmailAddress::normalize($validated['email'])
+            : $validated['email'];
+        $emailChanged = GmailAddress::normalize($user->email) !== GmailAddress::normalize($newEmail);
+
         $user->name = $validated['name'];
-        $user->email = $validated['email'];
+        $user->email = $newEmail;
+
+        if ($user->isAlumni() && $emailChanged) {
+            $user->portal_otp_verified_at = null;
+        }
 
         if (! empty($validated['password'])) {
             $user->password = $validated['password'];
@@ -141,8 +157,11 @@ class UserController extends Controller
         $updates = [
             'account_status' => 'approved',
             'approved_at' => now(),
-            'portal_otp_verified_at' => now(),
         ];
+
+        if (! $wasApproved) {
+            $updates['portal_otp_verified_at'] = null;
+        }
 
         $user->forceFill($updates)->save();
 

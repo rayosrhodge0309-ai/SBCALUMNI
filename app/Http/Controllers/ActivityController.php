@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activity;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -111,6 +112,17 @@ class ActivityController extends Controller
         return $response->file(Storage::disk('public')->path($activity->media_path), [
             'Content-Type' => $mimeType,
             'Content-Disposition' => 'inline; filename="'.basename($activity->media_path).'"',
+        ]);
+    }
+
+    public function recordView(Activity $activity): JsonResponse
+    {
+        abort_unless($activity->is_published, 404);
+
+        $activity->increment('views_count');
+
+        return response()->json([
+            'views_count' => $activity->views_count,
         ]);
     }
 

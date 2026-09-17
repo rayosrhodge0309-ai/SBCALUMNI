@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'School Administration')
+@section('title', 'Alumni Administration')
 @section('subtitle', 'Manage the campus slider plus the leadership profile media displayed on the landing page.')
 
 @section('content')

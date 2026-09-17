@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EventRegistration;
 use App\Models\SiteSetting;
 use App\Services\LandingProfileSettingsService;
 use App\Services\PortalContentService;
@@ -20,6 +21,17 @@ class LandingPageController extends Controller
         $schoolAd = $this->resolveSchoolAd($content['school_ad'] ?? []);
         $boardMembers = $profileSettingsService->boardMembers();
         $alumniOfficeTeam = $profileSettingsService->alumniOfficeTeam();
+        $upcomingEvents = $contentService->events(null);
+        $eventRegistrationsByEventId = collect();
+        $user = auth()->user();
+
+        if ($user?->isAlumni() && $user->alumni) {
+            $eventRegistrationsByEventId = $user->alumni
+                ->eventRegistrations()
+                ->whereIn('event_id', $upcomingEvents->pluck('id'))
+                ->get()
+                ->keyBy('event_id');
+        }
 
         return view('welcome', [
             'content' => $content,
@@ -43,8 +55,10 @@ class LandingPageController extends Controller
             ],
             'announcements' => $contentService->announcements(null),
             'announcementTotal' => $contentService->announcementsCount(),
-            'upcomingEvents' => $contentService->events(null),
+            'upcomingEvents' => $upcomingEvents,
             'upcomingEventTotal' => $contentService->upcomingEventsCount(),
+            'eventRegistrationsByEventId' => $eventRegistrationsByEventId,
+            'eventRegistrationStatuses' => EventRegistration::statusOptions(),
             'activities' => $contentService->activities(null),
             'boardMembers' => $boardMembers,
             'alumniOfficeTeam' => $alumniOfficeTeam,

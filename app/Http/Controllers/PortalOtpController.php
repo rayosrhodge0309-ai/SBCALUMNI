@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\GmailAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -29,7 +30,7 @@ class PortalOtpController extends Controller
             abort(403);
         }
 
-        if ($user->isApproved() || $user->hasCompletedPortalOtp() || $this->isVerifiedForCurrentUser($request)) {
+        if ($user->hasCompletedPortalOtp() || $this->isVerifiedForCurrentUser($request)) {
             return redirect()->route('portal.dashboard');
         }
 
@@ -54,7 +55,7 @@ class PortalOtpController extends Controller
             abort(403);
         }
 
-        if ($user->isApproved() || $user->hasCompletedPortalOtp() || $this->isVerifiedForCurrentUser($request)) {
+        if ($user->hasCompletedPortalOtp() || $this->isVerifiedForCurrentUser($request)) {
             return redirect()->route('portal.dashboard');
         }
 
@@ -117,7 +118,7 @@ class PortalOtpController extends Controller
             abort(403);
         }
 
-        if ($user->isApproved() || $user->hasCompletedPortalOtp()) {
+        if ($user->hasCompletedPortalOtp()) {
             return redirect()->route('portal.dashboard');
         }
 
@@ -233,14 +234,14 @@ class PortalOtpController extends Controller
             return null;
         }
 
-        $alumniEmail = trim((string) $user->alumni?->email);
-        if ($alumniEmail !== '') {
+        $alumniEmail = GmailAddress::normalize($user->alumni?->email);
+        if (GmailAddress::isAllowed($alumniEmail)) {
             return $alumniEmail;
         }
 
-        $userEmail = trim((string) $user->email);
+        $userEmail = GmailAddress::normalize($user->email);
 
-        return $userEmail !== '' ? $userEmail : null;
+        return GmailAddress::isAllowed($userEmail) ? $userEmail : null;
     }
 
     private function maskEmail(string $email): string

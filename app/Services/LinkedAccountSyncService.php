@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Alumni;
 use App\Models\User;
+use App\Support\GmailAddress;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -88,18 +89,24 @@ class LinkedAccountSyncService
                 return 'skipped_no_email';
             }
 
-            if ($this->emailExistsOnAnotherUser(null, $alumnus->email)) {
+            $email = GmailAddress::normalize($alumnus->email);
+
+            if (! GmailAddress::isAllowed($email)) {
+                return 'skipped_non_gmail';
+            }
+
+            if ($this->emailExistsOnAnotherUser(null, $email)) {
                 return 'skipped_email_conflict';
             }
 
             $user = User::create([
                 'name' => $alumnus->full_name,
-                'email' => $alumnus->email,
+                'email' => $email,
                 'password' => Hash::make(Str::random(40)),
                 'role' => 'alumni',
                 'account_status' => 'approved',
                 'approved_at' => now(),
-                'portal_otp_verified_at' => now(),
+                'portal_otp_verified_at' => null,
                 'alumni_id' => $alumnus->id,
             ]);
 
@@ -110,14 +117,26 @@ class LinkedAccountSyncService
             'name' => $alumnus->full_name,
         ];
 
-        if ($alumnus->email && ! $this->emailExistsOnAnotherUser($user->id, $alumnus->email)) {
-            $updates['email'] = $alumnus->email;
+        if ($alumnus->email) {
+            $email = GmailAddress::normalize($alumnus->email);
+
+            if (! GmailAddress::isAllowed($email)) {
+                return 'skipped_non_gmail';
+            }
+
+            if (! $this->emailExistsOnAnotherUser($user->id, $email)) {
+                $updates['email'] = $email;
+            }
         }
 
         if ($activateExisting) {
+            $wasApproved = $user->isApproved();
             $updates['account_status'] = 'approved';
             $updates['approved_at'] = now();
-            $updates['portal_otp_verified_at'] = now();
+
+            if (! $wasApproved) {
+                $updates['portal_otp_verified_at'] = null;
+            }
         }
 
         $updates['alumni_id'] = $alumnus->id;

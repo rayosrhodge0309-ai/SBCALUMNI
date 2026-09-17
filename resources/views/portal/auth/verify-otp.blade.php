@@ -6,9 +6,9 @@
     <div class="page-card p-3 p-md-5">
         <div class="text-center mb-4">
             <div class="stat-pill text-success bg-success-subtle mb-3">OTP Verification</div>
-            <h1 class="h3 mb-2">Verify your alumni portal account</h1>
+            <h1 class="h3 mb-2">Verify your Gmail on first login</h1>
             <p class="text-secondary mb-0">
-                We sent a 6-digit OTP to <strong>{{ $email }}</strong>. Enter it below to continue to your dashboard.
+                We sent a 6-digit OTP to <strong>{{ $email }}</strong>. Enter it once to verify your Gmail and continue to your dashboard.
             </p>
         </div>
 

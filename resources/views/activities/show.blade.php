@@ -1,13 +1,21 @@
 @extends('layouts.app')
 
+@php
+    $isAdminPreview = auth()->check() && auth()->user()?->isAdmin();
+@endphp
+
 @section('title', $activity->title.' | SBC Alumni Feed')
-@section('full_guest', true)
+@if ($isAdminPreview)
+    @section('workspace_preview', true)
+@else
+    @section('full_guest', true)
+@endif
 
 @section('content')
     <div class="activity-show-page">
         <div class="main-wrapper py-4 py-lg-5">
             <div class="activity-show-header mb-4">
-                <a href="{{ route('home') }}#alumni-feed" class="btn btn-outline-primary btn-sm mb-3">Back to Alumni Feed</a>
+                <a href="{{ $isAdminPreview ? route('home', ['preview' => 1]) : route('home') }}#alumni-feed" class="btn btn-outline-primary btn-sm mb-3">Back</a>
                 <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
                     <div class="min-w-0">
                         <div class="section-eyebrow">SBC Alumni Post</div>
@@ -80,7 +88,7 @@
                             <div class="section-eyebrow mb-2">More SBC Alumni Posts</div>
                             <div class="d-grid gap-3">
                                 @forelse ($relatedActivities as $related)
-                                    <a href="{{ route('activities.show', $related) }}" class="activity-sidebar-card text-decoration-none">
+                                    <a href="{{ $isAdminPreview ? route('activities.show', ['activity' => $related, 'preview' => 1]) : route('activities.show', $related) }}" class="activity-sidebar-card text-decoration-none">
                                         <div class="activity-sidebar-media">
                                             @if ($related->media_url)
                                                 @if ($related->isImageMedia())

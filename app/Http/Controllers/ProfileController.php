@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\LinkedAccountSyncService;
+use App\Support\GmailAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -40,23 +41,37 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $linkedAlumniId = $user->isAlumni() ? $user->alumni_id : null;
+        $emailRules = [
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('users', 'email')->ignore($user->id),
+            Rule::unique('alumni', 'email')->ignore($linkedAlumniId),
+        ];
+
+        if ($user->isAlumni()) {
+            $emailRules[] = GmailAddress::validationRule();
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'password' => ['nullable', 'confirmed', Password::min(8)->letters()->numbers()],
             'profile_photo' => ['nullable', 'image', 'max:2048'],
             'remove_profile_photo' => ['nullable', 'boolean'],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
-                Rule::unique('alumni', 'email')->ignore($linkedAlumniId),
-            ],
+            'email' => $emailRules,
         ]);
 
+        $newEmail = $user->isAlumni()
+            ? GmailAddress::normalize($validated['email'])
+            : $validated['email'];
+        $emailChanged = GmailAddress::normalize($user->email) !== GmailAddress::normalize($newEmail);
+
         $user->name = $validated['name'];
-        $user->email = $validated['email'];
+        $user->email = $newEmail;
+
+        if ($user->isAlumni() && $emailChanged) {
+            $user->portal_otp_verified_at = null;
+        }
 
         if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);

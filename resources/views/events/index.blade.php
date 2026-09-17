@@ -4,7 +4,8 @@
 @section('subtitle', 'Schedule and maintain alumni meetings, reunions, and campus activities.')
 
 @section('content')
-    <div class="d-flex justify-content-end mb-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 mb-4">
+        <a href="{{ route('event-registrations.index') }}" class="btn btn-outline-primary">Event Registrants</a>
         <a href="{{ route('events.create') }}" class="btn btn-primary">Add Event</a>
     </div>
 

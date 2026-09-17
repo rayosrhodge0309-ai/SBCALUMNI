@@ -19,7 +19,7 @@ class EnsurePortalOtpVerified
             return $next($request);
         }
 
-        if ($user->isApproved() || $user->hasCompletedPortalOtp()) {
+        if ($user->hasCompletedPortalOtp()) {
             return $next($request);
         }
 

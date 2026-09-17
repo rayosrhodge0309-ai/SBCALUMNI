@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alumni;
 use App\Models\User;
 use App\Services\LinkedAccountSyncService;
+use App\Support\GmailAddress;
 use App\Support\StudentIdFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,6 +47,19 @@ class PortalAuthController extends Controller
             'password' => 'required|string',
         ]);
 
+        $credentials['email'] = GmailAddress::normalize($credentials['email']);
+        $request->merge(['email' => $credentials['email']]);
+
+        $existingUser = User::query()->where('email', $credentials['email'])->first();
+
+        if ($existingUser?->isAlumni() && ! GmailAddress::isAllowed($credentials['email'])) {
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors([
+                    'email' => GmailAddress::message(),
+                ]);
+        }
+
         if (! Auth::attempt($credentials, false)) {
             return back()
                 ->withInput($request->only('email'))
@@ -61,6 +75,18 @@ class PortalAuthController extends Controller
 
         if ($user?->isAdmin()) {
             return redirect()->intended(route('dashboard'));
+        }
+
+        if ($user?->isAlumni() && ! GmailAddress::isAllowed($user->email)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors([
+                    'email' => GmailAddress::message(),
+                ]);
         }
 
         if ($user?->isAlumni() && ! $user->isApproved()) {
@@ -88,9 +114,7 @@ class PortalAuthController extends Controller
         }
 
         if (! $user->hasCompletedPortalOtp()) {
-            $user->forceFill([
-                'portal_otp_verified_at' => now(),
-            ])->save();
+            return redirect()->route('portal.otp.create');
         }
 
         $syncService = app(LinkedAccountSyncService::class);
@@ -135,7 +159,7 @@ class PortalAuthController extends Controller
             'education_level' => [$existingAlumnus ? 'nullable' : 'required', 'string', 'max:100'],
             'course' => [$existingAlumnus ? 'nullable' : 'required', 'string', 'max:150'],
             'year_graduated' => 'required|integer|min:1900|max:'.(now()->year + 1),
-            'email' => 'required|email|max:255',
+            'email' => ['required', 'email', 'max:255', GmailAddress::validationRule()],
             'contact_number' => 'nullable|string|max:30',
             'address' => 'nullable|string|max:1000',
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
@@ -146,7 +170,7 @@ class PortalAuthController extends Controller
             'password.numbers' => 'Password must include at least one number.',
         ]);
 
-        $normalizedEmail = Str::lower(trim($validated['email']));
+        $normalizedEmail = GmailAddress::normalize($validated['email']);
         $alumniEmailInUse = Alumni::query()
             ->where('email', $normalizedEmail)
             ->when($existingAlumnus, fn ($query) => $query->where('id', '!=', $existingAlumnus->id))
@@ -221,20 +245,17 @@ class PortalAuthController extends Controller
                     ->withInput($request->except('password', 'password_confirmation'))
                     ->withErrors([
                         'email' => 'We could not create your alumni portal account right now. Please contact the administrator.',
-                    ]);
+                ]);
             }
 
-            Auth::login($portalUser);
-            $request->session()->regenerate();
-            PortalOtpController::resetSessionState($request);
-
             $portalUser->forceFill([
-                'portal_otp_verified_at' => now(),
+                'password' => Hash::make($validated['password']),
+                'portal_otp_verified_at' => null,
             ])->save();
 
             return redirect()
-                ->route('portal.dashboard')
-                ->with('success', 'Your alumni record has been verified. Welcome to your dashboard.');
+                ->route('portal.login')
+                ->with('success', 'Your alumni account is ready. Log in with your Gmail and password. A one-time OTP will be sent on your first login.');
         }
 
         $emailUsedByAnotherUser = User::query()
@@ -269,16 +290,18 @@ class PortalAuthController extends Controller
             'role' => 'alumni',
             'account_status' => 'pending',
             'approved_at' => null,
+            'portal_otp_verified_at' => null,
             'alumni_id' => $alumnus->id,
         ]);
 
         return redirect()
             ->route('portal.login')
-            ->with('success', 'Your account request has been submitted. Please wait for admin approval before logging in.');
+            ->with('success', 'Your account request has been submitted. Please wait for admin approval. On your first login after approval, a one-time OTP will be sent to your Gmail.');
     }
 
     private function normalizeStudentId(string $studentId): string
     {
         return StudentIdFormatter::normalize($studentId);
     }
+
 }

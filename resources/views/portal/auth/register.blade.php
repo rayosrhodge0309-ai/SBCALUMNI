@@ -2,14 +2,18 @@
 
 @section('title', 'Request Alumni Portal Account')
 @section('centered_guest', true)
+@section('school_guest_header', true)
 
 @section('content')
     <div class="portal-register-shell">
         <div class="page-card portal-register-card p-3 p-md-5">
             <div class="text-center mb-4">
+                <div class="portal-register-brand-mark mx-auto mb-3">
+                    <img src="{{ asset('images/sbc-logo.svg') }}" alt="St. Bridget College Alumni Association seal">
+                </div>
                 <div class="stat-pill text-success bg-success-subtle mb-3">Self Registration</div>
                 <h1 class="h3 mb-2">Request or claim your alumni portal access</h1>
-                <p class="text-secondary mb-0">If your alumni record is already in the system, you can claim it right away and continue to OTP verification. New records will still be reviewed by the administrator before portal login is enabled.</p>
+                <p class="text-secondary mb-0">Use a real Gmail account. After approval, a one-time OTP will be sent to that Gmail on your first login.</p>
             </div>
 
             <form method="POST" action="{{ route('portal.register.store') }}" id="portal-register-form">
@@ -55,7 +59,8 @@
                     </div>
                     <div class="col-md-6">
                         <label for="email" class="form-label">Email Address</label>
-                        <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="e.g. juan.delacruz@gmail.com" required>
+                        <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="e.g. juan.delacruz@gmail.com" pattern="^[A-Za-z0-9._%+\-]+@gmail\.com$" title="Use a valid Gmail address ending in @gmail.com." required>
+                        <div class="form-text">Only Gmail accounts ending in @gmail.com are accepted.</div>
                     </div>
                     <div class="col-md-6">
                         <label for="contact_number" class="form-label">Contact Number</label>
@@ -96,7 +101,9 @@
                     </div>
                 </div>
 
-                <button type="submit" id="portal-register-submit" class="btn btn-success w-100 mt-4">Submit Account Request</button>
+                <button type="submit" id="portal-register-submit" class="btn btn-success w-100 mt-4">
+                    Submit Account Request
+                </button>
             </form>
 
             <div class="text-center mt-4 text-secondary">
@@ -112,22 +119,114 @@
         .guest-centered-main {
             width: 100%;
             max-width: none;
-            padding-left: 0 !important;
-            padding-right: 0 !important;
+            padding: 0 !important;
+            background: transparent;
+        }
+
+        .guest-shell {
+            min-height: 100vh;
+            min-height: 100svh;
+            background-image:
+                linear-gradient(115deg, rgba(247, 252, 255, 0.96), rgba(221, 240, 255, 0.9) 52%, rgba(201, 224, 255, 0.78)),
+                url("{{ asset('images/alumni-header.jpg') }}");
+            background-position: center, center;
+            background-size: auto, cover;
+            background-repeat: no-repeat, no-repeat;
+            background-attachment: fixed, fixed;
+        }
+
+        .guest-shell .app-main.guest-centered-main {
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+            padding: 0 !important;
         }
 
         .portal-register-shell {
             width: 100%;
-            min-height: calc(100vh - 12rem);
+            min-height: calc(100vh - 3rem);
+            min-height: calc(100svh - 3rem);
             display: grid;
             place-items: center;
-            padding: 1rem;
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            padding: clamp(2rem, 5vw, 4.5rem) 1rem;
             box-sizing: border-box;
+            background: transparent;
+        }
+
+        .portal-register-shell::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            width: min(36rem, 70vw);
+            aspect-ratio: 1;
+            right: -12rem;
+            bottom: -18rem;
+            border-radius: 50%;
+            background: rgba(214, 167, 0, 0.16);
+            filter: blur(0.25rem);
+            pointer-events: none;
         }
 
         .portal-register-card {
             width: min(100%, 68rem);
             margin: 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(11, 69, 184, 0.18);
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 1.2rem 3.2rem rgba(38, 87, 130, 0.18);
+            backdrop-filter: blur(0.4rem);
+        }
+
+        .portal-register-card::before {
+            display: none;
+        }
+
+        .portal-register-brand-mark {
+            width: 4.5rem;
+            height: 4.5rem;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid rgba(11, 69, 184, 0.16);
+            box-shadow: 0 0.8rem 1.9rem rgba(7, 17, 111, 0.16);
+        }
+
+        .portal-register-brand-mark img {
+            width: 3.55rem;
+            height: 3.55rem;
+            object-fit: contain;
+        }
+
+        .portal-register-card .form-control,
+        .portal-register-card .form-select {
+            border-color: rgba(11, 69, 184, 0.24);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .portal-register-card .form-control:focus,
+        .portal-register-card .form-select:focus {
+            border-color: #d6a700;
+            box-shadow: 0 0 0 0.18rem rgba(214, 167, 0, 0.2);
+        }
+
+        .portal-register-card .btn-success {
+            border: 0;
+            background: linear-gradient(135deg, #07116f, #0b45b8);
+            box-shadow: 0 0.7rem 1.3rem rgba(7, 17, 111, 0.18);
+        }
+
+        .portal-register-card .btn-success:hover,
+        .portal-register-card .btn-success:focus-visible {
+            background: linear-gradient(135deg, #07116f, #073b9d);
+            box-shadow: 0 0.9rem 1.6rem rgba(7, 17, 111, 0.24);
+        }
+
+        .portal-register-card .text-decoration-none {
+            font-weight: 600;
         }
 
         .portal-password-field {
@@ -193,6 +292,26 @@
 
         .portal-password-toggle.is-visible .portal-password-eye-slash {
             display: block;
+        }
+
+        @media (max-width: 575.98px) {
+            .guest-shell {
+                background-attachment: scroll, scroll;
+            }
+
+            .portal-register-shell {
+                padding: 1rem;
+            }
+
+            .portal-register-brand-mark {
+                width: 4rem;
+                height: 4rem;
+            }
+
+            .portal-register-brand-mark img {
+                width: 3.15rem;
+                height: 3.15rem;
+            }
         }
     </style>
 @endpush

@@ -26,6 +26,8 @@
         $announcementTotal = isset($announcementTotal) ? (int) $announcementTotal : $announcements->count();
         $upcomingEvents = collect($upcomingEvents ?? []);
         $upcomingEventTotal = isset($upcomingEventTotal) ? (int) $upcomingEventTotal : $upcomingEvents->count();
+        $eventRegistrationsByEventId = $eventRegistrationsByEventId ?? collect();
+        $eventRegistrationStatuses = $eventRegistrationStatuses ?? [];
         $alumniPostTotal = (int) data_get($landingStats, '0.value', 0);
         $boardMemberTotal = (int) data_get($landingStats, '1.value', 0);
         $alumniOfficerTotal = (int) data_get($landingStats, '2.value', 0);
@@ -34,10 +36,8 @@
         $topbarMapUrl = 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($topbarLocation);
         $topbarPhoneLabel = '+63 43 723 3616';
         $topbarPhoneHref = 'tel:+63437233616';
-        $topbarFacebookUrl = 'https://www.facebook.com/stbridgetcollege';
-        $topbarXUrl = 'https://x.com/search?q='.rawurlencode('St. Bridget College Batangas alumni');
-        $topbarInstagramUrl = 'https://www.instagram.com/explore/search/keyword/?q='.rawurlencode('St. Bridget College Batangas alumni');
-        $topbarSearchPlaceholder = 'Search alumni posts, announcements, officers, or contact info';
+        $topbarFacebookUrl = 'https://www.facebook.com/profile.php?id=61580277583049';
+        $topbarSearchPlaceholder = 'Search Alumni Link';
         $sbcLogoPath = null;
         foreach (['images/sbc-logo.png', 'images/sbc-logo.jpg', 'images/sbc-logo.jpeg', 'images/sbc-logo.webp', 'images/sbc-logo.svg'] as $candidate) {
             if (is_file(public_path($candidate))) {
@@ -95,15 +95,7 @@
                             </button>
                         </form>
                         <a href="{{ $topbarFacebookUrl }}" class="landing-topbar-social" target="_blank" rel="noopener" aria-label="Open St. Bridget College alumni Facebook page">
-                            <span aria-hidden="true">f</span>
-                        </a>
-                        <a href="{{ $topbarXUrl }}" class="landing-topbar-social landing-topbar-social-x" target="_blank" rel="noopener" aria-label="Search for St. Bridget College alumni on X">
-                            <span aria-hidden="true">X</span>
-                        </a>
-                        <a href="{{ $topbarInstagramUrl }}" class="landing-topbar-social" target="_blank" rel="noopener" aria-label="Search for St. Bridget College alumni on Instagram">
-                            <span class="landing-topbar-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" focusable="false"><path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm4.5 3.25A4.75 4.75 0 1 1 12 16.75a4.75 4.75 0 0 1 0-9.5Zm0 2A2.75 2.75 0 1 0 12 14.75a2.75 2.75 0 0 0 0-5.5Zm5.1-2.05a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z"/></svg>
-                            </span>
+                            <span>FACEBOOK</span>
                         </a>
                     </div>
                 </div>
@@ -114,7 +106,7 @@
                         <a href="{{ route('home') }}" class="school-identity-lockup text-decoration-none" aria-label="St. Bridget College home">
                             <div class="school-identity-crest {{ $hasSbcLogo ? 'school-identity-crest-logo' : '' }}">
                                 @if ($hasSbcLogo)
-                                    <img src="{{ asset($sbcLogoPath) }}" alt="St. Bridget College Batangas Logo">
+                                    <img src="{{ asset($sbcLogoPath) }}" alt="St. Bridget College Batangas Logo" width="64" height="64" decoding="async">
                                 @else
                                     SBC
                                 @endif
@@ -131,15 +123,15 @@
                             @elseif ($isLoggedInAlumni)
                                 <a href="{{ $portalDashboardUrl }}" class="btn btn-outline-primary">Dashboard</a>
                             @else
-                                <a href="{{ $portalLoginUrl }}" class="btn btn-outline-primary">Alumni Login</a>
-                                <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-primary">Claim Alumni Account</a>
+                                <a href="{{ $portalLoginUrl }}" class="btn btn-outline-primary">Login</a>
+                                <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-primary">Create Account</a>
                             @endif
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="landing-nav">
+            <div class="landing-nav" role="navigation" aria-label="Main navigation">
                 <div class="main-wrapper">
                     <div class="nav flex-nowrap flex-lg-wrap">
                         <a class="nav-link active" href="#home" data-landing-nav-link aria-current="page">Home</a>
@@ -158,7 +150,7 @@
         @endunless
 
         <div class="main-wrapper">
-            <div class="event-card p-3 mt-3 landing-search-empty" hidden data-landing-search-empty>
+            <div class="event-card p-3 mt-3 landing-search-empty" hidden data-landing-search-empty role="status" aria-live="polite">
                 No landing page matches found. Try an alumni post, announcement, event, officer name, contact detail, or a campus keyword.
             </div>
         </div>
@@ -167,12 +159,12 @@
             <section class="landing-mobile-entry d-lg-none">
             <div class="main-wrapper">
                 <div class="landing-mobile-hero p-3 mt-3">
-                    <div class="hero-campus-building" aria-hidden="true"></div>
+                    <img src="{{ asset('images/alumni-header.jpg') }}" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
                     <div class="landing-mobile-hero-head d-flex align-items-start justify-content-between gap-3">
                         <div class="min-w-0">
                             <div class="hero-badge mb-2">{{ $hero['eyebrow'] }}</div>
                             <div class="mobile-portal-badge">{{ $brand['school'] }}</div>
-                            <h2 class="h3 mb-2">{{ $hero['title'] }}</h2>
+                            <h1 class="h3 mb-2">{{ $hero['title'] }}</h1>
                             <p class="mb-0 text-white-50">{{ $hero['summary'] }}</p>
                         </div>
                     </div>
@@ -200,7 +192,7 @@
                         <a href="{{ $portalDashboardUrl }}" class="landing-chip">Dashboard</a>
                     @else
                         <a href="{{ $portalLoginUrl }}" class="landing-chip">Login</a>
-                        <a href="{{ $portalRegisterUrl }}" class="landing-chip">Register</a>
+                        <a href="{{ $portalRegisterUrl }}" class="landing-chip">Create Account</a>
                     @endif
                 </div>
             </div>
@@ -211,20 +203,20 @@
                     <div class="main-wrapper">
                         <div class="landing-mobile-actions-grid">
                             <a href="{{ route('portal.login', ['switch' => 1]) }}" class="landing-mobile-action">
-                                <span class="landing-mobile-action-icon">P</span>
+                                <span class="landing-mobile-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg></span>
                                 <span class="landing-mobile-action-label">Portal</span>
                             </a>
-                            <a href="{{ route('portal.register') }}" class="landing-mobile-action">
-                                <span class="landing-mobile-action-icon">R</span>
-                                <span class="landing-mobile-action-label">Register</span>
+                            <a href="{{ $portalRegisterUrl }}" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M2 21v-3a7 7 0 0 1 12-5M19 12v8m-4-4h8"/></svg></span>
+                                <span class="landing-mobile-action-label">Join</span>
                             </a>
                             <a href="tel:{{ preg_replace('/[^0-9]/', '', $brand['phone']) }}" class="landing-mobile-action">
-                                <span class="landing-mobile-action-icon">C</span>
+                                <span class="landing-mobile-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3H3v3c0 8.3 6.7 15 15 15h3v-3l-5-3-2 2a12 12 0 0 1-7-7l2-2Z"/></svg></span>
                                 <span class="landing-mobile-action-label">Call</span>
                             </a>
                             <a href="#contact" class="landing-mobile-action">
-                                <span class="landing-mobile-action-icon">M</span>
-                                <span class="landing-mobile-action-label">More</span>
+                                <span class="landing-mobile-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></span>
+                                <span class="landing-mobile-action-label">Contact</span>
                             </a>
                         </div>
                     </div>
@@ -234,19 +226,22 @@
 
         <section id="home" class="landing-section hero-section pt-3 pt-lg-5">
                 <div class="hero-stage reveal d-none d-lg-block">
-                    <div class="hero-campus-building" aria-hidden="true"></div>
+                    <img src="{{ asset('images/alumni-header.jpg') }}" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
                     <div class="row gx-0 align-items-stretch position-relative hero-columns">
                         <div class="col-lg-12 hero-left-panel">
                             <div class="hero-badge">{{ $hero['eyebrow'] }}</div>
-                            <h2 class="hero-heading">{{ $hero['title'] }}</h2>
+                            <h1 class="hero-heading">{{ $hero['title'] }}</h1>
                             <p class="hero-copy mb-4">{{ $hero['summary'] }}</p>
-                            <div class="d-flex flex-wrap gap-2 mb-4">
-                                @if (! $isLoggedInAdmin && ! $isLoggedInAlumni)
-                                    <a href="{{ $portalLoginUrl }}" class="btn btn-light btn-lg">Open Alumni Dashboard</a>
-                                    <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-light btn-lg">Register Alumni Account</a>
+                            <div class="landing-hero-actions mb-4">
+                                @if ($isLoggedInAdmin)
+                                    <a href="{{ $adminDashboardUrl }}" class="btn btn-light">Go to dashboard <span aria-hidden="true">&rarr;</span></a>
+                                @elseif ($isLoggedInAlumni)
+                                    <a href="{{ $portalDashboardUrl }}" class="btn btn-light">Go to dashboard <span aria-hidden="true">&rarr;</span></a>
+                                @else
+                                    <a href="{{ $portalRegisterUrl }}" class="btn btn-light">Join the alumni community <span aria-hidden="true">&rarr;</span></a>
                                 @endif
+                                <a href="#events" class="btn btn-outline-light">Explore events</a>
                             </div>
-
                             <div class="row g-3">
                                 @foreach ($landingStats as $metric)
                                     <div class="col-sm-4">
@@ -265,9 +260,17 @@
                     <div
                         id="campusGalleryCarousel"
                         class="carousel slide carousel-fade campus-gallery-carousel"
-                        data-bs-ride="carousel"
-                        data-bs-interval="4800"
-                        data-bs-pause="false">
+                        data-bs-interval="6500"
+                        data-bs-pause="hover"
+                        role="region"
+                        aria-roledescription="carousel"
+                        aria-label="Campus gallery">
+
+                        @if (count($photoSlides) > 1)
+                            <button type="button" class="campus-gallery-playback" data-gallery-playback aria-label="Pause campus slideshow" hidden>
+                                Pause slideshow
+                            </button>
+                        @endif
 
                         @if (count($photoSlides) > 1)
                             <div class="carousel-indicators campus-carousel-indicators">
@@ -293,7 +296,7 @@
                                             controls
                                             muted
                                             loop
-                                            preload="metadata"
+                                            preload="none"
                                             playsinline
                                             poster="">
                                             Your browser does not support the video tag.
@@ -302,7 +305,9 @@
                                         <img
                                             src="{{ $slide['url'] }}"
                                             class="campus-gallery-image"
-                                            alt="{{ $slide['title'] ?: 'St. Bridget College Batangas campus photo' }}">
+                                            alt="{{ $slide['title'] ?: 'St. Bridget College Batangas campus photo' }}"
+                                            loading="lazy"
+                                            decoding="async">
                                     @endif
                                     <div class="campus-gallery-caption">
                                         <div class="campus-gallery-kicker">{{ $schoolAd['eyebrow'] }}</div>
@@ -336,19 +341,22 @@
                         </div>
                 </section>
 
-        <section id="about" class="landing-section pt-0" data-landing-search-group data-search-text="About Alumni Link claim alumni access submit requests stay involved">
+        <section id="about" class="landing-section pt-0 about-link-section" data-landing-search-group data-search-text="About Alumni Link claim alumni access submit requests stay involved">
             <div class="main-wrapper">
-                <div class="mb-3 reveal">
+                <div class="about-link-head mb-3 reveal">
                     <div class="section-eyebrow">About Alumni Link</div>
                 </div>
 
-                <div class="row g-4">
+                <div class="row g-4 about-process-grid">
                     @foreach ($process as $item)
-                        <div class="col-md-4 reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($item['step'].' '.$item['title'].' '.$item['description']) }}">
-                            <div class="process-card p-4 h-100">
-                                <div class="section-eyebrow mb-2">{{ $item['step'] }}</div>
-                                <h3 class="h4 mb-3">{{ $item['title'] }}</h3>
-                                <p class="text-secondary mb-0">{{ $item['description'] }}</p>
+                        <div class="col-md-4 reveal about-process-item" style="--about-delay: {{ $loop->index * 90 }}ms;" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($item['step'].' '.$item['title'].' '.$item['description']) }}">
+                            <div class="process-card about-process-card p-4 h-100">
+                                <div class="about-process-step-row">
+                                    <span class="about-process-step">{{ $item['step'] }}</span>
+                                    <span class="about-process-line" aria-hidden="true"></span>
+                                </div>
+                                <h3 class="about-process-title mb-3">{{ $item['title'] }}</h3>
+                                <p class="about-process-copy mb-0">{{ $item['description'] }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -358,11 +366,21 @@
 
         <section class="landing-section pt-0 landing-board-section" data-landing-search-group data-search-text="Events announcements activities community calendar school notices alumni stories Bridgetine updates">
             <div class="main-wrapper">
+                <div class="mb-4">
+                    <div class="section-eyebrow">Stay connected</div>
+                    <h2 class="h3 mt-2 mb-2">SBC Alumni Feed</h2>
+                    <p class="text-secondary mb-0">The latest events, school announcements, and stories from your alumni community.</p>
+                </div>
                 <div class="landing-board reveal">
-                    <div id="events" class="landing-board-column">
+                    <div id="events" class="landing-board-column landing-board-column-events">
                         <div class="landing-board-header">
-                            <div class="landing-board-title">Events</div>
-                            <div class="landing-board-count">{{ $upcomingEventTotal }} {{ $upcomingEventTotal === 1 ? 'event' : 'events' }}</div>
+                            <span class="landing-board-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false"><path d="M7 2h2v3h6V2h2v3h3a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3V2Zm13 9H4v9h16v-9ZM4 9h16V7H4v2Z"/></svg>
+                            </span>
+                            <div>
+                                <div class="landing-board-title">Events</div>
+                                <div class="landing-board-count">{{ $upcomingEventTotal }} {{ $upcomingEventTotal === 1 ? 'event' : 'events' }}</div>
+                            </div>
                         </div>
                         <div class="landing-board-list">
                             @forelse ($upcomingEvents as $event)
@@ -395,10 +413,15 @@
                         </div>
                     </div>
 
-                    <div id="updates" class="landing-board-column">
+                    <div id="updates" class="landing-board-column landing-board-column-announcements">
                         <div class="landing-board-header">
-                            <div class="landing-board-title">Announcement</div>
-                            <div class="landing-board-count">{{ $announcementTotal }} {{ $announcementTotal === 1 ? 'notice' : 'notices' }}</div>
+                            <span class="landing-board-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6.6L8 21.6V18H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v10h6v1.9l2.8-1.9H20V6H4Zm3 3h10v2H7V9Zm0 4h7v2H7v-2Z"/></svg>
+                            </span>
+                            <div>
+                                <div class="landing-board-title">Announcement</div>
+                                <div class="landing-board-count">{{ $announcementTotal }} {{ $announcementTotal === 1 ? 'notice' : 'notices' }}</div>
+                            </div>
                         </div>
                         <div class="landing-board-list">
                             @forelse ($announcements as $announcement)
@@ -438,18 +461,32 @@
                         </div>
                     </div>
 
-                    <div id="alumni-feed" class="landing-board-column">
+                    <div id="alumni-feed" class="landing-board-column landing-board-column-activities">
                         <div class="landing-board-header">
-                            <div class="landing-board-title">Activities</div>
-                            <div class="landing-board-count">{{ $alumniPostTotal }} {{ $alumniPostTotal === 1 ? 'activity' : 'activities' }}</div>
+                            <span class="landing-board-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2 9.2 8.4 2 9.1l5.4 4.7-1.6 7L12 17.1l6.2 3.7-1.6-7L22 9.1l-7.2-.7L12 2Zm0 5 1.4 3.2 3.6.4-2.7 2.3.8 3.5-3.1-1.9-3.1 1.9.8-3.5L7 10.6l3.6-.4L12 7Z"/></svg>
+                            </span>
+                            <div>
+                                <div class="landing-board-title">Activities</div>
+                                <div class="landing-board-count">{{ $alumniPostTotal }} alumni {{ $alumniPostTotal === 1 ? 'post' : 'posts' }} published</div>
+                            </div>
                         </div>
                         <div class="landing-board-list">
                             @forelse ($activities as $activity)
                                 @php
                                     $activityViews = (int) ($activity['views_count'] ?? 0);
+                                    $activityModalId = 'activity-detail-'.($activity['id'] ?? $loop->index);
                                 @endphp
                                 <div class="landing-board-item reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower(($activity['theme'] ?? '').' '.($activity['title'] ?? '').' '.($activity['description'] ?? '').' '.($activity['location'] ?? '').' '.(isset($activity['activity_date']) ? \Illuminate\Support\Carbon::parse($activity['activity_date'])->format('F d, Y') : '')) }}">
-                                    <a href="{{ $activity['show_url'] }}" class="landing-board-card landing-board-card-link text-decoration-none">
+                                    <article class="landing-board-card"
+                                        role="button"
+                                        tabindex="0"
+                                        aria-haspopup="dialog"
+                                        aria-controls="{{ $activityModalId }}"
+                                        aria-label="Read full activity: {{ $activity['title'] }}"
+                                        data-activity-view-url="{{ isset($activity['id']) ? route('activities.view', $activity['id']) : '' }}"
+                                        data-activity-card
+                                        data-activity-target="#{{ $activityModalId }}">
                                         <h3 class="landing-board-card-title">{{ $activity['title'] }}</h3>
                                         <div class="landing-board-card-meta">
                                             By St. Bridget College
@@ -458,12 +495,12 @@
                                             @endif
                                         </div>
                                         <div class="landing-board-card-meta">
-                                            Views: {{ number_format($activityViews) }}
+                                            Views: <span data-activity-views-count>{{ number_format($activityViews) }}</span>
                                         </div>
-                                    </a>
+                                    </article>
                                 </div>
                             @empty
-                                <div class="landing-board-empty">No activities yet.</div>
+                                <div class="landing-board-empty">No alumni posts yet.</div>
                             @endforelse
                         </div>
                     </div>
@@ -495,9 +532,9 @@
                                     @if ($announcementHasMedia)
                                         <div class="announcement-detail-media mb-4">
                                             @if (($announcement['media_type'] ?? null) === 'image')
-                                                <img src="{{ $announcement['media_url'] }}" alt="{{ $announcementTitle }}">
+                                                <img src="{{ $announcement['media_url'] }}" alt="{{ $announcementTitle }}" loading="lazy" decoding="async">
                                             @elseif (($announcement['media_type'] ?? null) === 'video')
-                                                <video controls playsinline preload="metadata">
+                                                <video controls playsinline preload="none">
                                                     <source src="{{ $announcement['media_url'] }}">
                                                     Your browser does not support the video tag.
                                                 </video>
@@ -515,6 +552,10 @@
                     @php
                         $eventModalId = 'event-detail-'.$event->id;
                         $eventHasMedia = (bool) $event->media_url;
+                        $eventRegistration = $eventRegistrationsByEventId->get($event->id);
+                        $eventRegistrationStatus = $eventRegistration
+                            ? ($eventRegistrationStatuses[$eventRegistration->status] ?? $eventRegistration->status_label)
+                            : null;
                     @endphp
                     <div class="modal fade event-detail-modal" id="{{ $eventModalId }}" tabindex="-1" aria-labelledby="{{ $eventModalId }}-title" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
@@ -533,12 +574,74 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
+                                    @if ($isLoggedInAlumni)
+                                        @if ($eventRegistration)
+                                            <div class="event-detail-registration mb-4">
+                                                <div class="d-flex flex-column flex-sm-row justify-content-between gap-1">
+                                                    <div class="fw-semibold">Registration: {{ $eventRegistrationStatus }}</div>
+                                                    <div class="small text-secondary">
+                                                        {{ $eventRegistration->registered_at?->format('M d, Y h:i A') }}
+                                                    </div>
+                                                </div>
+
+                                                @if ($eventRegistration->admin_reply)
+                                                    <div class="event-detail-registration-reply mt-2">{{ $eventRegistration->admin_reply }}</div>
+                                                @else
+                                                    <div class="small text-secondary mt-1">Waiting for admin reply.</div>
+                                                @endif
+                                            </div>
+                                        @else
+                                            @php
+                                                $registrationFormExpanded = (string) old('event_registration_event_id') === (string) $event->id;
+                                                $registrationFieldsId = 'landing_event_registration_'.$event->id;
+                                            @endphp
+                                            <form method="POST" action="{{ route('portal.events.registrations.store', $event) }}" class="event-detail-register mb-4" data-event-registration-form>
+                                                @csrf
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-primary w-100"
+                                                    aria-expanded="{{ $registrationFormExpanded ? 'true' : 'false' }}"
+                                                    aria-controls="{{ $registrationFieldsId }}"
+                                                    data-event-registration-toggle>
+                                                    Register to Event
+                                                </button>
+                                                @include('events._registration_requirements', [
+                                                    'registrationFieldId' => $registrationFieldsId,
+                                                    'registrationEventId' => $event->id,
+                                                    'registrationAlumnus' => $currentUser?->alumni,
+                                                    'registrationUser' => $currentUser,
+                                                    'registrationExpanded' => $registrationFormExpanded,
+                                                    'registrationHasErrors' => $registrationFormExpanded,
+                                                    'registrationSubmitClass' => 'btn btn-primary',
+                                                ])
+                                            </form>
+                                        @endif
+                                    @elseif (! $isLoggedInAdmin)
+                                        <div class="event-detail-register mb-4" data-event-registration-denied>
+                                            <button
+                                                type="button"
+                                                class="btn btn-primary w-100"
+                                                aria-expanded="false"
+                                                data-event-registration-denied-toggle>
+                                                Register to Event
+                                            </button>
+                                            <div class="event-registration-failed mt-3" hidden data-event-registration-denied-message>
+                                                <div class="event-registration-failed-title">Failed to register</div>
+                                                <div class="event-registration-failed-copy">Please log in or create an alumni account before registering for this event.</div>
+                                                <div class="event-registration-failed-actions">
+                                                    <a href="{{ $portalLoginUrl }}" class="btn btn-sm btn-primary">Login</a>
+                                                    <a href="{{ $portalRegisterUrl }}" class="btn btn-sm btn-outline-primary">Create Account</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+
                                     @if ($eventHasMedia)
                                         <div class="event-detail-media mb-4">
                                             @if ($event->isImageMedia())
-                                                <img src="{{ $event->media_url }}" alt="{{ $event->title }}">
+                                                <img src="{{ $event->media_url }}" alt="{{ $event->title }}" loading="lazy" decoding="async">
                                             @elseif ($event->isVideoMedia())
-                                                <video controls playsinline preload="metadata">
+                                                <video controls playsinline preload="none">
                                                     <source src="{{ $event->media_url }}">
                                                     Your browser does not support the video tag.
                                                 </video>
@@ -551,13 +654,66 @@
                         </div>
                     </div>
                 @endforeach
+
+                @foreach ($activities as $activity)
+                    @php
+                        $activityModalId = 'activity-detail-'.($activity['id'] ?? $loop->index);
+                        $activityTitle = $activity['title'] ?? '';
+                        $activityTheme = $activity['theme'] ?? 'Activity';
+                        $activityDescription = $activity['description'] ?? '';
+                        $activityDate = $activity['activity_date'] ?? null;
+                        $activityLocation = $activity['location'] ?? null;
+                        $activityHasMedia = ! empty($activity['media_url']);
+                    @endphp
+                    <div class="modal fade activity-detail-modal" id="{{ $activityModalId }}" tabindex="-1" aria-labelledby="{{ $activityModalId }}-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div>
+                                        <div class="alumni-post-badge mb-2">{{ $activityTheme ?: 'Activity' }}</div>
+                                        <h3 class="modal-title" id="{{ $activityModalId }}-title">{{ $activityTitle }}</h3>
+                                        @if ($activityDate || $activityLocation)
+                                            <div class="alumni-post-meta mt-1">
+                                                @if ($activityDate)
+                                                    <span>{{ \Illuminate\Support\Carbon::parse($activityDate)->format('F d, Y') }}</span>
+                                                @endif
+                                                @if ($activityLocation)
+                                                    <span>{{ $activityLocation }}</span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @if ($activityHasMedia)
+                                        <div class="activity-detail-media mb-4">
+                                            @if (($activity['media_type'] ?? null) === 'image')
+                                                <img src="{{ $activity['media_url'] }}" alt="{{ $activityTitle }}" loading="lazy" decoding="async">
+                                            @elseif (($activity['media_type'] ?? null) === 'video')
+                                                <video controls playsinline preload="none">
+                                                    <source src="{{ $activity['media_url'] }}">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    <div class="activity-detail-copy">{!! nl2br(e($activityDescription)) !!}</div>
+                                    @if (isset($activity['id']))
+                                        <a href="{{ route('activities.show', $activity['id']) }}" class="btn btn-outline-primary mt-4">View full post <span aria-hidden="true">&rarr;</span></a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </section>
 
         <section id="leadership" class="landing-section" data-landing-search-group data-search-text="Board of Trustees school leadership St. Bridget College Batangas">
             <div class="main-wrapper">
                 <div class="row g-4 align-items-end mb-3">
-                    <div class="col-lg-8 reveal leadership-scroll-item" data-leadership-animate style="--leadership-delay: 0ms;">
+                    <div class="col-lg-8 reveal leadership-scroll-item" style="--leadership-delay: 0ms;">
                         <div class="section-eyebrow">School Leadership</div>
                         <h2 class="section-title">Board of Trustees of St. Bridget College Batangas</h2>
                     </div>
@@ -565,11 +721,11 @@
 
                 <div class="row g-4">
                     @foreach ($boardMembers as $member)
-                        <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" data-leadership-animate style="--leadership-delay: {{ 120 + ($loop->index * 90) }}ms;" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($member['name'].' '.$member['role']) }}">
+                        <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: {{ 120 + ($loop->index * 90) }}ms;" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($member['name'].' '.$member['role']) }}">
                             <div class="trustee-member text-center py-4">
                                 @if (! empty($member['photo_path']))
                                     <div class="trustee-avatar mx-auto mb-3">
-                                        <img src="{{ $member['photo_url'] }}" alt="{{ $member['name'] }}">
+                                        <img src="{{ $member['photo_url'] }}" alt="{{ $member['name'] }}" width="96" height="96" loading="lazy" decoding="async">
                                     </div>
                                 @endif
                                 <h3 class="trustee-name mb-2">{{ $member['name'] }}</h3>
@@ -596,7 +752,7 @@
                                 <div class="officer-media text-center mb-3">
                                     @if (! empty($member['photo_path']))
                                         <div class="officer-avatar mx-auto">
-                                            <img src="{{ $member['photo_url'] }}" alt="{{ $member['name'] }}">
+                                            <img src="{{ $member['photo_url'] }}" alt="{{ $member['name'] }}" width="96" height="96" loading="lazy" decoding="async">
                                         </div>
                                     @else
                                         <div class="officer-avatar officer-avatar-placeholder mx-auto">{{ isset($member['initials']) ? $member['initials'] : strtoupper(substr(trim($member['name'] ?? ''),0,2)) }}</div>
@@ -621,143 +777,7 @@
             </div>
         </section>
 
-    @push('styles')
-        <style>
-            /* Center the Alumni Officers header and the officer cards on the landing page */
-            #alumni-office .officers-hero {
-                text-align: center;
-            }
 
-            #alumni-office .officers-hero .section-copy {
-                margin-left: auto;
-                margin-right: auto;
-                max-width: 68ch;
-            }
-
-            /* Center the column children within the Bootstrap row */
-            #alumni-office .officers-grid {
-                justify-content: center;
-            }
-
-            /* Ensure each grid column centers its card so two members sit centered */
-            #alumni-office .officers-grid > [class*="col-"] {
-                display: flex;
-                justify-content: center;
-            }
-            /* Make officer cards visually match the trustee (school leadership) style */
-            #alumni-office .officer-card {
-                background: transparent !important;
-                border: none !important;
-                box-shadow: none !important;
-                padding: 1.75rem 0 !important;
-                max-width: 28rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            #alumni-office .officer-name {
-                color: #111111;
-                font-size: clamp(1.1rem, 1.35vw, 1.35rem);
-                font-weight: 700;
-                line-height: 1.12;
-                text-align: center;
-            }
-
-            #alumni-office .officer-role {
-                color: #6c6f77;
-                font-size: 0.96rem;
-                line-height: 1.6;
-                text-align: center;
-            }
-
-            #leadership .trustee-avatar,
-            #alumni-office .officer-avatar {
-                width: 96px;
-                height: 96px;
-                border-radius: 50%;
-                overflow: hidden;
-                background: var(--panel);
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                border: 2px solid rgba(4,0,120,0.06);
-            }
-
-            .leadership-motion-ready #leadership .leadership-scroll-item {
-                opacity: 0;
-                transform: translateY(34px) scale(0.96);
-                filter: blur(6px);
-                animation: none;
-                transition:
-                    opacity 0.7s ease,
-                    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-                    filter 0.7s ease;
-                transition-delay: var(--leadership-delay, 0ms);
-                will-change: opacity, transform, filter;
-            }
-
-            .leadership-motion-ready #leadership .leadership-scroll-item.is-visible {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-                filter: blur(0);
-            }
-
-            .leadership-motion-ready #leadership .leadership-scroll-item .trustee-avatar {
-                transform: scale(0.86);
-                transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-                transition-delay: calc(var(--leadership-delay, 0ms) + 120ms);
-            }
-
-            .leadership-motion-ready #leadership .leadership-scroll-item.is-visible .trustee-avatar {
-                transform: scale(1);
-            }
-
-            .leadership-motion-ready.leadership-is-scrolling #leadership .leadership-scroll-item.is-visible > * {
-                animation: leadershipScrollFloat 1.05s ease-in-out infinite alternate;
-                animation-delay: calc(var(--leadership-delay, 0ms) * 0.35);
-            }
-
-            .leadership-motion-ready.leadership-is-scrolling #leadership .leadership-scroll-item.is-visible .trustee-avatar {
-                animation: leadershipAvatarPulse 0.95s ease-in-out infinite alternate;
-                animation-delay: calc(var(--leadership-delay, 0ms) * 0.25);
-            }
-
-            @keyframes leadershipScrollFloat {
-                from {
-                    transform: translateY(0) scale(1);
-                }
-
-                to {
-                    transform: translateY(-8px) scale(1.015);
-                }
-            }
-
-            @keyframes leadershipAvatarPulse {
-                from {
-                    box-shadow: 0 0 0 rgba(11, 69, 184, 0);
-                    transform: scale(1);
-                }
-
-                to {
-                    box-shadow: 0 12px 24px rgba(11, 69, 184, 0.14);
-                    transform: scale(1.04);
-                }
-            }
-
-            @media (prefers-reduced-motion: reduce) {
-                .leadership-motion-ready #leadership .leadership-scroll-item,
-                .leadership-motion-ready #leadership .leadership-scroll-item .trustee-avatar,
-                .leadership-motion-ready.leadership-is-scrolling #leadership .leadership-scroll-item.is-visible > * {
-                    opacity: 1;
-                    filter: none;
-                    transform: none;
-                    transition: none;
-                    animation: none;
-                }
-            }
-        </style>
-    @endpush
 
         <section id="contact" class="landing-section pt-0" data-landing-search-group data-search-text="Contact and Access St. Bridget College Batangas address phone email alumni portal">
             <div class="main-wrapper">
@@ -836,9 +856,6 @@
                                     <a href="{{ $adminDashboardUrl }}">Dashboard</a>
                                 @elseif ($isLoggedInAlumni)
                                     <a href="{{ $portalDashboardUrl }}">Dashboard</a>
-                                @else
-                                    <a href="{{ $portalRegisterUrl }}">Claim Alumni Account</a>
-                                    <a href="{{ $portalLoginUrl }}">Open Alumni Dashboard</a>
                                 @endif
                                 <a href="#updates">School Notices</a>
                                 <a href="#events">Community Calendar</a>
@@ -858,8 +875,8 @@
                                     @elseif ($isLoggedInAlumni)
                                         <a href="{{ $portalDashboardUrl }}" class="btn btn-light">Dashboard</a>
                                     @else
-                                        <a href="{{ $portalLoginUrl }}" class="btn btn-light">Alumni Login</a>
-                                        <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-light">Create Alumni Account</a>
+                                        <a href="{{ $portalLoginUrl }}" class="btn btn-light">Login</a>
+                                        <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-light">Create Account</a>
                                     @endif
                                 </div>
                             </div>
@@ -880,11 +897,73 @@
 @push('scripts')
     <script>
         (function () {
+            document.querySelectorAll('[data-event-registration-form]').forEach((form) => {
+                const toggle = form.querySelector('[data-event-registration-toggle]');
+                const fields = form.querySelector('[data-event-registration-fields]');
+                const inputs = form.querySelectorAll('[data-event-registration-input]');
+                const cancel = form.querySelector('[data-event-registration-cancel]');
+
+                if (!toggle || !fields) {
+                    return;
+                }
+
+                const setOpen = (isOpen) => {
+                    fields.classList.toggle('d-none', !isOpen);
+                    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+                    inputs.forEach((input) => {
+                        input.disabled = !isOpen;
+                    });
+                };
+
+                toggle.addEventListener('click', () => {
+                    setOpen(fields.classList.contains('d-none'));
+                });
+
+                if (cancel) {
+                    cancel.addEventListener('click', () => {
+                        setOpen(false);
+                    });
+                }
+
+                setOpen(!fields.classList.contains('d-none'));
+            });
+
+            document.querySelectorAll('[data-event-registration-denied]').forEach((box) => {
+                const toggle = box.querySelector('[data-event-registration-denied-toggle]');
+                const message = box.querySelector('[data-event-registration-denied-message]');
+
+                if (!toggle || !message) {
+                    return;
+                }
+
+                toggle.addEventListener('click', () => {
+                    toggle.textContent = 'Failed to register';
+                    toggle.setAttribute('aria-expanded', 'true');
+                    message.hidden = false;
+                    message.classList.remove('is-visible');
+
+                    window.requestAnimationFrame(() => {
+                        message.classList.add('is-visible');
+                    });
+                });
+            });
+        })();
+
+        (function () {
             const carousel = document.getElementById('campusGalleryCarousel');
 
             if (!carousel) {
                 return;
             }
+
+            const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const connection = navigator.connection;
+            const playback = carousel.querySelector('[data-gallery-playback]');
+            const instance = window.bootstrap?.Carousel.getOrCreateInstance(carousel, { ride: false });
+            let isVisible = !('IntersectionObserver' in window);
+            let userPaused = motionQuery.matches || Boolean(connection?.saveData);
+            let isHovered = false;
 
             const pauseVideos = () => {
                 carousel.querySelectorAll('video.campus-gallery-video').forEach((video) => {
@@ -897,6 +976,10 @@
             };
 
             const playActiveVideo = () => {
+                if (userPaused || !isVisible || document.hidden || motionQuery.matches || connection?.saveData) {
+                    return;
+                }
+
                 const activeVideo = carousel.querySelector('.carousel-item.active video.campus-gallery-video');
 
                 if (!activeVideo) {
@@ -907,12 +990,6 @@
                 activeVideo.loop = true;
                 activeVideo.playsInline = true;
 
-                try {
-                    activeVideo.currentTime = 0;
-                } catch (error) {
-                    // Ignore seeking before metadata is ready.
-                }
-
                 const attempt = activeVideo.play();
 
                 if (attempt && typeof attempt.catch === 'function') {
@@ -922,18 +999,41 @@
 
             const syncVideoState = () => {
                 pauseVideos();
+                instance?.pause();
 
-                if (document.visibilityState === 'visible') {
+                if (isVisible && !document.hidden && !userPaused && !isHovered && !carousel.contains(document.activeElement)) {
+                    instance?.cycle();
                     playActiveVideo();
+                }
+
+                if (playback) {
+                    playback.hidden = !instance;
+                    playback.textContent = userPaused ? 'Play slideshow' : 'Pause slideshow';
+                    playback.setAttribute('aria-label', userPaused ? 'Play campus slideshow' : 'Pause campus slideshow');
                 }
             };
 
             carousel.addEventListener('slide.bs.carousel', pauseVideos);
             carousel.addEventListener('slid.bs.carousel', playActiveVideo);
+            carousel.addEventListener('mouseenter', () => { isHovered = true; syncVideoState(); });
+            carousel.addEventListener('mouseleave', () => { isHovered = false; syncVideoState(); });
+            carousel.addEventListener('focusin', syncVideoState);
+            carousel.addEventListener('focusout', () => window.setTimeout(syncVideoState, 0));
+            playback?.addEventListener('click', () => { userPaused = !userPaused; syncVideoState(); });
+            motionQuery.addEventListener('change', () => { userPaused = motionQuery.matches; syncVideoState(); });
             document.addEventListener('visibilitychange', syncVideoState);
-            window.addEventListener('pagehide', pauseVideos);
+            window.addEventListener('pagehide', () => { instance?.pause(); pauseVideos(); });
             window.addEventListener('pageshow', syncVideoState);
-            window.addEventListener('load', syncVideoState);
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(([entry]) => {
+                    isVisible = entry.isIntersecting;
+                    syncVideoState();
+                }, { threshold: 0.1 });
+                observer.observe(carousel);
+            }
+
+            syncVideoState();
         })();
     </script>
     <script>
@@ -947,8 +1047,11 @@
             const sections = links
                 .map((link) => document.getElementById((link.getAttribute('href') || '').replace('#', '')))
                 .filter(Boolean);
+            let activeSectionId = null;
 
             const setActiveLink = (sectionId) => {
+                if (sectionId === activeSectionId) return;
+                activeSectionId = sectionId;
                 links.forEach((link) => {
                     const isActive = link.getAttribute('href') === `#${sectionId}`;
 
@@ -1032,24 +1135,30 @@
                 .replace(/\s+/g, ' ')
                 .trim();
 
-            const matches = (haystack, needle) => normalize(haystack).includes(normalize(needle));
-
             const getGroupText = (group) => group.getAttribute('data-search-text') || group.textContent || '';
             const getItemText = (item) => item.getAttribute('data-search-text') || item.textContent || '';
+            const searchIndex = groups.map((group) => ({
+                group,
+                text: normalize(getGroupText(group)),
+                items: Array.from(group.querySelectorAll('[data-landing-search-item]')).map((item) => ({
+                    element: item,
+                    text: normalize(getItemText(item)),
+                })),
+            }));
+            let searchTimer;
 
             const applySearch = (query, scrollToMatch = false) => {
                 const normalizedQuery = normalize(query);
                 let firstMatch = null;
                 let matchCount = 0;
 
-                groups.forEach((group) => {
-                    const items = Array.from(group.querySelectorAll('[data-landing-search-item]'));
-                    const groupMatches = normalizedQuery === '' || matches(getGroupText(group), normalizedQuery);
+                searchIndex.forEach(({ group, text, items }) => {
+                    const groupMatches = normalizedQuery === '' || text.includes(normalizedQuery);
 
                     if (!normalizedQuery) {
                         group.hidden = false;
-                        items.forEach((item) => {
-                            item.hidden = false;
+                        items.forEach(({ element }) => {
+                            element.hidden = false;
                         });
                         return;
                     }
@@ -1067,8 +1176,8 @@
 
                     let groupHasVisibleItems = false;
 
-                    items.forEach((item) => {
-                        const itemMatches = matches(getItemText(item), normalizedQuery);
+                    items.forEach(({ element: item, text }) => {
+                        const itemMatches = text.includes(normalizedQuery);
                         const visible = groupMatches || itemMatches;
 
                         item.hidden = !visible;
@@ -1092,7 +1201,7 @@
 
                 if (scrollToMatch && firstMatch && typeof firstMatch.scrollIntoView === 'function') {
                     firstMatch.scrollIntoView({
-                        behavior: 'smooth',
+                        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
                         block: 'start',
                     });
                 }
@@ -1101,12 +1210,14 @@
             if (form) {
                 form.addEventListener('submit', function (event) {
                     event.preventDefault();
+                    window.clearTimeout(searchTimer);
                     applySearch(input.value, true);
                 });
             }
 
             input.addEventListener('input', function () {
-                applySearch(input.value, false);
+                window.clearTimeout(searchTimer);
+                searchTimer = window.setTimeout(() => applySearch(input.value, false), 120);
             });
 
             applySearch(input.value, false);
@@ -1186,6 +1297,38 @@
                     .catch(() => {});
             };
 
+            const recordActivityView = (card) => {
+                const url = card.getAttribute('data-activity-view-url');
+
+                if (!url || card.getAttribute('data-activity-view-recorded') === 'true') {
+                    return;
+                }
+
+                card.setAttribute('data-activity-view-recorded', 'true');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then((response) => response.ok ? response.json() : null)
+                    .then((data) => {
+                        if (!data || typeof data.views_count === 'undefined') {
+                            return;
+                        }
+
+                        const counter = card.querySelector('[data-activity-views-count]');
+
+                        if (counter) {
+                            counter.textContent = formatViews(data.views_count);
+                        }
+                    })
+                    .catch(() => {});
+            };
+
             const openAnnouncement = (card) => {
                 const target = card.getAttribute('data-announcement-target');
                 const modal = target ? document.querySelector(target) : null;
@@ -1208,6 +1351,18 @@
 
                 window.bootstrap.Modal.getOrCreateInstance(modal).show();
                 recordEventView(card);
+            };
+
+            const openActivity = (card) => {
+                const target = card.getAttribute('data-activity-target');
+                const modal = target ? document.querySelector(target) : null;
+
+                if (!modal || !window.bootstrap || !window.bootstrap.Modal) {
+                    return;
+                }
+
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                recordActivityView(card);
             };
 
             document.addEventListener('click', function (event) {
@@ -1238,6 +1393,20 @@
                 openEvent(card);
             });
 
+            document.addEventListener('click', function (event) {
+                const card = event.target.closest('[data-activity-card]');
+
+                if (!card) {
+                    return;
+                }
+
+                if (event.target.closest('a, button, input, select, textarea')) {
+                    return;
+                }
+
+                openActivity(card);
+            });
+
             document.addEventListener('keydown', function (event) {
                 const card = event.target.closest('[data-announcement-card]');
 
@@ -1259,1446 +1428,24 @@
                 event.preventDefault();
                 openEvent(card);
             });
-        })();
-    </script>
-    <script>
-        (function () {
-            const items = Array.from(document.querySelectorAll('[data-leadership-animate]'));
-            const leadership = document.getElementById('leadership');
 
-            if (!items.length || !leadership) {
-                return;
-            }
+            document.addEventListener('keydown', function (event) {
+                const card = event.target.closest('[data-activity-card]');
 
-            document.documentElement.classList.add('leadership-motion-ready');
-
-            const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-            let leadershipIsVisible = false;
-            let scrollTimer = null;
-
-            const stopScrollAnimation = () => {
-                document.documentElement.classList.remove('leadership-is-scrolling');
-            };
-
-            const startScrollAnimation = () => {
-                if (!leadershipIsVisible || motionQuery.matches) {
-                    stopScrollAnimation();
+                if (!card || event.target !== card || !['Enter', ' '].includes(event.key)) {
                     return;
                 }
 
-                document.documentElement.classList.add('leadership-is-scrolling');
-                window.clearTimeout(scrollTimer);
-                scrollTimer = window.setTimeout(stopScrollAnimation, 170);
-            };
-
-            if (!('IntersectionObserver' in window)) {
-                items.forEach((item) => item.classList.add('is-visible'));
-                leadershipIsVisible = true;
-                window.addEventListener('scroll', startScrollAnimation, { passive: true });
-                return;
-            }
-
-            const itemObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    entry.target.classList.toggle('is-visible', entry.isIntersecting);
-                });
-            }, {
-                rootMargin: '0px 0px -12% 0px',
-                threshold: 0.18,
+                event.preventDefault();
+                openActivity(card);
             });
-
-            const sectionObserver = new IntersectionObserver((entries) => {
-                leadershipIsVisible = entries.some((entry) => entry.isIntersecting);
-
-                if (!leadershipIsVisible) {
-                    stopScrollAnimation();
-                }
-            }, {
-                rootMargin: '-12% 0px -12% 0px',
-                threshold: 0.12,
-            });
-
-            items.forEach((item) => itemObserver.observe(item));
-            sectionObserver.observe(leadership);
-            window.addEventListener('scroll', startScrollAnimation, { passive: true });
         })();
     </script>
+
 @endpush
 
+
+
 @push('styles')
-    <style>
-        .landing-page .school-identity-banner {
-            background: linear-gradient(90deg, #061069 0%, #123cad 46%, #0d75bb 100%);
-            color: #fff;
-            border-bottom: 3px solid #9c7a00;
-            box-shadow: 0 8px 18px rgba(7, 17, 111, 0.16);
-        }
-
-        .landing-page .school-identity-lockup {
-            color: #fff;
-        }
-
-        .landing-page .school-identity-title {
-            color: #fff;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.28);
-            letter-spacing: 0.02em;
-            font-size: clamp(2rem, 5.0vw, 4rem);
-            white-space: nowrap;
-        }
-
-        .landing-page .school-identity-motto {
-            color: #fff;
-            letter-spacing: 0.38em;
-            text-transform: lowercase;
-            font-size: clamp(0.74rem, 1.25vw, 0.95rem);
-        }
-
-        .landing-topbar {
-            background: #f7fbff;
-            color: #07116f;
-            border-bottom: 1px solid rgba(7, 17, 111, 0.14);
-            font-size: 0.94rem;
-            font-weight: 700;
-        }
-
-        .landing-topbar-shell {
-            min-height: 3rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        .landing-topbar-contact,
-        .landing-topbar-actions {
-            display: flex;
-            align-items: center;
-            gap: clamp(0.85rem, 2.5vw, 2rem);
-            min-width: 0;
-        }
-
-        .landing-topbar-search-form {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            min-width: min(27rem, 100%);
-        }
-
-        .landing-topbar-search-input {
-            width: clamp(11rem, 18vw, 15rem);
-            min-width: 0;
-            height: 2.2rem;
-            padding: 0.35rem 0.7rem;
-            border: 1px solid rgba(7, 17, 111, 0.22);
-            border-radius: 0.45rem;
-            background: #fff;
-            color: #07116f;
-            font: inherit;
-            font-weight: 700;
-        }
-
-        .landing-topbar-search-input::placeholder {
-            color: rgba(7, 17, 111, 0.55);
-            font-weight: 600;
-        }
-
-        .landing-topbar-search-input:focus {
-            outline: none;
-            border-color: #9c7a00;
-            box-shadow: 0 0 0 0.18rem rgba(156, 122, 0, 0.22);
-        }
-
-        .landing-topbar-search-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            height: 2.2rem;
-            padding: 0.35rem 0.8rem;
-            border: 1px solid rgba(7, 17, 111, 0.22);
-            border-radius: 0.45rem;
-            background: #fff;
-            color: #07116f;
-            font: inherit;
-            font-weight: 700;
-            cursor: pointer;
-            transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .landing-topbar-search-button:hover,
-        .landing-topbar-search-button:focus-visible {
-            color: #fff;
-            border-color: #0b45b8;
-            background: #0b45b8;
-            outline: none;
-            box-shadow: 0 0 0 0.18rem rgba(11, 69, 184, 0.22);
-        }
-
-        .landing-topbar-search-button:active {
-            color: #fff;
-            border-color: #0b45b8;
-            background: #0b45b8;
-            box-shadow: 0 0 0 0.18rem rgba(11, 69, 184, 0.22);
-        }
-
-        .landing-topbar-link,
-        .landing-topbar-social {
-            color: #07116f;
-            text-decoration: none;
-        }
-
-        .landing-topbar-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 0;
-        }
-
-        .landing-topbar-link span:last-child {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .landing-topbar-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            display: inline-flex;
-            flex: 0 0 auto;
-        }
-
-        .landing-topbar-icon svg {
-            width: 100%;
-            height: 100%;
-            fill: currentColor;
-        }
-
-        .landing-topbar-social {
-            width: 1.75rem;
-            height: 1.75rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-family: Arial, sans-serif;
-            font-size: 1.3rem;
-            font-weight: 800;
-            line-height: 1;
-        }
-
-        .landing-topbar-social .landing-topbar-icon {
-            width: 1.15rem;
-            height: 1.15rem;
-        }
-
-        .landing-topbar-social-x {
-            font-size: 1rem;
-        }
-
-        .landing-search-matches [data-landing-search-item][hidden],
-        [data-landing-search-group][hidden] {
-            display: none !important;
-        }
-
-        .landing-topbar-link:hover,
-        .landing-topbar-social:hover,
-        .landing-topbar-link:focus-visible,
-        .landing-topbar-social:focus-visible {
-            color: #9c7a00;
-            outline: none;
-        }
-
-        .landing-topbar-link:focus-visible,
-        .landing-topbar-social:focus-visible {
-            box-shadow: 0 0 0 0.18rem rgba(156, 122, 0, 0.24);
-        }
-
-        .landing-topbar .btn-outline-primary {
-            color: #07116f;
-            border-color: rgba(7, 17, 111, 0.35);
-            background: transparent;
-        }
-
-        .landing-topbar .btn-outline-primary:hover,
-        .landing-topbar .btn-outline-primary:focus-visible {
-            color: #fff;
-            background: #0b45b8;
-            border-color: #0b45b8;
-            box-shadow: 0 0 0 0.18rem rgba(11, 69, 184, 0.18);
-        }
-
-        .landing-page .school-identity-actions .btn-outline-primary:first-child {
-            color: #07116f;
-            background: #fff;
-            border-color: rgba(7, 17, 111, 0.38);
-        }
-
-        .landing-page .school-identity-actions .btn-outline-primary:first-child:hover,
-        .landing-page .school-identity-actions .btn-outline-primary:first-child:focus-visible {
-            color: #fff;
-            background: #0b45b8;
-            border-color: #0b45b8;
-        }
-
-        .landing-page .school-identity-actions .btn-outline-primary:not(:first-child) {
-            color: #07116f;
-            background: #fff;
-            border-color: rgba(7, 17, 111, 0.38);
-        }
-
-        .landing-page .school-identity-actions .btn-outline-primary:not(:first-child):hover,
-        .landing-page .school-identity-actions .btn-outline-primary:not(:first-child):focus-visible {
-            color: #fff;
-            background: #0b45b8;
-            border-color: #0b45b8;
-        }
-
-        .alumni-post-card {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            border-radius: 1rem;
-            overflow: hidden;
-            border: 1px solid rgba(7, 17, 111, 0.12);
-            background: #fff;
-            box-shadow: 0 14px 28px rgba(7, 17, 111, 0.08);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-        }
-
-        .alumni-post-card[role="button"] {
-            cursor: pointer;
-        }
-
-        .alumni-post-card:hover,
-        .alumni-post-card:focus-visible {
-            transform: translateY(-2px);
-            border-color: rgba(11, 69, 184, 0.28);
-            box-shadow: 0 20px 32px rgba(7, 17, 111, 0.12);
-        }
-
-        .alumni-post-card:hover {
-            outline: none;
-        }
-
-        .alumni-post-card:focus-visible {
-            outline: 3px solid rgba(11, 69, 184, 0.12);
-            outline-offset: 2px;
-        }
-
-        .announcement-card--summary {
-            border: 0;
-            border-radius: 0;
-            background: #f4f4f4;
-            box-shadow: none;
-        }
-
-        .announcement-card--summary:hover,
-        .announcement-card--summary:focus-visible {
-            border-color: transparent;
-            box-shadow: 0 12px 24px rgba(11, 69, 184, 0.1);
-        }
-
-        .announcement-card--summary .alumni-post-body {
-            min-height: 7.85rem;
-            gap: 0.72rem;
-            justify-content: flex-start;
-            padding: 1.25rem 1.35rem;
-        }
-
-        .announcement-card--summary .alumni-post-title {
-            color: #0b45b8;
-            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-            font-size: 1.02rem;
-            line-height: 1.28;
-            font-weight: 800;
-        }
-
-        .announcement-card-byline,
-        .announcement-card-views {
-            color: #8e949d;
-            font-size: 0.82rem;
-            line-height: 1.3;
-        }
-
-        .announcement-card-byline {
-            color: #b5bac1;
-        }
-
-        .announcement-card-byline span {
-            color: #d3d6db;
-            margin: 0 0.25rem;
-        }
-
-        .alumni-post-media {
-            position: relative;
-            aspect-ratio: 16 / 10;
-            background: linear-gradient(135deg, #eaf2ff 0%, #f8fbff 100%);
-            overflow: hidden;
-        }
-
-        .alumni-post-image,
-        .alumni-post-video {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-        }
-
-        .alumni-post-video {
-            background: #02083f;
-        }
-
-        .alumni-post-placeholder {
-            width: 100%;
-            height: 100%;
-            padding: 1.25rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.92)),
-                linear-gradient(135deg, rgba(11, 69, 184, 0.12), rgba(7, 17, 111, 0.18));
-        }
-
-        .alumni-post-placeholder-kicker {
-            color: #0b45b8;
-            font-size: 0.74rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .alumni-post-placeholder-title {
-            color: #07116f;
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: 1.35rem;
-            line-height: 1.08;
-            font-weight: 700;
-            margin-top: 0.35rem;
-        }
-
-        .alumni-post-body {
-            display: flex;
-            flex-direction: column;
-            gap: 0.35rem;
-            padding: 1rem 1rem 1.1rem;
-        }
-
-        .alumni-post-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.28rem 0.55rem;
-            border-radius: 999px;
-            background: rgba(11, 69, 184, 0.08);
-            color: #0b45b8;
-            font-size: 0.74rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        .alumni-post-title {
-            margin: 0;
-            color: #07116f;
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: 1.28rem;
-            line-height: 1.15;
-            font-weight: 700;
-        }
-
-        .alumni-post-meta {
-            color: #6c6f77;
-            font-size: 0.84rem;
-            font-weight: 600;
-        }
-
-        .alumni-post-meta span + span::before {
-            content: "•";
-            margin: 0 0.4rem;
-            color: rgba(7, 17, 111, 0.5);
-        }
-
-        .alumni-post-excerpt {
-            color: #3d4150;
-            font-size: 0.95rem;
-            line-height: 1.55;
-        }
-
-        .announcement-detail-modal .modal-content,
-        .event-detail-modal .modal-content {
-            border: 0;
-            border-radius: 1rem;
-            overflow: hidden;
-            box-shadow: 0 24px 56px rgba(7, 17, 111, 0.2);
-        }
-
-        .announcement-detail-modal .modal-title,
-        .event-detail-modal .modal-title {
-            color: #07116f;
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(1.35rem, 2vw, 1.85rem);
-            font-weight: 700;
-            line-height: 1.12;
-        }
-
-        .announcement-detail-media img,
-        .announcement-detail-media video,
-        .event-detail-media img,
-        .event-detail-media video {
-            display: block;
-            width: 100%;
-            max-height: 60vh;
-            border-radius: 0.85rem;
-            object-fit: contain;
-            background: #f7fbff;
-        }
-
-        .announcement-detail-copy {
-            color: #2f3340;
-            font-size: 1rem;
-            line-height: 1.7;
-            white-space: normal;
-        }
-
-        .event-detail-copy {
-            color: #2f3340;
-            font-size: 1rem;
-            line-height: 1.7;
-            white-space: normal;
-        }
-
-        .landing-event-summary-card {
-            display: flex;
-            min-height: 7.3rem;
-            border: 0;
-            border-radius: 0;
-            background: #f4f4f4;
-            box-shadow: none;
-            cursor: pointer;
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
-        }
-
-        .landing-event-summary-card:hover,
-        .landing-event-summary-card:focus-visible {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(11, 69, 184, 0.1);
-            outline: none;
-        }
-
-        .landing-event-summary-card:focus-visible {
-            outline: 3px solid rgba(11, 69, 184, 0.14);
-            outline-offset: 2px;
-        }
-
-        .landing-event-summary-body {
-            display: flex;
-            flex-direction: column;
-            gap: 0.72rem;
-            justify-content: flex-start;
-            width: 100%;
-            padding: 1.25rem 1.35rem;
-        }
-
-        .landing-event-summary-title {
-            margin: 0;
-            color: #0b45b8;
-            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-            font-size: 1.02rem;
-            line-height: 1.28;
-            font-weight: 800;
-        }
-
-        .landing-event-summary-meta,
-        .landing-event-summary-views {
-            color: #8e949d;
-            font-size: 0.82rem;
-            line-height: 1.3;
-        }
-
-        .landing-event-summary-meta {
-            color: #b5bac1;
-        }
-
-        .landing-event-summary-meta span {
-            color: #d3d6db;
-            margin: 0 0.25rem;
-        }
-
-        .landing-board-section {
-            background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
-        }
-
-        .landing-board {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            min-height: clamp(24rem, 52vh, 36rem);
-            overflow: hidden;
-            border: 1px solid rgba(11, 69, 184, 0.18);
-            border-radius: 0.5rem;
-            background: #fff;
-            box-shadow: 0 18px 42px rgba(7, 17, 111, 0.1);
-        }
-
-        .landing-board-column {
-            min-width: 0;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-            border-left: 1px solid rgba(11, 69, 184, 0.16);
-        }
-
-        .landing-board-column:first-child {
-            border-left: 0;
-        }
-
-        .landing-board-header {
-            min-height: 3.45rem;
-            padding: 0.85rem 1rem 0.75rem;
-            background: linear-gradient(90deg, #07116f 0%, #0b45b8 72%, #0a86b7 100%);
-            color: #fff;
-            text-align: center;
-        }
-
-        .landing-board-title {
-            font-size: 0.82rem;
-            font-weight: 800;
-            line-height: 1;
-            letter-spacing: 0.07em;
-            text-transform: uppercase;
-        }
-
-        .landing-board-count {
-            margin-top: 0.35rem;
-            color: rgba(255, 255, 255, 0.82);
-            font-size: 0.68rem;
-            font-weight: 700;
-            line-height: 1;
-            text-transform: uppercase;
-        }
-
-        .landing-board-list {
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
-            padding: clamp(1rem, 2vw, 1.4rem);
-            max-height: clamp(22rem, 48vh, 32rem);
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(11, 69, 184, 0.38) transparent;
-        }
-
-        .landing-board-list::-webkit-scrollbar {
-            width: 0.45rem;
-        }
-
-        .landing-board-list::-webkit-scrollbar-thumb {
-            border-radius: 999px;
-            background: rgba(11, 69, 184, 0.32);
-        }
-
-        .landing-board-item {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .landing-board-card {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            width: 100%;
-            min-height: 5.45rem;
-            padding: 0.9rem 1rem;
-            border: 1px solid rgba(11, 69, 184, 0.18);
-            border-left: 4px solid #0b45b8;
-            border-radius: 0.5rem;
-            background: #fff;
-            color: #07116f;
-            text-align: left;
-            cursor: pointer;
-            box-shadow: 0 10px 22px rgba(7, 17, 111, 0.07);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
-        }
-
-        .landing-board-card:hover,
-        .landing-board-card:focus-visible {
-            transform: translateY(-2px);
-            border-color: #0b45b8;
-            background: #f7fbff;
-            box-shadow: 0 16px 28px rgba(11, 69, 184, 0.13);
-            outline: none;
-        }
-
-        .landing-board-card:focus-visible {
-            outline: 3px solid rgba(11, 69, 184, 0.16);
-            outline-offset: 3px;
-        }
-
-        .landing-board-card-link {
-            cursor: pointer;
-        }
-
-        .landing-board-card-title {
-            margin: 0;
-            color: #07116f;
-            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-            font-size: clamp(0.86rem, 1vw, 0.98rem);
-            font-weight: 800;
-            line-height: 1.22;
-            overflow-wrap: anywhere;
-            text-transform: uppercase;
-        }
-
-        .landing-board-card-meta {
-            margin-top: 0.42rem;
-            color: #5b6472;
-            font-size: clamp(0.72rem, 0.88vw, 0.8rem);
-            line-height: 1.25;
-            overflow-wrap: anywhere;
-        }
-
-        .landing-board-card-meta span {
-            color: #0b45b8;
-            margin: 0 0.18rem;
-        }
-
-        .landing-board-empty {
-            width: 100%;
-            padding: 1rem;
-            border: 1px dashed rgba(11, 69, 184, 0.35);
-            border-radius: 0.5rem;
-            background: #fff;
-            color: #07116f;
-            font-size: 0.82rem;
-            font-weight: 700;
-            text-align: center;
-        }
-
-        @media (max-width: 767.98px) {
-            .landing-board {
-                grid-template-columns: 1fr;
-                min-height: 0;
-            }
-
-            .landing-board-column,
-            .landing-board-column:first-child {
-                border-left: 0;
-                border-top: 1px solid rgba(11, 69, 184, 0.16);
-            }
-
-            .landing-board-column:first-child {
-                border-top: 0;
-            }
-
-            .landing-board-list {
-                gap: 1.2rem;
-                max-height: none;
-                overflow: visible;
-                padding: 1.25rem 1rem 1.75rem;
-            }
-
-            .landing-board-card,
-            .landing-board-empty {
-                width: 100%;
-            }
-        }
-
-        .alumni-post-link {
-            margin-top: auto;
-            color: #0b45b8;
-            font-size: 0.9rem;
-            font-weight: 800;
-        }
-
-        .landing-nav {
-            background: #eaf4ff;
-            border-top: 1px solid rgba(7, 17, 111, 0.1);
-            border-bottom: 1px solid rgba(7, 17, 111, 0.1);
-        }
-
-        .landing-nav .nav {
-            flex-wrap: nowrap !important;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.7rem 0;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(11, 69, 184, 0.35) transparent;
-        }
-
-        .landing-nav .nav-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 2.55rem;
-            border: 1px solid rgba(7, 17, 111, 0.14);
-            background: rgba(255, 255, 255, 0.9);
-            color: #07116f;
-            border-radius: 0.7rem;
-            padding: 0.7rem 1rem;
-            box-shadow: 0 8px 16px rgba(7, 17, 111, 0.06);
-            font-weight: 700;
-            line-height: 1;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-        }
-
-        .landing-nav .nav-link:hover,
-        .landing-nav .nav-link:focus-visible,
-        .landing-nav .nav-link:active,
-        .landing-nav .nav-link.active {
-            color: #fff;
-            background: #0b45b8;
-            border-color: #0b45b8;
-            box-shadow: 0 0 0 0.18rem rgba(11, 69, 184, 0.18);
-            transform: translateY(-1px);
-            outline: none;
-        }
-
-        .landing-mobile-entry {
-            position: relative;
-            z-index: 1;
-        }
-
-        .landing-mobile-hero {
-            position: relative;
-            isolation: isolate;
-            overflow: hidden;
-            border-radius: 1.4rem;
-            margin-top: 0.25rem;
-            background: linear-gradient(112deg, #07116f 0%, #0b45b8 58%, #0a86b7 100%);
-            color: #fff;
-            box-shadow: 0 18px 34px rgba(4, 0, 120, 0.18);
-        }
-
-        .landing-mobile-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            background:
-                linear-gradient(105deg, rgba(7, 17, 111, 0.72) 0%, rgba(11, 69, 184, 0.58) 42%, rgba(10, 134, 183, 0.9) 100%),
-                linear-gradient(180deg, rgba(1, 7, 38, 0.08), rgba(1, 7, 38, 0.4));
-            pointer-events: none;
-        }
-
-        .landing-mobile-hero > :not(.hero-campus-backdrop) {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-stage {
-            isolation: isolate;
-            min-height: auto;
-            align-items: flex-start;
-            border-radius: 0.45rem;
-            background: linear-gradient(112deg, #07116f 0%, #0b45b8 58%, #0a86b7 100%);
-            box-shadow: 0 32px 70px rgba(4, 0, 120, 0.24);
-            padding: clamp(1.75rem, 3vw, 3rem);
-        }
-
-        .hero-stage::before {
-            z-index: 1;
-            background:
-                linear-gradient(102deg, rgba(7, 17, 111, 0.82) 0%, rgba(11, 69, 184, 0.52) 38%, rgba(10, 134, 183, 0.28) 58%, rgba(10, 134, 183, 0.92) 100%),
-                linear-gradient(180deg, rgba(1, 7, 38, 0.02), rgba(1, 7, 38, 0.38));
-        }
-
-        .hero-stage > .row {
-            z-index: 2;
-            min-height: auto;
-        }
-
-        .hero-campus-gallery {
-            width: min(var(--page-width, 95%), var(--page-max-width, 1800px));
-            max-width: var(--page-max-width, 1800px);
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: clamp(0.85rem, 1.7vw, 1.25rem) !important;
-            min-height: clamp(12rem, 28vh, 17rem);
-            aspect-ratio: 16 / 5;
-            border-radius: 0.45rem;
-            background: linear-gradient(112deg, #07116f 0%, #0b45b8 58%, #0a86b7 100%);
-        }
-
-        .hero-campus-backdrop {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: left center;
-            opacity: 0.95;
-            filter: saturate(0.96) contrast(1.02);
-            transform: scale(1.01);
-        }
-
-        .hero-visual {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(7px);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 18px 36px rgba(1, 7, 38, 0.18);
-        }
-
-        .community-card {
-            background: rgba(255, 255, 255, 0.14);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .landing-mobile-chips {
-            display: flex;
-            gap: 0.55rem;
-            overflow-x: auto;
-            padding-bottom: 0.2rem;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .landing-mobile-chips::-webkit-scrollbar {
-            display: none;
-        }
-
-        .landing-mobile-actions {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1040;
-            background: rgba(6, 33, 55, 0.96);
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 -18px 40px rgba(2, 12, 28, 0.24);
-        }
-
-        .landing-mobile-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.5rem;
-            padding: 0.55rem 0.15rem calc(0.55rem + env(safe-area-inset-bottom));
-        }
-
-        .landing-mobile-action {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 4.1rem;
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.06);
-            color: rgba(255, 255, 255, 0.84);
-            text-decoration: none;
-            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-        }
-
-        .landing-mobile-action:hover,
-        .landing-mobile-action:focus-visible {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.14);
-            border-color: rgba(255, 255, 255, 0.18);
-            transform: translateY(-1px);
-            outline: none;
-        }
-
-        .landing-mobile-action-icon {
-            width: 1.85rem;
-            height: 1.85rem;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.14);
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-        }
-
-        .landing-mobile-action-label {
-            margin-top: 0.32rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-        }
-
-        .landing-chip {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            padding: 0.6rem 0.9rem;
-            border-radius: 999px;
-            border: 1px solid rgba(4, 0, 120, 0.14);
-            background: rgba(255, 255, 255, 0.84);
-            color: var(--ink);
-            text-decoration: none;
-            font-size: 0.88rem;
-            font-weight: 600;
-            box-shadow: 0 10px 18px rgba(4, 0, 120, 0.08);
-        }
-
-        .landing-chip:hover,
-        .landing-chip:focus-visible {
-            color: var(--wine);
-            outline: none;
-        }
-
-        .landing-showcase-stack {
-            display: grid;
-            gap: clamp(2rem, 3.5vw, 3rem);
-        }
-
-        .landing-showcase-panel {
-            position: relative;
-        }
-
-        .landing-showcase-heading {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .landing-showcase-heading .text-secondary {
-            flex: 0 0 auto;
-        }
-
-        .landing-showcase-feed {
-            display: grid;
-            gap: 1.25rem;
-        }
-
-        .landing-feed-entry {
-            position: relative;
-            display: flex;
-            align-items: flex-end;
-            min-height: clamp(22rem, 40vw, 30rem);
-            padding: clamp(1.25rem, 3vw, 2.75rem);
-            border-radius: 1.4rem;
-            border: 1px solid rgba(4, 0, 120, 0.18);
-            overflow: hidden;
-            isolation: isolate;
-            background: linear-gradient(135deg, #07116f 0%, #02083f 58%, #0b45b8 100%);
-            box-shadow: 0 28px 56px rgba(4, 0, 120, 0.18);
-        }
-
-        .landing-feed-entry.notice-item,
-        .landing-feed-entry.event-card,
-        .landing-feed-entry.activity-card {
-            border-color: rgba(4, 0, 120, 0.18);
-            padding-bottom: clamp(1.25rem, 3vw, 2.75rem);
-            margin-bottom: 0;
-        }
-
-        .landing-feed-entry::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                linear-gradient(90deg, rgba(3, 11, 27, 0.74) 0%, rgba(3, 11, 27, 0.34) 50%, rgba(3, 11, 27, 0.68) 100%),
-                radial-gradient(circle at top right, rgba(10, 134, 183, 0.42), transparent 42%),
-            radial-gradient(circle at 20% 85%, rgba(156, 122, 0, 0.12), transparent 28%);
-            opacity: 0.95;
-            pointer-events: none;
-        }
-
-        .landing-feed-entry::after {
-            content: '';
-            position: absolute;
-            inset: auto 0 0 0;
-            height: 46%;
-            background: linear-gradient(180deg, transparent, rgba(1, 7, 38, 0.48));
-            pointer-events: none;
-        }
-
-        .landing-feed-entry-shell {
-            position: relative;
-            z-index: 1;
-            width: min(100%, 45rem);
-            margin-bottom: 1rem;
-            padding: clamp(1rem, 2vw, 1.5rem);
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            background: rgba(5, 14, 36, 0.72);
-            backdrop-filter: blur(8px);
-            box-shadow: 0 14px 30px rgba(2, 5, 20, 0.18);
-        }
-
-        .landing-feed-entry .notice-label {
-            color: rgba(255, 255, 255, 0.9);
-            letter-spacing: 0.08em;
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .landing-feed-entry h2,
-        .landing-feed-entry h3,
-        .landing-feed-entry p,
-        .landing-feed-entry .small {
-            position: relative;
-            z-index: 1;
-            color: #fff;
-        }
-
-        .landing-feed-entry h3 {
-            max-width: 16ch;
-            font-size: clamp(1.8rem, 4vw, 3.15rem);
-            line-height: 1.08;
-        }
-
-        .landing-feed-entry p {
-            max-width: 38rem;
-            font-size: clamp(0.98rem, 1.2vw, 1.08rem);
-            line-height: 1.65;
-        }
-
-        .landing-feed-entry .text-secondary {
-            color: rgba(255, 255, 255, 0.78) !important;
-        }
-
-        .landing-feed-entry .landing-story-media {
-            position: absolute;
-            inset: 0;
-            margin: 0;
-            border-radius: 0;
-            overflow: hidden;
-            border: 0;
-            opacity: 0.72;
-            z-index: 0;
-            box-shadow: none;
-        }
-
-        .landing-feed-entry .landing-story-media-asset {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: saturate(0.98) contrast(0.96);
-        }
-
-        .landing-feed-entry .landing-story-media-video {
-            pointer-events: auto;
-        }
-
-        .campus-gallery-video {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-            background: #02083f;
-        }
-
-        @media (max-width: 767.98px) {
-            .landing-header {
-                position: sticky;
-                top: 0;
-                z-index: 1036;
-            }
-
-            .landing-topbar-shell {
-                display: grid;
-                grid-template-columns: 1fr;
-                min-height: auto;
-                padding-top: 0.65rem;
-                padding-bottom: 0.65rem;
-                align-items: stretch;
-                gap: 0.55rem;
-            }
-
-            .landing-topbar-contact {
-                width: 100%;
-                flex-wrap: wrap;
-                align-items: center;
-                gap: 0.35rem 0.85rem;
-                font-size: 0.78rem;
-                line-height: 1.2;
-            }
-
-            .landing-topbar-actions {
-                width: 100%;
-                display: grid;
-                grid-template-columns: minmax(0, 1fr) auto auto auto;
-                align-items: center;
-                gap: 0.4rem;
-            }
-
-            .landing-topbar-search-form {
-                min-width: 0;
-                width: 100%;
-                display: grid;
-                grid-template-columns: minmax(0, 1fr) 2.45rem;
-                gap: 0.4rem;
-            }
-
-            .landing-topbar-search-input {
-                width: 100%;
-                height: 2.25rem;
-                font-size: 0.78rem;
-            }
-
-            .landing-topbar-search-button span:last-child {
-                display: none;
-            }
-
-            .landing-topbar-search-button {
-                width: 2.45rem;
-                min-width: 2.45rem;
-                height: 2.25rem;
-                justify-content: center;
-                padding: 0;
-            }
-
-            .landing-topbar-social {
-                width: 2rem;
-                height: 2rem;
-                font-size: 1rem;
-            }
-
-            .landing-page .school-identity-shell {
-                gap: 0.75rem;
-                min-height: 3.75rem;
-                align-items: stretch;
-            }
-
-            .landing-page .school-identity-lockup {
-                width: 100%;
-                align-items: center;
-                gap: 0.65rem;
-            }
-
-            .landing-page .school-identity-copy {
-                flex: 1 1 auto;
-                min-width: 0;
-            }
-
-            .landing-page .school-identity-actions {
-                width: 100%;
-            }
-
-            .landing-page .school-identity-actions .btn {
-                padding: 0.48rem 0.8rem;
-            }
-
-            .landing-page .school-identity-crest {
-                width: 2.65rem;
-                height: 2.65rem;
-                font-size: 0.82rem;
-            }
-
-            .landing-page .school-identity-title {
-                font-size: clamp(1.28rem, 6vw, 1.72rem);
-                line-height: 1.02;
-                max-width: 100%;
-                white-space: normal;
-                overflow-wrap: normal;
-            }
-
-            .landing-page .school-identity-motto {
-                margin-top: 0.2rem;
-                font-size: clamp(0.58rem, 2.4vw, 0.68rem);
-                color: #fff;
-                letter-spacing: 0.16em;
-            }
-
-            .brand-lockup {
-                align-items: flex-start;
-            }
-
-            .landing-nav .nav {
-                gap: 0.5rem;
-                justify-content: flex-start;
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                padding: 0.7rem 0 0.2rem;
-            }
-
-            .landing-nav .nav::-webkit-scrollbar {
-                display: none;
-            }
-
-            .landing-nav .nav-link {
-                background: rgba(255, 255, 255, 0.72);
-                border: 1px solid rgba(7, 17, 111, 0.12);
-                color: #07116f;
-            }
-
-            .landing-nav .nav-link:hover,
-            .landing-nav .nav-link:focus-visible,
-            .landing-nav .nav-link:active,
-            .landing-nav .nav-link.active {
-                color: #fff;
-                background: #0b45b8;
-                border-color: #0b45b8;
-            }
-
-            .landing-page .campus-gallery-hero {
-                width: 100%;
-                min-height: 0;
-                height: auto;
-                aspect-ratio: 4 / 3;
-                border-radius: 1rem;
-            }
-
-            .landing-page .hero-campus-gallery {
-                margin-top: 1rem !important;
-            }
-
-            .landing-page .campus-gallery-carousel,
-            .landing-page .campus-gallery-carousel .carousel-inner,
-            .landing-page .campus-gallery-carousel .carousel-item {
-                height: 100%;
-                min-height: 0;
-            }
-
-            .landing-page .campus-gallery-image,
-            .landing-page .campus-gallery-video {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                object-position: center center;
-            }
-
-            .landing-page .campus-gallery-caption {
-                left: 0.65rem;
-                right: 0.65rem;
-                bottom: 0.65rem;
-                max-width: calc(100% - 1.3rem);
-                padding: 0.75rem 0.8rem;
-                border-radius: 0.75rem;
-            }
-
-            .landing-page .campus-gallery-kicker {
-                margin-bottom: 0.35rem;
-                font-size: 0.58rem;
-                letter-spacing: 0.08em;
-            }
-
-            .landing-page .campus-gallery-title {
-                margin-bottom: 0.35rem;
-                font-size: clamp(1rem, 4.8vw, 1.35rem);
-                line-height: 1.08;
-            }
-
-            .landing-page .campus-gallery-detail {
-                font-size: 0.78rem;
-                line-height: 1.35;
-            }
-
-            .landing-page .campus-carousel-indicators {
-                margin-bottom: 0.35rem;
-            }
-
-            .landing-page .campus-carousel-indicators [data-bs-target] {
-                width: 1.35rem;
-                height: 0.2rem;
-            }
-
-            .landing-page .landing-mobile-hero-head {
-                display: grid !important;
-                grid-template-columns: 1fr;
-                gap: 0.55rem;
-            }
-
-            .landing-page .landing-mobile-hero .min-w-0 {
-                width: 100%;
-            }
-
-            .landing-page .landing-mobile-hero .hero-badge {
-                justify-content: center;
-                width: min(100%, 25rem);
-                max-width: 100%;
-                margin-left: auto;
-                margin-right: auto;
-                box-sizing: border-box;
-                min-height: 2.1rem;
-                margin-bottom: 0.6rem !important;
-                padding: 0.45rem 0.72rem;
-                border-radius: 0.9rem;
-                font-size: clamp(0.68rem, 2.8vw, 0.78rem);
-                line-height: 1.15;
-                letter-spacing: 0.04em;
-                text-align: center;
-                white-space: normal;
-                overflow-wrap: anywhere;
-            }
-
-            .landing-page .landing-mobile-hero .mobile-portal-badge {
-                justify-content: center;
-                width: min(100%, 28rem);
-                max-width: 100%;
-                margin-left: auto;
-                margin-right: auto;
-                box-sizing: border-box;
-                min-height: 2.35rem;
-                margin-bottom: 0.75rem;
-                padding: 0.5rem 0.75rem;
-                border-radius: 0.85rem;
-                font-size: clamp(0.64rem, 2.6vw, 0.76rem);
-                line-height: 1.2;
-                letter-spacing: 0.05em;
-                text-align: center;
-                white-space: normal;
-                overflow-wrap: anywhere;
-            }
-
-            .landing-section {
-                padding: 2.25rem 0;
-            }
-
-            .landing-page {
-                padding-bottom: 6.75rem;
-            }
-
-            .page-card,
-            .event-card,
-            .activity-card,
-            .team-card,
-            .trustee-card,
-            .process-card {
-                border-radius: 1rem;
-            }
-
-            .landing-feed-entry {
-                min-height: 20rem;
-                padding: 1rem;
-            }
-
-            .landing-showcase-stack {
-                gap: 2rem;
-            }
-
-            .landing-showcase-heading {
-                display: block;
-                margin-bottom: 0.85rem;
-            }
-
-            .landing-showcase-heading .text-secondary {
-                margin-top: 0.35rem;
-            }
-
-            .landing-feed-entry-shell {
-                width: min(100%, 100%);
-                margin-bottom: 0.35rem;
-                padding: 0.9rem 1rem;
-            }
-
-            .landing-feed-entry h3 {
-                max-width: 100%;
-                font-size: 1.35rem;
-                line-height: 1.18;
-            }
-
-            .landing-feed-entry p {
-                font-size: 0.92rem;
-                line-height: 1.55;
-            }
-
-            .section-title {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/landing.css') }}?v={{ filemtime(public_path('css/landing.css')) }}">
 @endpush

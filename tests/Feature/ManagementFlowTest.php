@@ -31,7 +31,7 @@ test('the landing page shows the new alumni public content', function () {
         ->assertSee('Board of Trustees')
         ->assertSee('Mr. John Jeffry M. Mendoza')
         ->assertSee('St. Bridget College, M.H. Del Pilar St., Batangas City')
-        ->assertSee('https://www.facebook.com/stbridgetcollege', false);
+        ->assertSee('https://www.facebook.com/profile.php?id=61580277583049', false);
 });
 
 test('the alumni feed stays empty until admins publish posts', function () {
@@ -62,8 +62,8 @@ test('the alumni feed stays empty until admins publish posts', function () {
         'portal_otp_verified_user_id' => $alumniUser->id,
     ])->get(route('portal.dashboard'))
         ->assertOk()
-        ->assertSee('No announcements have been posted by the administrator yet.')
-        ->assertSee('No featured activities have been posted by the administrator yet.');
+        ->assertSee('No announcements yet')
+        ->assertSee('No activities yet');
 });
 
 test('a predefined administrator can sign in via the portal login endpoint and access the admin dashboard', function () {
@@ -747,7 +747,7 @@ test('an alumnus can claim an imported record and access the alumni portal', fun
         'education_level' => 'College',
         'course' => 'BSEd',
         'year_graduated' => 2023,
-        'email' => 'liza@example.com',
+        'email' => 'liza@gmail.com',
     ]);
 
     $response = $this->post(route('portal.register.store'), [
@@ -755,22 +755,32 @@ test('an alumnus can claim an imported record and access the alumni portal', fun
         'first_name' => 'Liza',
         'last_name' => 'Cruz',
         'year_graduated' => 2023,
-        'email' => 'liza@example.com',
+        'email' => 'liza@gmail.com',
         'password' => 'password12',
         'password_confirmation' => 'password12',
     ]);
 
-    $response->assertRedirect(route('portal.dashboard'));
+    $response->assertRedirect(route('portal.login'));
     $this->assertDatabaseHas('alumni', [
         'id' => $alumnus->id,
         'student_id' => '2015211',
     ]);
-    $this->assertAuthenticated();
-    $this->assertTrue(auth()->user()->isAlumni());
-    $this->assertSame($alumnus->id, auth()->user()->alumni_id);
+
+    $this->assertGuest();
+    $portalUser = User::query()->where('email', 'liza@gmail.com')->first();
+
+    expect($portalUser)->not->toBeNull()
+        ->and($portalUser?->isApproved())->toBeTrue()
+        ->and($portalUser?->alumni_id)->toBe($alumnus->id)
+        ->and($portalUser?->portal_otp_verified_at)->toBeNull();
+
+    $this->post(route('portal.login.attempt'), [
+        'email' => 'liza@gmail.com',
+        'password' => 'password12',
+    ])->assertRedirect(route('portal.otp.create'));
 
     $this->withSession([
-        'portal_otp_verified_user_id' => auth()->id(),
+        'portal_otp_verified_user_id' => $portalUser?->id,
     ])->get(route('portal.dashboard'))
         ->assertOk()
         ->assertSee('My Alumni Record');
@@ -843,8 +853,11 @@ test('alumni can submit requests but only admins can process them', function () 
     $this->withSession([
         'portal_otp_verified_user_id' => $alumniUser->id,
     ])->post(route('portal.requests.store'), [
-        'request_type' => 'Transcript of Records',
+        'request_type' => 'Alumni ID',
         'year_requested' => 2021,
+        'requester_name' => $alumnus->full_name,
+        'requester_course' => $alumnus->course,
+        'requester_year_graduate' => $alumnus->year_graduated,
     ])->assertRedirect(route('portal.requests.index'));
 
     $requestRecord = RecordRequest::first();
@@ -852,7 +865,7 @@ test('alumni can submit requests but only admins can process them', function () 
     Notification::assertSentTo($admin, RecordRequestSubmitted::class);
 
     $this->get(route('requests.index'))->assertForbidden();
-    $this->get(route('portal.requests.index'))->assertOk()->assertSee('Transcript of Records');
+    $this->get(route('portal.requests.index'))->assertOk()->assertSee('Alumni ID');
 
     $this->actingAs($admin);
 
@@ -863,7 +876,7 @@ test('alumni can submit requests but only admins can process them', function () 
         ->assertJsonFragment([
             'id' => $requestRecord->id,
             'alumni_name' => 'Nina Reyes',
-            'request_type' => 'Transcript of Records',
+            'request_type' => 'Alumni ID',
             'year_requested' => 2021,
             'review_url' => route('requests.index'),
         ]);
@@ -893,7 +906,7 @@ test('alumni can submit requests but only admins can process them', function () 
         ->assertJsonPath('latest_timestamp', $requestRecord->admin_replied_at->timestamp)
         ->assertJsonFragment([
             'id' => $requestRecord->id,
-            'request_type' => 'Transcript of Records',
+            'request_type' => 'Alumni ID',
             'year_requested' => 2021,
             'status' => 'Ready for Pickup',
             'admin_notes' => 'Bring your school ID when claiming the document.',
@@ -904,7 +917,7 @@ test('alumni can submit requests but only admins can process them', function () 
         ->get(route('portal.dashboard'))
         ->assertOk()
         ->assertSee('Request Notifications')
-        ->assertSee('Transcript of Records')
+        ->assertSee('Alumni ID')
         ->assertSee('Bring your school ID when claiming the document.');
 });
 
@@ -1360,12 +1373,12 @@ test('alumni profile updates sync back to the admin-facing alumni record', funct
         'education_level' => 'College',
         'course' => 'BS Psychology',
         'year_graduated' => 2020,
-        'email' => 'ana@example.com',
+        'email' => 'ana@gmail.com',
     ]);
 
     $alumniUser = User::factory()->create([
         'name' => $alumnus->full_name,
-        'email' => 'ana@example.com',
+        'email' => 'ana@gmail.com',
         'role' => 'alumni',
         'alumni_id' => $alumnus->id,
     ]);
@@ -1374,7 +1387,7 @@ test('alumni profile updates sync back to the admin-facing alumni record', funct
 
     $this->put(route('profile.update'), [
         'name' => 'Ana Marie Lopez',
-        'email' => 'ana.marie@example.com',
+        'email' => 'ana.marie@gmail.com',
         'password' => '',
         'password_confirmation' => '',
     ])->assertRedirect(route('profile.edit'));
@@ -1383,7 +1396,7 @@ test('alumni profile updates sync back to the admin-facing alumni record', funct
 
     expect($alumnus->first_name)->toBe('Ana Marie');
     expect($alumnus->last_name)->toBe('Lopez');
-    expect($alumnus->email)->toBe('ana.marie@example.com');
+    expect($alumnus->email)->toBe('ana.marie@gmail.com');
 });
 
 test('admins can open the alumni edit page from the admin workspace', function () {
@@ -1416,12 +1429,12 @@ test('admins can edit user accounts and keep linked alumni records aligned', fun
         'education_level' => 'Senior High School',
         'course' => 'STEM',
         'year_graduated' => 2019,
-        'email' => 'cris@example.com',
+        'email' => 'cris@gmail.com',
     ]);
 
     $alumniUser = User::factory()->create([
         'name' => $alumnus->full_name,
-        'email' => 'cris@example.com',
+        'email' => 'cris@gmail.com',
         'role' => 'alumni',
         'alumni_id' => $alumnus->id,
     ]);
@@ -1430,7 +1443,7 @@ test('admins can edit user accounts and keep linked alumni records aligned', fun
 
     $this->put(route('users.update', $alumniUser), [
         'name' => 'Cristina Dela Cruz',
-        'email' => 'cristina@example.com',
+        'email' => 'cristina@gmail.com',
         'password' => '',
         'password_confirmation' => '',
     ])->assertRedirect(route('users.index'));
@@ -1441,7 +1454,7 @@ test('admins can edit user accounts and keep linked alumni records aligned', fun
     expect($alumniUser->name)->toBe('Cristina Dela Cruz');
     expect($alumnus->first_name)->toBe('Cristina Dela');
     expect($alumnus->last_name)->toBe('Cruz');
-    expect($alumnus->email)->toBe('cristina@example.com');
+    expect($alumnus->email)->toBe('cristina@gmail.com');
 });
 
 test('an alumni account approval notifies the alumni user', function () {
@@ -1456,16 +1469,16 @@ test('an alumni account approval notifies the alumni user', function () {
         'education_level' => 'College',
         'course' => 'BS Information Technology',
         'year_graduated' => 2020,
-        'email' => 'lara@example.com',
+        'email' => 'lara@gmail.com',
     ]);
 
     $alumniUser = User::factory()->create([
         'name' => $alumnus->full_name,
-        'email' => 'lara@example.com',
+        'email' => 'lara@gmail.com',
         'role' => 'alumni',
         'account_status' => 'pending',
         'approved_at' => null,
-        'portal_otp_verified_at' => now(),
+        'portal_otp_verified_at' => null,
         'alumni_id' => $alumnus->id,
     ]);
 
@@ -1477,7 +1490,7 @@ test('an alumni account approval notifies the alumni user', function () {
 
     expect($alumniUser->isApproved())->toBeTrue();
     expect($alumniUser->approved_at)->not->toBeNull();
-    expect($alumniUser->portal_otp_verified_at)->not->toBeNull();
+    expect($alumniUser->portal_otp_verified_at)->toBeNull();
 
     Notification::assertSentTo($alumniUser, AlumniAccountApproved::class);
 });

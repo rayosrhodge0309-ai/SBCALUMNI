@@ -41,6 +41,11 @@ class Alumni extends Model
         return $this->hasMany(RecordRequest::class);
     }
 
+    public function eventRegistrations(): HasMany
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
     public function user(): HasOne
     {
         return $this->hasOne(User::class);

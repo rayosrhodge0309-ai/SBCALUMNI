@@ -146,6 +146,9 @@ class AlumniController extends Controller
             'skipped_no_email' => redirect()
                 ->route('alumni.index')
                 ->with('warning', 'Add an email for this alumni record first to enable automatic portal account creation.'),
+            'skipped_non_gmail' => redirect()
+                ->route('alumni.index')
+                ->with('warning', 'Only real Gmail accounts ending in @gmail.com can be used for alumni portal accounts.'),
             'skipped_email_conflict' => redirect()
                 ->route('alumni.index')
                 ->with('warning', 'That email is already used by another account. Update the alumni email first.'),

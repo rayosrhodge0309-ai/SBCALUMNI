@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Event extends Model
@@ -44,6 +45,11 @@ class Event extends Model
     public function scopePublished($query)
     {
         return $query->where('is_published', true);
+    }
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(EventRegistration::class);
     }
 
     public function getMediaUrlAttribute(): ?string

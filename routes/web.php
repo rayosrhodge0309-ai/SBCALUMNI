@@ -7,11 +7,13 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventRegistrationController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LandingVideoSettingController;
 use App\Http\Controllers\PortalAuthController;
 use App\Http\Controllers\PortalDashboardController;
 use App\Http\Controllers\PortalOtpController;
+use App\Http\Controllers\PortalPasswordResetController;
 use App\Http\Controllers\PortalRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushNotificationController;
@@ -44,12 +46,28 @@ Route::post('/announcements/{announcement}/view', [AnnouncementController::class
 Route::get('/activities/{activity}/media', [ActivityController::class, 'media'])
     ->whereNumber('activity')
     ->name('activities.media');
+Route::post('/activities/{activity}/view', [ActivityController::class, 'recordView'])
+    ->whereNumber('activity')
+    ->name('activities.view');
 
 Route::prefix('portal')->name('portal.')->group(function () {
     Route::get('/login', [PortalAuthController::class, 'create'])->name('login');
+    Route::post('/events/{event}/registrations', [EventRegistrationController::class, 'store'])
+        ->whereNumber('event')
+        ->name('events.registrations.store');
 
     Route::middleware(['guest'])->group(function () {
         Route::post('/login', [PortalAuthController::class, 'store'])->name('login.attempt');
+        Route::get('/forgot-password', [PortalPasswordResetController::class, 'create'])
+            ->name('password.request');
+        Route::post('/forgot-password', [PortalPasswordResetController::class, 'store'])
+            ->name('password.email');
+        Route::get('/reset-password', [PortalPasswordResetController::class, 'code'])
+            ->name('password.code');
+        Route::get('/reset-password/{token}', [PortalPasswordResetController::class, 'edit'])
+            ->name('password.reset');
+        Route::post('/reset-password', [PortalPasswordResetController::class, 'update'])
+            ->name('password.update');
 
         Route::get('/register', [PortalAuthController::class, 'register'])->name('register');
         Route::post('/register', [PortalAuthController::class, 'saveRegistration'])->name('register.store');
@@ -101,6 +119,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->name('requests.notifications');
     Route::patch('/requests/{recordRequest}/status', [RecordRequestController::class, 'updateStatus'])
         ->name('requests.status');
+    Route::get('/event-registrations', [EventRegistrationController::class, 'index'])
+        ->name('event-registrations.index');
+    Route::patch('/event-registrations/{eventRegistration}/reply', [EventRegistrationController::class, 'reply'])
+        ->name('event-registrations.reply');
     Route::get('/send-notification', [PushNotificationController::class, 'send'])
         ->name('notifications.test');
 });

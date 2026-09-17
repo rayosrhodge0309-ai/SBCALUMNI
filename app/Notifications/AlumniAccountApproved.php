@@ -24,6 +24,7 @@ class AlumniAccountApproved extends Notification
             ->subject('Your Alumni Portal Account Has Been Approved')
             ->greeting('Hello '.$notifiable->name.',')
             ->line('Your alumni portal account has been approved by the administrator.')
+            ->line('On your first login, we will send a one-time OTP to your Gmail to verify that your email is working.')
             ->line('You may now sign in to the Alumni Portal to request school records and view updates.')
             ->action('Login to Alumni Portal', route('portal.login'))
             ->line('Thank you for staying connected with St. Bridget College Batangas.');
