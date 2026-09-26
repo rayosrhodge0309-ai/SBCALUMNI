@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RecordRequest extends Model
 {
@@ -20,6 +21,15 @@ class RecordRequest extends Model
         'processed_at',
         'admin_replied_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::created(function (RecordRequest $recordRequest): void {
+            $recordRequest->statusHistories()->create([
+                'status' => $recordRequest->status,
+            ]);
+        });
+    }
 
     /**
      * @return array<string, string>
@@ -41,6 +51,12 @@ class RecordRequest extends Model
     public function processedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'processed_by');
+    }
+
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(RecordRequestStatusHistory::class, 'request_id')
+            ->oldest();
     }
 
     /**

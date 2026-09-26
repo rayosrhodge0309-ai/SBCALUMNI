@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicProgram;
 use App\Models\Alumni;
 use App\Models\User;
 use App\Services\LinkedAccountSyncService;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
@@ -125,7 +127,9 @@ class PortalAuthController extends Controller
 
     public function register(): View
     {
-        return view('portal.auth.register');
+        return view('portal.auth.register', [
+            'programsByLevel' => AcademicProgram::groupedByLevel(),
+        ]);
     }
 
     public function saveRegistration(Request $request, LinkedAccountSyncService $syncService): RedirectResponse
@@ -151,13 +155,22 @@ class PortalAuthController extends Controller
                 ->first()
             : null;
 
+        $educationLevels = AcademicProgram::educationLevels();
+        $submittedLevel = $request->input('education_level');
+        $availablePrograms = is_string($submittedLevel)
+            ? AcademicProgram::query()
+                ->where('education_level', $submittedLevel)
+                ->pluck('name')
+                ->all()
+            : [];
+
         $validated = $request->validate([
             'student_id' => 'required|string|max:50',
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'birthday' => 'nullable|date|before_or_equal:today',
-            'education_level' => [$existingAlumnus ? 'nullable' : 'required', 'string', 'max:100'],
-            'course' => [$existingAlumnus ? 'nullable' : 'required', 'string', 'max:150'],
+            'education_level' => [$existingAlumnus ? 'nullable' : 'required', 'string', 'max:100', Rule::in($educationLevels)],
+            'course' => [$existingAlumnus ? 'nullable' : 'required', 'string', 'max:150', Rule::in($availablePrograms)],
             'year_graduated' => 'required|integer|min:1900|max:'.(now()->year + 1),
             'email' => ['required', 'email', 'max:255', GmailAddress::validationRule()],
             'contact_number' => 'nullable|string|max:30',
@@ -245,7 +258,7 @@ class PortalAuthController extends Controller
                     ->withInput($request->except('password', 'password_confirmation'))
                     ->withErrors([
                         'email' => 'We could not create your alumni portal account right now. Please contact the administrator.',
-                ]);
+                    ]);
             }
 
             $portalUser->forceFill([
@@ -303,5 +316,4 @@ class PortalAuthController extends Controller
     {
         return StudentIdFormatter::normalize($studentId);
     }
-
 }

@@ -15,7 +15,7 @@
             <h1 id="office-overview-heading">Keep your community connected.</h1>
             <p>Manage alumni records, move requests forward, and share what is happening at school.</p>
             <div class="dashboard-hero-actions">
-                <a href="{{ route('requests.index') }}" class="btn btn-primary">Process requests <span aria-hidden="true">&rarr;</span></a>
+                <a href="{{ route('requests.index') }}" class="btn btn-primary">Process requests</a>
                 <a href="{{ route('alumni.index') }}" class="btn btn-outline-primary">Browse alumni</a>
             </div>
         </div>
@@ -28,16 +28,13 @@
 
     <div class="dashboard-metrics mb-4" aria-label="Alumni office totals">
         @foreach ([
-            ['label' => 'Registered alumni', 'value' => $alumniCount, 'hint' => 'Your alumni community', 'route' => 'alumni.index', 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0'],
-            ['label' => 'Total requests', 'value' => $requestCount, 'hint' => 'All submitted requests', 'route' => 'requests.index', 'icon' => 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5'],
-            ['label' => 'Active requests', 'value' => $pendingRequestCount, 'hint' => 'Pending or processing', 'route' => 'requests.index', 'icon' => 'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0M12 6v6l4 2'],
-            ['label' => 'Ready for pickup', 'value' => $readyForPickupCount, 'hint' => 'Awaiting school pickup', 'route' => 'requests.index', 'icon' => 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3'],
+            ['label' => 'Registered alumni', 'value' => $alumniCount, 'hint' => 'Your alumni community', 'route' => 'alumni.index'],
+            ['label' => 'Total requests', 'value' => $requestCount, 'hint' => 'All submitted requests', 'route' => 'requests.index'],
+            ['label' => 'Active requests', 'value' => $pendingRequestCount, 'hint' => 'Pending or processing', 'route' => 'requests.index'],
+            ['label' => 'Ready for pickup', 'value' => $readyForPickupCount, 'hint' => 'Awaiting school pickup', 'route' => 'requests.index'],
         ] as $metric)
-            <a href="{{ route($metric['route']) }}" class="page-card dashboard-stat">
-                <div class="dashboard-stat-top">
-                    <span class="dashboard-stat-label">{{ $metric['label'] }}</span>
-                    <span class="dashboard-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ $metric['icon'] }}"/></svg></span>
-                </div>
+            <a href="{{ route($metric['route']) }}" class="page-card dashboard-stat text-center">
+                <span class="dashboard-stat-label">{{ $metric['label'] }}</span>
                 <span class="dashboard-stat-value">{{ number_format($metric['value']) }}</span>
                 <span class="dashboard-stat-hint">{{ $metric['hint'] }}</span>
             </a>
@@ -58,9 +55,9 @@
     </section>
 
     <div class="dashboard-content-links mb-4" aria-label="Manage school updates">
-        <a href="{{ route('announcements.index') }}" class="page-card dashboard-content-link"><span><strong>Announcements</strong><span>Keep your community informed</span></span><span class="dashboard-link-total">{{ number_format($announcementCount) }} <span aria-hidden="true">&rarr;</span></span></a>
-        <a href="{{ route('events.index') }}" class="page-card dashboard-content-link"><span><strong>Events</strong><span>Bring your alumni together</span></span><span class="dashboard-link-total">{{ number_format($eventCount) }} <span aria-hidden="true">&rarr;</span></span></a>
-        <a href="{{ route('activities.index') }}" class="page-card dashboard-content-link"><span><strong>Activities</strong><span>Share ways to get involved</span></span><span class="dashboard-link-total">{{ number_format($activityCount) }} <span aria-hidden="true">&rarr;</span></span></a>
+        <a href="{{ route('announcements.index') }}" class="page-card dashboard-content-link"><span><strong>Announcements</strong><span>Keep your community informed</span></span><span class="dashboard-link-total">{{ number_format($announcementCount) }}</span></a>
+        <a href="{{ route('events.index') }}" class="page-card dashboard-content-link"><span><strong>Events</strong><span>Bring your alumni together</span></span><span class="dashboard-link-total">{{ number_format($eventCount) }}</span></a>
+        <a href="{{ route('activities.index') }}" class="page-card dashboard-content-link"><span><strong>Activities</strong><span>Share ways to get involved</span></span><span class="dashboard-link-total">{{ number_format($activityCount) }}</span></a>
     </div>
 
     <div class="row g-4">

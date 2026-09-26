@@ -41,6 +41,8 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $linkedAlumniId = $user->isAlumni() ? $user->alumni_id : null;
+        $submittedEmail = GmailAddress::normalize($request->input('email'));
+        $emailChanged = GmailAddress::normalize($user->email) !== $submittedEmail;
         $emailRules = [
             'required',
             'email',
@@ -49,7 +51,7 @@ class ProfileController extends Controller
             Rule::unique('alumni', 'email')->ignore($linkedAlumniId),
         ];
 
-        if ($user->isAlumni()) {
+        if ($user->isAlumni() && $emailChanged) {
             $emailRules[] = GmailAddress::validationRule();
         }
 
@@ -62,9 +64,8 @@ class ProfileController extends Controller
         ]);
 
         $newEmail = $user->isAlumni()
-            ? GmailAddress::normalize($validated['email'])
+            ? $submittedEmail
             : $validated['email'];
-        $emailChanged = GmailAddress::normalize($user->email) !== GmailAddress::normalize($newEmail);
 
         $user->name = $validated['name'];
         $user->email = $newEmail;

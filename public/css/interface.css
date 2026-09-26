@@ -54,9 +54,18 @@ h1, h2, h3, h4, h5, h6 {
 .workspace-shell { background: var(--app-bg); }
 /* Keep the original school banner while the workspace uses the new palette. */
 .workspace-shell .school-system-bar { --wine: #07116f; --school-sidebar: #0b45b8; --gold: #9c7a00; }
+.workspace-shell .school-system-bar {
+    background: linear-gradient(90deg, #0d2d61 0%, #3765bd 100%);
+}
 .workspace-shell .school-system-bar,
 .workspace-shell .mobile-toolbar { font-family: "Trebuchet MS", "Segoe UI", sans-serif; line-height: 1.5; }
 .workspace-shell .school-system-bar .h4 { font-family: Georgia, "Times New Roman", serif; letter-spacing: .01em; }
+.workspace-brand-crests {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    flex-shrink: 0;
+}
 .workspace-shell .school-system-bar .btn,
 .workspace-shell .mobile-toolbar .btn,
 .workspace-shell .sidebar .btn,
@@ -70,6 +79,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 .workspace-shell .mobile-toolbar .btn-sm { padding: .25rem .5rem; font-size: .875rem; }
 .workspace-shell .mobile-toolbar .mobile-menu-trigger { min-height: 2.6rem; padding: .5rem; }
+.workspace-shell .mobile-toolbar .workspace-brand-crests { gap: .3rem; }
+.workspace-shell .mobile-toolbar .school-system-brand-crest {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+@media (max-width: 575.98px) {
+    .admin-workspace .workspace-mobile-brand-link > .min-w-0 { display: none; }
+}
 /* Original sidebar styling comes from shell.css and desktop.css. */
 .workspace-shell .sidebar,
 .workspace-shell .offcanvas-mobile-nav {
@@ -88,6 +105,47 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     letter-spacing: normal;
     line-height: 1;
+}
+/* Give admin navigation a little more room and keep every label readable. */
+.admin-workspace .sidebar .nav-link,
+.admin-workspace .offcanvas-mobile-nav .nav-link {
+    padding: .9rem 1rem;
+    color: rgba(255, 255, 255, .95);
+    font-size: 1.0625rem;
+    font-weight: 500;
+}
+.admin-workspace .sidebar .sidebar-subnav-link,
+.admin-workspace .offcanvas-mobile-nav .sidebar-subnav-link {
+    min-height: 2.75rem;
+    padding: .65rem .8rem;
+    font-size: 1rem;
+}
+.admin-workspace .sidebar .btn,
+.admin-workspace .offcanvas-mobile-nav .btn {
+    min-height: 2.75rem;
+    font-size: 1.0625rem;
+}
+.admin-workspace .sidebar > *,
+.admin-workspace .offcanvas-mobile-nav .offcanvas-body > * { flex-shrink: 0; }
+
+/* Match the Records Admin navigation to the navy-to-blue reference palette. */
+.admin-workspace .sidebar-admin,
+.admin-workspace .offcanvas-mobile-nav {
+    background: linear-gradient(90deg, #0d2d61 0%, #3765bd 100%);
+}
+
+.admin-workspace .sidebar .nav-link:hover,
+.admin-workspace .sidebar .nav-link.active,
+.admin-workspace .offcanvas-mobile-nav .nav-link:hover,
+.admin-workspace .offcanvas-mobile-nav .nav-link.active {
+    background: #2864bd !important;
+    color: #fff !important;
+}
+
+.admin-workspace .sidebar .sidebar-subnav-link,
+.admin-workspace .offcanvas-mobile-nav .sidebar-subnav-link {
+    background: rgba(255, 255, 255, .08);
+    border-left-color: rgba(255, 255, 255, .3);
 }
 .mobile-menu-trigger { display: inline-flex; align-items: center; justify-content: center; width: 2.6rem; min-height: 2.6rem; padding: .5rem; border-radius: .6rem; }
 
@@ -174,12 +232,19 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes submit-spin { to { transform: rotate(360deg); } }
 
 @media (min-width: 992px) {
+    .admin-workspace { --sidebar-width: 290px; }
     .workspace-shell .school-system-bar,
     .workspace-shell .sidebar { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .workspace-shell .app-workspace-fluid { padding-left: calc(var(--sidebar-width) + 2rem); padding-right: 2rem; }
     .workspace-shell .app-workspace-wrapper { max-width: 1600px; }
     .workspace-shell .app-main { padding: calc(var(--topbar-height) + 2rem) 0 2rem !important; }
     .workspace-shell .sidebar { height: calc(100dvh - var(--topbar-height)); }
+}
+@media (min-width: 1280px) {
+    .admin-workspace { --sidebar-width: 320px; }
+}
+@media (min-width: 1600px) {
+    .admin-workspace { --sidebar-width: 360px; }
 }
 @media (max-width: 991.98px) {
     .workspace-shell .app-main { padding: 1.35rem 0 calc(var(--mobile-dock-height) + 1.25rem) !important; }

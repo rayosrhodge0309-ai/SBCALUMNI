@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AcademicProgramController;
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\AlumniImportController;
 use App\Http\Controllers\AnnouncementController;
@@ -94,6 +95,16 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/admin/school-programs', [AcademicProgramController::class, 'index'])
+        ->name('admin.academic-programs.index');
+    Route::post('/admin/school-programs', [AcademicProgramController::class, 'store'])
+        ->name('admin.academic-programs.store');
+    Route::put('/admin/school-programs/{academicProgram}', [AcademicProgramController::class, 'update'])
+        ->name('admin.academic-programs.update');
+    Route::delete('/admin/school-programs/{academicProgram}', [AcademicProgramController::class, 'destroy'])
+        ->name('admin.academic-programs.destroy');
+
+    Route::get('/alumni/export', [AlumniController::class, 'export'])->name('alumni.export');
     Route::resource('alumni', AlumniController::class)->except('show');
     Route::delete('/alumni', [AlumniController::class, 'bulkDestroy'])->name('alumni.bulk-destroy');
     Route::post('/alumni/import', [AlumniImportController::class, 'store'])->name('alumni.import');

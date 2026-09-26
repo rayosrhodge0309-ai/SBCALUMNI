@@ -75,16 +75,33 @@
             }
 
             $hasSbcLogo = is_string($sbcLogoPath);
+            $collegeLogoPath = null;
+
+            foreach (['images/sbc-college-logo.png', 'images/sbc-college-logo.jpg', 'images/sbc-college-logo.jpeg', 'images/sbc-college-logo.webp', 'images/sbc-college-logo.svg'] as $candidate) {
+                if (is_file(public_path($candidate))) {
+                    $collegeLogoPath = $candidate;
+                    break;
+                }
+            }
+
+            $hasCollegeLogo = is_string($collegeLogoPath);
         @endphp
         <div class="mobile-toolbar d-lg-none sticky-top">
             <div class="main-wrapper py-2 d-flex align-items-center justify-content-between gap-2">
                 <button type="button" class="btn btn-outline-light mobile-menu-trigger" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Open navigation menu"><x-ui-icon name="menu" /></button>
-                <a href="{{ auth()->user()->isAdmin() ? route('dashboard') : route('portal.dashboard') }}" class="d-flex align-items-center gap-2 text-white text-decoration-none min-w-0">
-                    <div class="brand-crest school-system-brand-crest {{ ($hasSbcLogo ?? false) ? 'brand-crest-logo' : '' }}">
-                        @if ($hasSbcLogo ?? false)
-                            <img src="{{ asset($sbcLogoPath) }}" alt="St. Bridget College Batangas Logo">
-                        @else
-                            SBC
+                <a href="{{ auth()->user()->isAdmin() ? route('dashboard') : route('portal.dashboard') }}" class="workspace-mobile-brand-link d-flex align-items-center gap-2 text-white text-decoration-none min-w-0">
+                    <div class="workspace-brand-crests" aria-label="St. Bridget College and Alumni Association logos">
+                        <div class="brand-crest school-system-brand-crest {{ ($hasSbcLogo ?? false) ? 'brand-crest-logo' : '' }}">
+                            @if ($hasSbcLogo ?? false)
+                                <img src="{{ asset($sbcLogoPath) }}" alt="St. Bridget College Alumni Association Logo">
+                            @else
+                                SBC
+                            @endif
+                        </div>
+                        @if ($hasCollegeLogo ?? false)
+                            <div class="brand-crest school-system-brand-crest brand-crest-logo">
+                                <img src="{{ asset($collegeLogoPath) }}" alt="St. Bridget College Logo">
+                            </div>
                         @endif
                     </div>
                     <div class="min-w-0">
@@ -129,6 +146,7 @@
 
                     @if (auth()->user()->isAdmin())
                         <a href="{{ route('alumni.index') }}" class="nav-link {{ request()->routeIs('alumni.*') ? 'active' : '' }}">Alumni Records</a>
+                        <a href="{{ route('admin.academic-programs.index') }}" class="nav-link {{ request()->routeIs('admin.academic-programs.*') ? 'active' : '' }}">School Levels &amp; Programs</a>
                         <a href="{{ route('users.pending') }}" class="nav-link {{ request()->routeIs('users.pending') ? 'active' : '' }}">
                             Pending Accounts
                             <span class="badge rounded-pill text-bg-light ms-2 {{ ($pendingAccountCount ?? 0) > 0 ? '' : 'd-none' }}" data-pending-account-badge>{{ $pendingAccountCount }}</span>
@@ -218,11 +236,18 @@
         <div class="school-system-bar d-none d-lg-flex align-items-center">
             <div class="main-wrapper d-flex align-items-center justify-content-between gap-4">
                 <a href="{{ auth()->user()->isAdmin() ? route('dashboard') : route('portal.dashboard') }}" class="d-flex align-items-center gap-3 text-white text-decoration-none">
-                    <div class="brand-crest school-system-brand-crest {{ ($hasSbcLogo ?? false) ? 'brand-crest-logo' : '' }}">
-                        @if ($hasSbcLogo ?? false)
-                            <img src="{{ asset($sbcLogoPath) }}" alt="St. Bridget College Batangas Logo">
-                        @else
-                            SBC
+                    <div class="workspace-brand-crests" aria-label="St. Bridget College and Alumni Association logos">
+                        <div class="brand-crest school-system-brand-crest {{ ($hasSbcLogo ?? false) ? 'brand-crest-logo' : '' }}">
+                            @if ($hasSbcLogo ?? false)
+                                <img src="{{ asset($sbcLogoPath) }}" alt="St. Bridget College Alumni Association Logo">
+                            @else
+                                SBC
+                            @endif
+                        </div>
+                        @if ($hasCollegeLogo ?? false)
+                            <div class="brand-crest school-system-brand-crest brand-crest-logo">
+                                <img src="{{ asset($collegeLogoPath) }}" alt="St. Bridget College Logo">
+                            </div>
                         @endif
                     </div>
                     <div>
@@ -261,6 +286,7 @@
 
                     @if (auth()->user()->isAdmin())
                         <a href="{{ route('alumni.index') }}" class="nav-link {{ request()->routeIs('alumni.*') ? 'active' : '' }}">Alumni Records</a>
+                        <a href="{{ route('admin.academic-programs.index') }}" class="nav-link {{ request()->routeIs('admin.academic-programs.*') ? 'active' : '' }}">School Levels &amp; Programs</a>
                         <a href="{{ route('users.pending') }}" class="nav-link {{ request()->routeIs('users.pending') ? 'active' : '' }}">
                             Pending Accounts
                             <span class="badge rounded-pill text-bg-light ms-2 {{ ($pendingAccountCount ?? 0) > 0 ? '' : 'd-none' }}" data-pending-account-badge>{{ $pendingAccountCount }}</span>

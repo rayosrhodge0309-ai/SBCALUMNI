@@ -8,6 +8,7 @@ use App\Notifications\RecordRequestUpdated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -17,7 +18,7 @@ class RecordRequestController extends Controller
 {
     public function index(): View
     {
-        $requests = RecordRequest::with(['alumni', 'processedBy'])
+        $requests = RecordRequest::with(['alumni', 'processedBy', 'statusHistories.changedBy'])
             ->latest()
             ->paginate(10);
 
@@ -72,14 +73,25 @@ class RecordRequestController extends Controller
         ]);
 
         $status = $validated['status'];
+        $previousStatus = $recordRequest->status;
 
-        $recordRequest->update([
-            'status' => $status,
-            'admin_notes' => $validated['admin_notes'] ?? null,
-            'processed_by' => $request->user()->id,
-            'processed_at' => $status === 'pending' ? null : now(),
-            'admin_replied_at' => now(),
-        ]);
+        DB::transaction(function () use ($recordRequest, $request, $status, $previousStatus, $validated): void {
+            $recordRequest->update([
+                'status' => $status,
+                'admin_notes' => $validated['admin_notes'] ?? null,
+                'processed_by' => $request->user()->id,
+                'processed_at' => $status === 'pending' ? null : now(),
+                'admin_replied_at' => now(),
+            ]);
+
+            if ($status !== $previousStatus) {
+                $recordRequest->statusHistories()->create([
+                    'status' => $status,
+                    'admin_notes' => $validated['admin_notes'] ?? null,
+                    'changed_by' => $request->user()->id,
+                ]);
+            }
+        });
 
         $recordRequest->loadMissing('alumni.user');
         $alumniUser = $recordRequest->alumni?->user;

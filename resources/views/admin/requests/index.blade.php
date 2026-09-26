@@ -90,6 +90,36 @@
                                 <template data-request-admin-notes-template>
                                     {!! nl2br(e($adminNotes)) !!}
                                 </template>
+                                <template data-request-history-template>
+                                    <ol class="record-request-history-list">
+                                        @forelse ($recordRequest->statusHistories as $history)
+                                            @php
+                                                $historyLabel = $history->status === 'pending' && $history->changed_by === null
+                                                    ? 'Request Submitted'
+                                                    : ($statusOptions[$history->status] ?? ucfirst(str_replace('_', ' ', $history->status)));
+                                            @endphp
+                                            <li class="record-request-history-item">
+                                                <span class="record-request-history-marker" aria-hidden="true"></span>
+                                                <div class="record-request-history-content">
+                                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-1">
+                                                        <span class="fw-semibold">{{ $historyLabel }}</span>
+                                                        <time class="small text-secondary" datetime="{{ $history->created_at?->toIso8601String() }}">
+                                                            {{ $history->created_at?->format('M d, Y h:i A') }}
+                                                        </time>
+                                                    </div>
+                                                    <div class="small text-secondary mt-1">
+                                                        {{ $history->changedBy?->name ?? ($history->status === 'pending' ? $alumniName : 'System') }}
+                                                    </div>
+                                                    @if (filled($history->admin_notes))
+                                                        <div class="record-request-history-note mt-2">{!! nl2br(e($history->admin_notes)) !!}</div>
+                                                    @endif
+                                                </div>
+                                            </li>
+                                        @empty
+                                            <li class="text-secondary">No transaction history yet.</li>
+                                        @endforelse
+                                    </ol>
+                                </template>
                             </td>
                         </tr>
                     @empty
@@ -146,9 +176,14 @@
                         <div class="record-request-full-message" data-request-modal-message></div>
                     </div>
 
-                    <div>
+                    <div class="mb-4">
                         <div class="record-request-detail-label mb-2">Admin Update</div>
                         <div class="record-request-admin-note" data-request-modal-admin-notes></div>
+                    </div>
+
+                    <div>
+                        <div class="record-request-detail-label mb-3">Transaction History</div>
+                        <div data-request-modal-history></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -236,6 +271,56 @@
             border-radius: 0.9rem;
         }
 
+        .record-request-history-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .record-request-history-item {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1.25rem minmax(0, 1fr);
+            gap: 0.75rem;
+            padding-bottom: 1.25rem;
+        }
+
+        .record-request-history-item:not(:last-child)::before {
+            position: absolute;
+            top: 0.75rem;
+            bottom: 0;
+            left: 0.35rem;
+            width: 2px;
+            background: rgba(11, 69, 184, 0.2);
+            content: '';
+        }
+
+        .record-request-history-marker {
+            position: relative;
+            z-index: 1;
+            width: 0.8rem;
+            height: 0.8rem;
+            margin-top: 0.3rem;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background: var(--brand, #0b45b8);
+            box-shadow: 0 0 0 2px rgba(11, 69, 184, 0.22);
+        }
+
+        .record-request-history-content {
+            min-width: 0;
+            padding: 0.85rem 1rem;
+            border: 1px solid rgba(11, 69, 184, 0.14);
+            border-radius: 0.75rem;
+            background: rgba(11, 69, 184, 0.025);
+        }
+
+        .record-request-history-note {
+            color: var(--body-color, #334155);
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
         @media (max-width: 767.98px) {
             .record-request-row {
                 cursor: default;
@@ -278,6 +363,7 @@
                 processed: modalElement.querySelector('[data-request-modal-processed]'),
                 message: modalElement.querySelector('[data-request-modal-message]'),
                 adminNotes: modalElement.querySelector('[data-request-modal-admin-notes]'),
+                history: modalElement.querySelector('[data-request-modal-history]'),
             };
 
             const setText = (element, value) => {
@@ -289,6 +375,7 @@
             const openRequest = (row) => {
                 const messageTemplate = row.querySelector('[data-request-message-template]');
                 const adminNotesTemplate = row.querySelector('[data-request-admin-notes-template]');
+                const historyTemplate = row.querySelector('[data-request-history-template]');
 
                 setText(fields.title, row.dataset.requestType || 'Record Request');
                 setText(fields.subtitle, 'Request #' + (row.dataset.requestId || ''));
@@ -306,6 +393,10 @@
 
                 if (fields.adminNotes && adminNotesTemplate) {
                     fields.adminNotes.innerHTML = adminNotesTemplate.innerHTML;
+                }
+
+                if (fields.history && historyTemplate) {
+                    fields.history.innerHTML = historyTemplate.innerHTML;
                 }
 
                 modal.show();

@@ -33,6 +33,35 @@ test('alumni registration rejects non Gmail addresses', function () {
     $this->assertDatabaseMissing('alumni', ['email' => 'gina@example.com']);
 });
 
+test('registration lists the SBC programs for each school level', function () {
+    $this->get(route('portal.register'))
+        ->assertOk()
+        ->assertSee('Grade 6')
+        ->assertSee('Grade 10')
+        ->assertSee('Grade 12 - HUMSS')
+        ->assertSee('Bachelor of Secondary Education - Mathematics')
+        ->assertSee('BS Information Technology');
+});
+
+test('registration accepts an SBC strand and rejects a course from another level', function () {
+    $this->post(route('portal.register.store'), alumniRegistrationPayload([
+        'education_level' => 'Senior High School',
+        'course' => 'Grade 12 - STEM',
+    ]))->assertRedirect(route('portal.login'));
+
+    $this->assertDatabaseHas('alumni', [
+        'email' => 'gina.reyes@gmail.com',
+        'education_level' => 'Senior High School',
+        'course' => 'Grade 12 - STEM',
+    ]);
+
+    $this->post(route('portal.register.store'), alumniRegistrationPayload([
+        'student_id' => '2026-1002',
+        'email' => 'another.alumnus@gmail.com',
+        'course' => 'Grade 12 - STEM',
+    ]))->assertSessionHasErrors('course');
+});
+
 test('alumni registration creates a pending account request without OTP first', function () {
     $this->post(route('portal.register.store'), alumniRegistrationPayload())
         ->assertRedirect(route('portal.login'))

@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumni;
-use App\Support\StudentIdFormatter;
+use App\Services\AlumniExportService;
 use App\Services\LinkedAccountSyncService;
+use App\Support\StudentIdFormatter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AlumniController extends Controller
 {
@@ -19,24 +22,8 @@ class AlumniController extends Controller
     {
         $search = trim((string) $request->query('search'));
 
-        $alumni = Alumni::query()
+        $alumni = $this->alumniQuery($search)
             ->with('user')
-            ->when($search !== '', function ($query) use ($search) {
-                $studentIdSearchVariants = StudentIdFormatter::variants($search);
-
-                $query->where(function ($searchQuery) use ($search, $studentIdSearchVariants) {
-                    $searchQuery
-                        ->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('education_level', 'like', "%{$search}%")
-                        ->orWhere('course', 'like', "%{$search}%")
-                        ->orWhere('year_graduated', 'like', "%{$search}%");
-
-                    foreach ($studentIdSearchVariants as $studentIdSearch) {
-                        $searchQuery->orWhere('student_id', 'like', "%{$studentIdSearch}%");
-                    }
-                });
-            })
             ->orderBy('course')
             ->orderBy('last_name')
             ->orderBy('first_name')
@@ -48,6 +35,26 @@ class AlumniController extends Controller
             'search' => $search,
             'educationLevels' => $this->educationLevels(),
         ]);
+    }
+
+    public function export(Request $request, AlumniExportService $exportService): BinaryFileResponse
+    {
+        $search = trim((string) $request->query('search'));
+        $alumni = $this->alumniQuery($search)
+            ->with('user')
+            ->orderBy('course')
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->lazy(500);
+        $path = $exportService->create($alumni);
+        $filename = 'alumni-records-'.now()->format('Y-m-d_His').'.xlsx';
+
+        return response()
+            ->download($path, $filename, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Cache-Control' => 'private, no-store, max-age=0',
+            ])
+            ->deleteFileAfterSend(true);
     }
 
     public function create(): View
@@ -218,5 +225,26 @@ class AlumniController extends Controller
     private function normalizeStudentId(string $studentId): string
     {
         return StudentIdFormatter::normalize($studentId);
+    }
+
+    private function alumniQuery(string $search): Builder
+    {
+        return Alumni::query()
+            ->when($search !== '', function (Builder $query) use ($search): void {
+                $studentIdSearchVariants = StudentIdFormatter::variants($search);
+
+                $query->where(function (Builder $searchQuery) use ($search, $studentIdSearchVariants): void {
+                    $searchQuery
+                        ->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('education_level', 'like', "%{$search}%")
+                        ->orWhere('course', 'like', "%{$search}%")
+                        ->orWhere('year_graduated', 'like', "%{$search}%");
+
+                    foreach ($studentIdSearchVariants as $studentIdSearch) {
+                        $searchQuery->orWhere('student_id', 'like', "%{$studentIdSearch}%");
+                    }
+                });
+            });
     }
 }

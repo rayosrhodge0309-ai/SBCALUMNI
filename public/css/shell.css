@@ -157,8 +157,7 @@ a {
 
 .brand-pill,
 .stat-pill,
-.utility-pill,
-.hero-badge {
+.utility-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -819,12 +818,6 @@ a {
 
 .hero-right-panel {
     padding-left: clamp(2rem, 3vw, 3rem);
-}
-
-.hero-badge {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.94);
-    margin-bottom: 1rem;
 }
 
 .hero-heading {

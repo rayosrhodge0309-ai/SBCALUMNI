@@ -42,7 +42,7 @@
                         <label for="education_level" class="form-label">School Level</label>
                         <select id="education_level" class="form-select" name="education_level">
                             <option value="">Select level</option>
-                            @foreach (['Elementary', 'Junior High School', 'Senior High School', 'College'] as $level)
+                            @foreach (array_keys($programsByLevel) as $level)
                                 <option value="{{ $level }}" @selected(old('education_level') === $level)>{{ $level }}</option>
                             @endforeach
                         </select>
@@ -50,7 +50,16 @@
                     </div>
                     <div class="col-md-6">
                         <label for="course" class="form-label">Program / Grade / Course</label>
-                        <input id="course" type="text" class="form-control" name="course" value="{{ old('course') }}" placeholder="e.g. BS Information Technology or Grade 12 - STEM">
+                        <select id="course" class="form-select" name="course">
+                            <option value="">Select grade, strand, or course</option>
+                            @foreach ($programsByLevel as $level => $programs)
+                                <optgroup label="{{ $level }}" data-level="{{ $level }}">
+                                    @foreach ($programs as $program)
+                                        <option value="{{ $program }}" @selected(old('course') === $program)>{{ $program }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
                         <div class="form-text">Optional when you are claiming an existing alumni record.</div>
                     </div>
                     <div class="col-md-6">
@@ -320,6 +329,8 @@
     <script>
         (function () {
             const form = document.getElementById('portal-register-form');
+            const educationLevel = document.getElementById('education_level');
+            const course = document.getElementById('course');
             const password = document.getElementById('password');
             const confirmation = document.getElementById('password_confirmation');
             const submit = document.getElementById('portal-register-submit');
@@ -327,6 +338,25 @@
 
             if (!form || !password || !confirmation || !submit || !message) {
                 return;
+            }
+
+            if (educationLevel && course) {
+                const updateCourseOptions = (resetSelection = false) => {
+                    course.querySelectorAll('optgroup').forEach((group) => {
+                        const matchesLevel = group.dataset.level === educationLevel.value;
+                        group.disabled = !matchesLevel;
+                        group.hidden = !matchesLevel;
+                    });
+
+                    if (resetSelection || course.selectedOptions[0]?.parentElement?.dataset.level !== educationLevel.value) {
+                        course.value = '';
+                    }
+
+                    course.disabled = !educationLevel.value;
+                };
+
+                educationLevel.addEventListener('change', () => updateCourseOptions(true));
+                updateCourseOptions();
             }
 
             const setState = (text, cls) => {

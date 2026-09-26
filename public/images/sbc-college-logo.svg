@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">St. Bridget College Seal</title>
+  <desc id="desc">Circular blue St. Bridget College seal with shield, ribbons, clovers, lamp, and A.D. 1913 text.</desc>
+  <defs>
+    <radialGradient id="outerBlue" cx="50%" cy="45%" r="58%">
+      <stop offset="0%" stop-color="#1f43ff"/>
+      <stop offset="62%" stop-color="#0a20ce"/>
+      <stop offset="100%" stop-color="#00107c"/>
+    </radialGradient>
+    <linearGradient id="shieldBlue" x1="22%" y1="10%" x2="78%" y2="92%">
+      <stop offset="0%" stop-color="#1310ba"/>
+      <stop offset="100%" stop-color="#080078"/>
+    </linearGradient>
+    <path id="collegeTopArc" d="M 56 265 A 200 200 0 0 1 456 265"/>
+    <path id="collegeBottomArc" d="M 456 265 A 200 200 0 0 1 56 265"/>
+  </defs>
+
+  <circle cx="256" cy="256" r="250" fill="#fff"/>
+  <circle cx="256" cy="256" r="244" fill="url(#outerBlue)"/>
+  <circle cx="256" cy="256" r="184" fill="#fff"/>
+
+  <g fill="#fff" font-family="Georgia, 'Times New Roman', serif" font-weight="700" letter-spacing="9">
+    <text font-size="37">
+      <textPath href="#collegeTopArc" startOffset="50%" text-anchor="middle">ST. BRIDGET COLLEGE</textPath>
+    </text>
+    <text font-size="36">
+      <textPath href="#collegeBottomArc" startOffset="50%" text-anchor="middle">A.D. 1913</textPath>
+    </text>
+  </g>
+
+  <circle cx="33" cy="256" r="5.5" fill="#fff"/>
+  <circle cx="479" cy="256" r="5.5" fill="#fff"/>
+  <g fill="#fff">
+    <path d="M91 405 105 379 119 405 145 419 119 433 105 459 91 433 65 419Z"/>
+    <path d="M393 405 407 379 421 405 447 419 421 433 407 459 393 433 367 419Z"/>
+  </g>
+
+  <path d="M134 103 H378 V257 C378 374 256 447 256 447 S134 374 134 257 Z" fill="url(#shieldBlue)" stroke="#fff" stroke-width="5"/>
+  <rect x="144" y="106" width="224" height="105" fill="#fff" stroke="#fff" stroke-width="3"/>
+
+  <g fill="none" stroke="#7a431f" stroke-width="5" stroke-linecap="round">
+    <path d="M203 191 258 145"/>
+    <path d="M309 191 254 145"/>
+    <path d="M204 128 C184 121 172 128 177 139 C181 148 196 149 207 155"/>
+    <path d="M308 128 C328 121 340 128 335 139 C331 148 316 149 305 155"/>
+  </g>
+
+  <g>
+    <path d="M256 147 C247 132 226 133 224 153 C221 177 251 192 256 203 C261 192 291 177 288 153 C286 133 265 132 256 147Z" fill="#ec202a"/>
+    <path d="M256 148 V116" stroke="#2147cb" stroke-width="5" stroke-linecap="round"/>
+    <path d="M244 124 H268 M250 133 H262" stroke="#2147cb" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <g fill="#fff">
+    <g transform="translate(170 249)">
+      <circle cx="0" cy="-12" r="11"/>
+      <circle cx="-13" cy="2" r="11"/>
+      <circle cx="13" cy="2" r="11"/>
+      <path d="M0 0 C2 26 -4 35 -10 46" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(342 249)">
+      <circle cx="0" cy="-12" r="11"/>
+      <circle cx="-13" cy="2" r="11"/>
+      <circle cx="13" cy="2" r="11"/>
+      <path d="M0 0 C2 26 -4 35 -10 46" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(256 397)">
+      <circle cx="0" cy="-12" r="11"/>
+      <circle cx="-13" cy="2" r="11"/>
+      <circle cx="13" cy="2" r="11"/>
+      <path d="M0 0 C2 26 -4 35 -10 46" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <path d="M190 310 C219 314 241 326 271 318 C284 314 292 306 297 292 C305 301 305 319 293 332 C277 350 239 358 201 345 C218 343 228 337 234 329 C214 329 198 323 190 310Z" fill="#fff"/>
+  <rect x="241" y="350" width="30" height="9" rx="4.5" fill="#fff"/>
+  <ellipse cx="256" cy="363" rx="31" ry="6" fill="#fff"/>
+
+  <g fill="#fff" stroke="#0b20c9" stroke-width="3">
+    <path d="M96 202 121 220 128 286 99 250 82 252 83 199Z"/>
+    <path d="M416 202 391 220 384 286 413 250 430 252 429 199Z"/>
+  </g>
+  <g fill="#d20014" font-family="Georgia, 'Times New Roman', serif" font-size="14" font-weight="700" letter-spacing="2">
+    <text x="113" y="276" transform="rotate(74 113 276)">LUCEAT</text>
+    <text x="395" y="276" transform="rotate(-74 395 276)">LUX VESTRA</text>
+  </g>
+</svg>

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Notifications\AlumniAccountApproved;
 use App\Notifications\RecordRequestSubmitted;
 use App\Notifications\RecordRequestUpdated;
+use App\Services\AlumniImportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
@@ -378,6 +379,90 @@ test('an administrator can search alumni by name and student id formats', functi
     $this->get(route('alumni.index', ['search' => '20-1425-480']))
         ->assertOk()
         ->assertSee('Mirko Santos');
+});
+
+test('administrators can export searchable alumni records to Excel', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $this->actingAs($admin);
+
+    $included = Alumni::create([
+        'student_id' => '201425480',
+        'first_name' => 'Maria',
+        'last_name' => 'Santos',
+        'birthday' => '2000-02-14',
+        'education_level' => 'College',
+        'course' => 'BS Information Technology',
+        'year_graduated' => 2024,
+        'email' => 'maria@example.com',
+        'contact_number' => '09123456789',
+        'address' => 'Batangas City',
+    ]);
+    User::factory()->create([
+        'name' => $included->full_name,
+        'email' => 'maria@gmail.com',
+        'role' => 'alumni',
+        'account_status' => 'approved',
+        'alumni_id' => $included->id,
+    ]);
+    Alumni::create([
+        'student_id' => '2015-1002',
+        'first_name' => 'Nina',
+        'last_name' => 'Lopez',
+        'education_level' => 'College',
+        'course' => 'BS Nursing',
+        'year_graduated' => 2023,
+        'email' => 'nina@example.com',
+    ]);
+
+    $response = $this->get(route('alumni.export', ['search' => 'Maria']));
+
+    $response->assertOk()
+        ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        ->assertDownload();
+
+    $workbookPath = $response->baseResponse->getFile()->getPathname();
+    $archive = new ZipArchive();
+
+    expect($archive->open($workbookPath))->toBeTrue();
+
+    $worksheet = $archive->getFromName('xl/worksheets/sheet1.xml');
+    $styles = $archive->getFromName('xl/styles.xml');
+    $archive->close();
+
+    expect($worksheet)->toBeString()
+        ->and($worksheet)->toContain('Student ID')
+        ->and($worksheet)->toContain('Maria')
+        ->and($worksheet)->toContain('Santos')
+        ->and($worksheet)->toContain('201425480')
+        ->and($worksheet)->toContain('maria@example.com')
+        ->and($worksheet)->toContain('maria@gmail.com')
+        ->and($worksheet)->not->toContain('Nina')
+        ->and($styles)->toBeString()
+        ->and($styles)->toContain('FF0B45B8');
+
+    $importSummary = app(AlumniImportService::class)->import(
+        new UploadedFile(
+            $workbookPath,
+            'alumni-export.xlsx',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            null,
+            true
+        ),
+        false
+    );
+
+    expect($importSummary['updated'])->toBe(1)
+        ->and($included->fresh()->email)->toBe('maria@example.com');
+
+    @unlink($workbookPath);
+});
+
+test('alumni users cannot export alumni records', function () {
+    $alumniUser = User::factory()->create(['role' => 'alumni']);
+
+    $this->actingAs($alumniUser)
+        ->get(route('alumni.export'))
+        ->assertForbidden();
 });
 
 test('an administrator can import a partial xlsx alumni row without a student id or graduation details', function () {
@@ -864,6 +949,12 @@ test('alumni can submit requests but only admins can process them', function () 
     expect($requestRecord)->not->toBeNull();
     Notification::assertSentTo($admin, RecordRequestSubmitted::class);
 
+    $this->assertDatabaseHas('request_status_histories', [
+        'request_id' => $requestRecord->id,
+        'status' => 'pending',
+        'changed_by' => null,
+    ]);
+
     $this->get(route('requests.index'))->assertForbidden();
     $this->get(route('portal.requests.index'))->assertOk()->assertSee('Alumni ID');
 
@@ -884,6 +975,11 @@ test('alumni can submit requests but only admins can process them', function () 
     $this->get(route('requests.index'))->assertOk()->assertSee('Record Request Processing');
 
     $this->patch(route('requests.status', $requestRecord), [
+        'status' => 'processing',
+        'admin_notes' => 'The request is being prepared.',
+    ])->assertRedirect(route('requests.index'));
+
+    $this->patch(route('requests.status', $requestRecord), [
         'status' => 'ready_for_pickup',
         'admin_notes' => 'Bring your school ID when claiming the document.',
     ])->assertRedirect(route('requests.index'));
@@ -896,6 +992,29 @@ test('alumni can submit requests but only admins can process them', function () 
         'admin_notes' => 'Bring your school ID when claiming the document.',
         'processed_by' => $admin->id,
     ]);
+
+    $this->assertDatabaseHas('request_status_histories', [
+        'request_id' => $requestRecord->id,
+        'status' => 'processing',
+        'admin_notes' => 'The request is being prepared.',
+        'changed_by' => $admin->id,
+    ]);
+
+    $this->assertDatabaseHas('request_status_histories', [
+        'request_id' => $requestRecord->id,
+        'status' => 'ready_for_pickup',
+        'admin_notes' => 'Bring your school ID when claiming the document.',
+        'changed_by' => $admin->id,
+    ]);
+
+    expect($requestRecord->statusHistories()->count())->toBe(3);
+
+    $this->get(route('requests.index'))
+        ->assertOk()
+        ->assertSee('Transaction History')
+        ->assertSee('Request Submitted')
+        ->assertSee('Processing')
+        ->assertSee('Ready for Pickup');
 
     $requestRecord->refresh();
     expect($requestRecord->admin_replied_at)->not->toBeNull();
@@ -954,6 +1073,46 @@ test('users can upload a profile photo from the profile settings page', function
         'name' => 'Updated Admin',
         'email' => 'updated-admin@example.com',
     ]);
+});
+
+test('alumni can upload a profile photo without changing their legacy email', function () {
+    Storage::fake('public');
+
+    $alumnus = Alumni::create([
+        'student_id' => '2014-1001',
+        'first_name' => 'Maria',
+        'last_name' => 'Santos',
+        'education_level' => 'College',
+        'course' => 'BSIT',
+        'year_graduated' => 2018,
+        'email' => 'maria@example.com',
+    ]);
+    $alumniUser = User::factory()->create([
+        'name' => $alumnus->full_name,
+        'email' => 'maria@example.com',
+        'role' => 'alumni',
+        'alumni_id' => $alumnus->id,
+    ]);
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4//8/AwAI/AL+KDAdmwAAAABJRU5ErkJggg==');
+
+    $this->actingAs($alumniUser)
+        ->post(route('profile.update'), [
+            '_method' => 'PUT',
+            'name' => $alumniUser->name,
+            'email' => $alumniUser->email,
+            'password' => '',
+            'password_confirmation' => '',
+            'profile_photo' => UploadedFile::fake()->createWithContent('alumni-avatar.png', $png),
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('profile.edit'));
+
+    $alumniUser->refresh();
+
+    expect($alumniUser->profile_photo_path)->not->toBeNull();
+    expect(Storage::disk('public')->exists($alumniUser->profile_photo_path))->toBeTrue();
+    expect($alumniUser->email)->toBe('maria@example.com');
+    expect($alumnus->fresh()->email)->toBe('maria@example.com');
 });
 
 test('users can remove their current profile photo from the profile settings page', function () {
@@ -1195,7 +1354,7 @@ test('the landing page shows uploaded alumni posts and totals', function () {
         ->assertSee('Alumni outreach drive')
         ->assertSee('Career mentorship session')
         ->assertSee('Homecoming volunteer signup')
-        ->assertSee('3 alumni posts published');
+        ->assertSee('3 posts');
 });
 
 test('admins can upload an activity photo that appears on public and alumni views', function () {

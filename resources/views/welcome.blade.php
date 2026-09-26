@@ -46,6 +46,14 @@
             }
         }
         $hasSbcLogo = is_string($sbcLogoPath);
+        $collegeLogoPath = null;
+        foreach (['images/sbc-college-logo.png', 'images/sbc-college-logo.jpg', 'images/sbc-college-logo.jpeg', 'images/sbc-college-logo.webp', 'images/sbc-college-logo.svg'] as $candidate) {
+            if (is_file(public_path($candidate))) {
+                $collegeLogoPath = $candidate;
+                break;
+            }
+        }
+        $hasCollegeLogo = is_string($collegeLogoPath);
         $currentUser = auth()->user();
         $isLoggedInAdmin = auth()->check() && $currentUser?->isAdmin();
         $isLoggedInAlumni = auth()->check() && $currentUser?->isAlumni();
@@ -104,11 +112,18 @@
                 <div class="main-wrapper">
                     <div class="school-identity-shell">
                         <a href="{{ route('home') }}" class="school-identity-lockup text-decoration-none" aria-label="St. Bridget College home">
-                            <div class="school-identity-crest {{ $hasSbcLogo ? 'school-identity-crest-logo' : '' }}">
-                                @if ($hasSbcLogo)
-                                    <img src="{{ asset($sbcLogoPath) }}" alt="St. Bridget College Batangas Logo" width="64" height="64" decoding="async">
-                                @else
-                                    SBC
+                            <div class="school-identity-crest-pair">
+                                <div class="school-identity-crest {{ $hasSbcLogo ? 'school-identity-crest-logo' : '' }}">
+                                    @if ($hasSbcLogo)
+                                        <img src="{{ asset($sbcLogoPath) }}" alt="St. Bridget College Alumni Association Logo" width="64" height="64" decoding="async">
+                                    @else
+                                        SBC
+                                    @endif
+                                </div>
+                                @if ($hasCollegeLogo)
+                                    <div class="school-identity-crest school-identity-crest-logo">
+                                        <img src="{{ asset($collegeLogoPath) }}" alt="St. Bridget College Logo" width="64" height="64" decoding="async">
+                                    </div>
                                 @endif
                             </div>
                             <div class="school-identity-copy">
@@ -162,7 +177,6 @@
                     <img src="{{ asset('images/alumni-header.jpg') }}" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
                     <div class="landing-mobile-hero-head d-flex align-items-start justify-content-between gap-3">
                         <div class="min-w-0">
-                            <div class="hero-badge mb-2">{{ $hero['eyebrow'] }}</div>
                             <div class="mobile-portal-badge">{{ $brand['school'] }}</div>
                             <h1 class="h3 mb-2">{{ $hero['title'] }}</h1>
                             <p class="mb-0 text-white-50">{{ $hero['summary'] }}</p>
@@ -229,19 +243,8 @@
                     <img src="{{ asset('images/alumni-header.jpg') }}" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
                     <div class="row gx-0 align-items-stretch position-relative hero-columns">
                         <div class="col-lg-12 hero-left-panel">
-                            <div class="hero-badge">{{ $hero['eyebrow'] }}</div>
                             <h1 class="hero-heading">{{ $hero['title'] }}</h1>
                             <p class="hero-copy mb-4">{{ $hero['summary'] }}</p>
-                            <div class="landing-hero-actions mb-4">
-                                @if ($isLoggedInAdmin)
-                                    <a href="{{ $adminDashboardUrl }}" class="btn btn-light">Go to dashboard <span aria-hidden="true">&rarr;</span></a>
-                                @elseif ($isLoggedInAlumni)
-                                    <a href="{{ $portalDashboardUrl }}" class="btn btn-light">Go to dashboard <span aria-hidden="true">&rarr;</span></a>
-                                @else
-                                    <a href="{{ $portalRegisterUrl }}" class="btn btn-light">Join the alumni community <span aria-hidden="true">&rarr;</span></a>
-                                @endif
-                                <a href="#events" class="btn btn-outline-light">Explore events</a>
-                            </div>
                             <div class="row g-3">
                                 @foreach ($landingStats as $metric)
                                     <div class="col-sm-4">
@@ -350,13 +353,12 @@
                 <div class="row g-4 about-process-grid">
                     @foreach ($process as $item)
                         <div class="col-md-4 reveal about-process-item" style="--about-delay: {{ $loop->index * 90 }}ms;" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($item['step'].' '.$item['title'].' '.$item['description']) }}">
-                            <div class="process-card about-process-card p-4 h-100">
-                                <div class="about-process-step-row">
-                                    <span class="about-process-step">{{ $item['step'] }}</span>
-                                    <span class="about-process-line" aria-hidden="true"></span>
+                            <div class="process-card about-process-card h-100">
+                                <span class="about-process-step">{{ $item['step'] }}</span>
+                                <div class="about-process-body">
+                                    <h3 class="about-process-title mb-2">{{ $item['title'] }}</h3>
+                                    <p class="about-process-copy mb-0">{{ $item['description'] }}</p>
                                 </div>
-                                <h3 class="about-process-title mb-3">{{ $item['title'] }}</h3>
-                                <p class="about-process-copy mb-0">{{ $item['description'] }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -374,13 +376,8 @@
                 <div class="landing-board reveal">
                     <div id="events" class="landing-board-column landing-board-column-events">
                         <div class="landing-board-header">
-                            <span class="landing-board-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" focusable="false"><path d="M7 2h2v3h6V2h2v3h3a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3V2Zm13 9H4v9h16v-9ZM4 9h16V7H4v2Z"/></svg>
-                            </span>
-                            <div>
-                                <div class="landing-board-title">Events</div>
-                                <div class="landing-board-count">{{ $upcomingEventTotal }} {{ $upcomingEventTotal === 1 ? 'event' : 'events' }}</div>
-                            </div>
+                            <div class="landing-board-title">Events</div>
+                            <div class="landing-board-count">{{ $upcomingEventTotal }} {{ $upcomingEventTotal === 1 ? 'event' : 'events' }}</div>
                         </div>
                         <div class="landing-board-list">
                             @forelse ($upcomingEvents as $event)
@@ -401,9 +398,7 @@
                                         <h3 class="landing-board-card-title">{{ $event->title }}</h3>
                                         <div class="landing-board-card-meta">
                                             By St. Bridget College <span>|</span> {{ $event->event_date->format('F d, Y') }}
-                                        </div>
-                                        <div class="landing-board-card-meta">
-                                            Views: <span data-event-views-count>{{ number_format($eventViews) }}</span>
+                                            <span>|</span> <span data-event-views-count>{{ number_format($eventViews) }}</span> views
                                         </div>
                                     </article>
                                 </div>
@@ -415,13 +410,8 @@
 
                     <div id="updates" class="landing-board-column landing-board-column-announcements">
                         <div class="landing-board-header">
-                            <span class="landing-board-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" focusable="false"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6.6L8 21.6V18H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v10h6v1.9l2.8-1.9H20V6H4Zm3 3h10v2H7V9Zm0 4h7v2H7v-2Z"/></svg>
-                            </span>
-                            <div>
-                                <div class="landing-board-title">Announcement</div>
-                                <div class="landing-board-count">{{ $announcementTotal }} {{ $announcementTotal === 1 ? 'notice' : 'notices' }}</div>
-                            </div>
+                            <div class="landing-board-title">Announcements</div>
+                            <div class="landing-board-count">{{ $announcementTotal }} {{ $announcementTotal === 1 ? 'notice' : 'notices' }}</div>
                         </div>
                         <div class="landing-board-list">
                             @forelse ($announcements as $announcement)
@@ -449,9 +439,7 @@
                                             @if ($announcementPublishedAt)
                                                 <span>|</span> {{ \Illuminate\Support\Carbon::parse($announcementPublishedAt)->format('F d, Y') }}
                                             @endif
-                                        </div>
-                                        <div class="landing-board-card-meta">
-                                            Views: <span data-announcement-views-count>{{ number_format($announcementViews) }}</span>
+                                            <span>|</span> <span data-announcement-views-count>{{ number_format($announcementViews) }}</span> views
                                         </div>
                                     </article>
                                 </div>
@@ -463,13 +451,8 @@
 
                     <div id="alumni-feed" class="landing-board-column landing-board-column-activities">
                         <div class="landing-board-header">
-                            <span class="landing-board-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2 9.2 8.4 2 9.1l5.4 4.7-1.6 7L12 17.1l6.2 3.7-1.6-7L22 9.1l-7.2-.7L12 2Zm0 5 1.4 3.2 3.6.4-2.7 2.3.8 3.5-3.1-1.9-3.1 1.9.8-3.5L7 10.6l3.6-.4L12 7Z"/></svg>
-                            </span>
-                            <div>
-                                <div class="landing-board-title">Activities</div>
-                                <div class="landing-board-count">{{ $alumniPostTotal }} alumni {{ $alumniPostTotal === 1 ? 'post' : 'posts' }} published</div>
-                            </div>
+                            <div class="landing-board-title">Activities</div>
+                            <div class="landing-board-count">{{ $alumniPostTotal }} {{ $alumniPostTotal === 1 ? 'post' : 'posts' }}</div>
                         </div>
                         <div class="landing-board-list">
                             @forelse ($activities as $activity)
@@ -493,9 +476,7 @@
                                             @if (! empty($activity['activity_date']))
                                                 <span>|</span> {{ \Illuminate\Support\Carbon::parse($activity['activity_date'])->format('F d, Y') }}
                                             @endif
-                                        </div>
-                                        <div class="landing-board-card-meta">
-                                            Views: <span data-activity-views-count>{{ number_format($activityViews) }}</span>
+                                            <span>|</span> <span data-activity-views-count>{{ number_format($activityViews) }}</span> views
                                         </div>
                                     </article>
                                 </div>

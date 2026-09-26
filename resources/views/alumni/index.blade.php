@@ -39,7 +39,12 @@
                         @endif
                     </form>
 
-                    <a href="{{ route('alumni.create') }}" class="btn btn-primary">Add Alumni</a>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ route('alumni.export', $search !== '' ? ['search' => $search] : []) }}" class="btn btn-outline-success">
+                            Export Excel
+                        </a>
+                        <a href="{{ route('alumni.create') }}" class="btn btn-primary">Add Alumni</a>
+                    </div>
                 </div>
             </div>
         </div>
