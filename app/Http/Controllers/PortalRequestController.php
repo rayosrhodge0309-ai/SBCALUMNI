@@ -19,13 +19,12 @@ class PortalRequestController extends Controller
 {
     public function index(LinkedAccountSyncService $syncService): View
     {
-        $alumnus = $syncService->resolveOrCreateAlumniForUser(auth()->user());
-
-        abort_if(! $alumnus, 403);
+        $alumnus = $syncService->resolveAlumniForUser(auth()->user());
 
         return view('portal.requests.index', [
-            'alumnus' => $alumnus,
-            'requests' => $alumnus->requests()->latest()->paginate(10),
+            'alumnus' => $alumnus ?? auth()->user()->registration_profile,
+            'hasLinkedRecord' => $alumnus !== null,
+            'requests' => RecordRequest::query()->where('alumni_id', $alumnus?->id ?? 0)->latest()->paginate(10),
             'requestTypes' => RecordRequest::requestTypes(),
             'statusOptions' => RecordRequest::workflowStatuses(),
         ]);
@@ -33,9 +32,11 @@ class PortalRequestController extends Controller
 
     public function updateNotifications(Request $request, LinkedAccountSyncService $syncService): JsonResponse
     {
-        $alumnus = $syncService->resolveOrCreateAlumniForUser($request->user());
+        $alumnus = $syncService->resolveAlumniForUser($request->user());
 
-        abort_if(! $alumnus, 403);
+        if (! $alumnus) {
+            return response()->json(['latest_timestamp' => 0, 'new' => []]);
+        }
 
         $latestSeenTimestamp = max(0, (int) $request->query('after', 0));
 
@@ -69,15 +70,17 @@ class PortalRequestController extends Controller
 
     public function store(Request $request, FirebaseService $firebase, LinkedAccountSyncService $syncService): RedirectResponse
     {
-        $alumnus = $syncService->resolveOrCreateAlumniForUser($request->user());
+        $alumnus = $syncService->resolveAlumniForUser($request->user());
 
-        abort_if(! $alumnus, 403);
+        if (! $alumnus) {
+            return back()->with('warning', 'The administrator must link your account to a school alumni record before you can submit requests.');
+        }
 
         $isStandardRequest = in_array($request->input('request_type'), ['Alumni ID', 'Year Book'], true);
 
         $validated = $request->validate([
             'request_type' => ['required', Rule::in(RecordRequest::requestTypes())],
-            'year_requested' => 'required|integer|digits:4|min:1900|max:'.(now()->year + 1),
+            'year_requested' => 'required|integer|digits:4|min:1920|max:'.(now()->year + 1),
             'requester_name' => [
                 Rule::requiredIf($isStandardRequest),
                 'nullable',
@@ -95,7 +98,7 @@ class PortalRequestController extends Controller
                 'nullable',
                 'integer',
                 'digits:4',
-                'min:1900',
+                'min:1920',
                 'max:'.(now()->year + 1),
             ],
             'requester_note' => [

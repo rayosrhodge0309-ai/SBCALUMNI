@@ -18,10 +18,16 @@ class LandingVideoSettingController extends Controller
     {
         $schoolAd = $this->schoolAdSettings();
         $photoGallery = $this->buildPhotoGalleryPreview($schoolAd['photo_gallery'] ?? []);
+        $heroImagePath = $this->heroImagePath();
 
         return view('admin.settings.landing-video', [
             'schoolAd' => $schoolAd,
             'photoGallery' => $photoGallery,
+            'heroImageUrl' => route('landing-media.show', [
+                'kind' => 'hero',
+                'v' => substr(sha1($heroImagePath), 0, 12),
+            ]),
+            'hasCustomHeroImage' => $this->isStoragePath(SiteSetting::getValue('landing_hero_image_path')),
             'boardMembers' => $profileSettingsService->boardMembers(),
             'alumniOfficeTeam' => $profileSettingsService->alumniOfficeTeam(),
         ]);
@@ -30,6 +36,8 @@ class LandingVideoSettingController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'hero_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+            'remove_hero_image' => ['nullable', 'boolean'],
             'photo_files' => 'nullable|array|max:12',
             'photo_files.*' => [
                 'nullable',
@@ -83,6 +91,17 @@ class LandingVideoSettingController extends Controller
         $existingDetails = $validated['existing_slide_details'] ?? [];
         $newTitles = $validated['new_slide_titles'] ?? [];
         $newDetails = $validated['new_slide_details'] ?? [];
+        $currentHeroImagePath = SiteSetting::getValue('landing_hero_image_path');
+        $settings = [];
+
+        if ($request->hasFile('hero_image')) {
+            $this->deleteMediaPath(is_string($currentHeroImagePath) ? $currentHeroImagePath : null);
+            $storedHeroPath = $request->file('hero_image')->store('landing-hero', 'public');
+            $settings['landing_hero_image_path'] = 'storage:'.$storedHeroPath;
+        } elseif ($request->boolean('remove_hero_image')) {
+            $this->deleteMediaPath(is_string($currentHeroImagePath) ? $currentHeroImagePath : null);
+            $settings['landing_hero_image_path'] = null;
+        }
 
         $slides = $this->loadPhotoGallery(config('portal_content.school_ad', []));
 
@@ -134,13 +153,12 @@ class LandingVideoSettingController extends Controller
             ];
         }
 
-        SiteSetting::setMany([
-            'landing_school_ad_photo_gallery' => json_encode(array_values($slides), JSON_UNESCAPED_SLASHES),
-        ]);
+        $settings['landing_school_ad_photo_gallery'] = json_encode(array_values($slides), JSON_UNESCAPED_SLASHES);
+        SiteSetting::setMany($settings);
 
         return redirect()
             ->route('admin.settings.landing-video.edit')
-            ->with('success', 'Landing page slider updated successfully.');
+            ->with('success', 'Landing page media updated successfully.');
     }
 
     public function updateProfiles(Request $request, LandingProfileSettingsService $profileSettingsService): RedirectResponse
@@ -180,7 +198,7 @@ class LandingVideoSettingController extends Controller
 
     public function media(string $kind, ?int $index = null): Response
     {
-        if (! in_array($kind, ['photo', 'video', 'poster'], true)) {
+        if (! in_array($kind, ['photo', 'video', 'poster', 'hero'], true)) {
             abort(404);
         }
 
@@ -196,7 +214,7 @@ class LandingVideoSettingController extends Controller
             return $this->streamMediaFile($path);
         }
 
-        $path = null;
+        $path = $kind === 'hero' ? $this->heroImagePath() : null;
 
         if (! $path) {
             $settingKey = $kind === 'video'
@@ -244,6 +262,14 @@ class LandingVideoSettingController extends Controller
         return array_merge($defaults, [
             'photo_gallery' => $this->loadPhotoGallery($defaults),
         ]);
+    }
+
+    private function heroImagePath(): string
+    {
+        $defaultPath = (string) config('portal_content.hero.image_path', 'images/alumni-header.jpg');
+        $path = SiteSetting::getValue('landing_hero_image_path', $defaultPath);
+
+        return is_string($path) && trim($path) !== '' ? trim($path) : $defaultPath;
     }
 
     /**

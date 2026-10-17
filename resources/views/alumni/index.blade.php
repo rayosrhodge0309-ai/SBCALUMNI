@@ -133,9 +133,17 @@
                                     <div class="small text-secondary">
                                         {{ $record->academic_label }}
                                     </div>
+                                    @if ($record->maiden_name)
+                                        <div class="small text-secondary mt-1">
+                                            Maiden name: {{ $record->maiden_name }}
+                                        </div>
+                                    @endif
                                     @if ($record->birthday)
                                         <div class="small text-secondary mt-1">
                                             Birthday: {{ $record->birthday->format('F j, Y') }}
+                                            @if ($record->age !== null)
+                                                <span class="d-block">Age: {{ $record->age }} years old</span>
+                                            @endif
                                         </div>
                                     @endif
                                 </td>

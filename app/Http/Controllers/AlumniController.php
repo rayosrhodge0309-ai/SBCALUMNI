@@ -9,7 +9,7 @@ use App\Support\StudentIdFormatter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -118,7 +118,6 @@ class AlumniController extends Controller
         ]);
 
         $alumniRecords = Alumni::query()
-            ->with('user')
             ->whereIn('id', $validated['alumni_ids'])
             ->get();
 
@@ -176,10 +175,11 @@ class AlumniController extends Controller
             'student_id' => ['required', 'string', 'max:50', Rule::unique('alumni', 'student_id')->ignore($alumnus?->id)],
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
+            'maiden_name' => 'nullable|string|max:100',
             'birthday' => 'nullable|date|before_or_equal:today',
             'education_level' => 'required|string|max:100',
             'course' => 'required|string|max:150',
-            'year_graduated' => 'required|integer|min:1900|max:'.(now()->year + 1),
+            'year_graduated' => 'required|integer|min:1920|max:'.(now()->year + 1),
             'email' => [
                 'nullable',
                 'email',
@@ -207,19 +207,11 @@ class AlumniController extends Controller
 
     private function deleteAlumniRecord(Alumni $alumnus): void
     {
-        $alumnus->loadMissing('user');
-
-        $linkedUser = $alumnus->user;
-
-        if ($linkedUser) {
-            if ($linkedUser->profile_photo_path) {
-                Storage::disk('public')->delete($linkedUser->profile_photo_path);
-            }
-
-            $linkedUser->delete();
-        }
-
-        $alumnus->delete();
+        DB::transaction(function () use ($alumnus): void {
+            // Keep the login account and its profile photo; only remove the school-record link.
+            $alumnus->user()->update(['alumni_id' => null]);
+            $alumnus->delete();
+        });
     }
 
     private function normalizeStudentId(string $studentId): string
@@ -237,6 +229,7 @@ class AlumniController extends Controller
                     $searchQuery
                         ->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('maiden_name', 'like', "%{$search}%")
                         ->orWhere('education_level', 'like', "%{$search}%")
                         ->orWhere('course', 'like', "%{$search}%")
                         ->orWhere('year_graduated', 'like', "%{$search}%");

@@ -29,9 +29,13 @@
         <label class="form-label" for="last_name">Last Name</label>
         <input id="last_name" type="text" name="last_name" class="form-control" value="{{ old('last_name', $record?->last_name) }}" required>
     </div>
+    <div class="col-md-6">
+        <label class="form-label" for="maiden_name">Maiden Name <span class="text-secondary fw-normal">(Optional)</span></label>
+        <input id="maiden_name" type="text" name="maiden_name" class="form-control" value="{{ old('maiden_name', $record?->maiden_name) }}" maxlength="100">
+    </div>
     <div class="col-md-4">
         <label class="form-label" for="year_graduated">Graduation Year</label>
-        <input id="year_graduated" type="number" min="1900" max="{{ now()->year + 1 }}" name="year_graduated" class="form-control" value="{{ old('year_graduated', $record?->year_graduated) }}" required>
+        <input id="year_graduated" type="number" min="1920" max="{{ now()->year + 1 }}" name="year_graduated" class="form-control" value="{{ old('year_graduated', $record?->year_graduated) }}" required>
     </div>
     <div class="col-md-4">
         <label class="form-label" for="birthday">Birthday</label>

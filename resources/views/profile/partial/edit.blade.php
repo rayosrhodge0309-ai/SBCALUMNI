@@ -49,14 +49,30 @@
 
                 <div class="col-lg-8">
                     <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="name">Full Name</label>
-                            <input id="name" type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="email">Email Address</label>
-                            <input id="email" type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
-                        </div>
+                        @if ($user->isAlumni())
+                            <div class="col-md-6">
+                                <label class="form-label" for="name">Full Name</label>
+                                <input id="name" type="text" class="form-control" value="{{ $user->name }}" readonly aria-readonly="true">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="maiden_name">Maiden Name <span class="text-secondary fw-normal">(Optional)</span></label>
+                                <input id="maiden_name" type="text" class="form-control" value="{{ $user->registration_profile->maiden_name }}" readonly aria-readonly="true">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="email">Email Address</label>
+                                <input id="email" type="email" class="form-control" value="{{ $user->email }}" readonly aria-readonly="true">
+                                <div class="form-text">Contact an administrator if these account details need to be corrected.</div>
+                            </div>
+                        @else
+                            <div class="col-md-6">
+                                <label class="form-label" for="name">Full Name</label>
+                                <input id="name" type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="email">Email Address</label>
+                                <input id="email" type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
+                            </div>
+                        @endif
                         <div class="col-md-6">
                             <label class="form-label" for="password">New Password</label>
                             <div class="password-toggle-field">

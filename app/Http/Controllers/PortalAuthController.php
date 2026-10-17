@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PortalRegistrationRequest;
 use App\Models\AcademicProgram;
-use App\Models\Alumni;
 use App\Models\User;
-use App\Services\LinkedAccountSyncService;
 use App\Support\GmailAddress;
-use App\Support\StudentIdFormatter;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class PortalAuthController extends Controller
 {
-    public function create(Request $request): View|RedirectResponse
+    public function create(Request $request): Response|RedirectResponse
     {
         $user = $request->user();
 
@@ -39,7 +37,8 @@ class PortalAuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('portal.auth.login');
+        return response()->view('portal.auth.login')
+            ->header('Cache-Control', 'no-store, private');
     }
 
     public function store(Request $request): RedirectResponse
@@ -119,9 +118,6 @@ class PortalAuthController extends Controller
             return redirect()->route('portal.otp.create');
         }
 
-        $syncService = app(LinkedAccountSyncService::class);
-        $syncService->resolveOrCreateAlumniForUser($user);
-
         return redirect()->intended(route('portal.dashboard'));
     }
 
@@ -129,191 +125,48 @@ class PortalAuthController extends Controller
     {
         return view('portal.auth.register', [
             'programsByLevel' => AcademicProgram::groupedByLevel(),
+            'registrationToday' => now()->toDateString(),
+            'maximumGraduationYear' => now()->year + 1,
         ]);
     }
 
-    public function saveRegistration(Request $request, LinkedAccountSyncService $syncService): RedirectResponse
+    public function saveRegistration(PortalRegistrationRequest $request): RedirectResponse
     {
-        $request->merge([
-            'password' => (string) $request->input('password', ''),
-            'password_confirmation' => (string) $request->input('password_confirmation', ''),
+        $validated = $request->validated();
+        $details = $request->safe()->only([
+            'student_id', 'first_name', 'middle_name', 'last_name', 'maiden_name',
+            'birthday', 'education_level', 'course', 'year_graduated', 'contact_number', 'address',
         ]);
+        $details['year_graduated'] = (int) $validated['year_graduated'];
+        $fullName = implode(' ', array_filter([
+            $validated['first_name'],
+            $validated['middle_name'] ?? null,
+            $validated['last_name'],
+        ], static fn (?string $part): bool => filled($part)));
 
-        $submittedStudentId = trim((string) $request->input('student_id', ''));
-        $studentIdLookup = $this->normalizeStudentId($submittedStudentId);
-        $existingAlumnus = $studentIdLookup !== ''
-            ? Alumni::query()
-                ->where(function ($query) use ($studentIdLookup, $submittedStudentId) {
-                    foreach (StudentIdFormatter::variants($studentIdLookup) as $variant) {
-                        $query->orWhere('student_id', $variant);
-                    }
-
-                    if ($submittedStudentId !== $studentIdLookup) {
-                        $query->orWhere('student_id', $submittedStudentId);
-                    }
-                })
-                ->first()
-            : null;
-
-        $educationLevels = AcademicProgram::educationLevels();
-        $submittedLevel = $request->input('education_level');
-        $availablePrograms = is_string($submittedLevel)
-            ? AcademicProgram::query()
-                ->where('education_level', $submittedLevel)
-                ->pluck('name')
-                ->all()
-            : [];
-
-        $validated = $request->validate([
-            'student_id' => 'required|string|max:50',
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'birthday' => 'nullable|date|before_or_equal:today',
-            'education_level' => [$existingAlumnus ? 'nullable' : 'required', 'string', 'max:100', Rule::in($educationLevels)],
-            'course' => [$existingAlumnus ? 'nullable' : 'required', 'string', 'max:150', Rule::in($availablePrograms)],
-            'year_graduated' => 'required|integer|min:1900|max:'.(now()->year + 1),
-            'email' => ['required', 'email', 'max:255', GmailAddress::validationRule()],
-            'contact_number' => 'nullable|string|max:30',
-            'address' => 'nullable|string|max:1000',
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
-        ], [
-            'password.confirmed' => 'Password and Confirm Password must match.',
-            'password.min' => 'Password must be at least :min characters.',
-            'password.letters' => 'Password must include at least one letter.',
-            'password.numbers' => 'Password must include at least one number.',
-        ]);
-
-        $normalizedEmail = GmailAddress::normalize($validated['email']);
-        $alumniEmailInUse = Alumni::query()
-            ->where('email', $normalizedEmail)
-            ->when($existingAlumnus, fn ($query) => $query->where('id', '!=', $existingAlumnus->id))
-            ->exists();
-
-        if ($alumniEmailInUse) {
-            return back()
-                ->withInput($request->except('password', 'password_confirmation'))
-                ->withErrors([
-                    'email' => 'That email is already linked to another alumni record. Please contact the administrator.',
-                ]);
-        }
-
-        if ($existingAlumnus) {
-            $matchesExistingRecord = Str::lower(trim((string) $existingAlumnus->first_name)) === Str::lower(trim($validated['first_name']))
-                && Str::lower(trim((string) $existingAlumnus->last_name)) === Str::lower(trim($validated['last_name']))
-                && (int) $existingAlumnus->year_graduated === (int) $validated['year_graduated'];
-
-            if (! $matchesExistingRecord) {
-                return back()
-                    ->withInput($request->except('password', 'password_confirmation'))
-                    ->withErrors([
-                        'student_id' => 'This student ID already exists, but the name or graduation year does not match. Please contact the administrator for verification.',
-                    ]);
-            }
-
-            $existingUser = $existingAlumnus->user()->first();
-
-            if ($existingUser && ! $existingUser->isAlumni()) {
-                return back()
-                    ->withInput($request->except('password', 'password_confirmation'))
-                    ->withErrors([
-                        'student_id' => 'This alumni record is linked to a non-portal account. Please contact the school administrator.',
-                    ]);
-            }
-
-            if ($existingUser?->isApproved()) {
-                return back()
-                    ->withInput($request->except('password', 'password_confirmation'))
-                    ->withErrors([
-                        'email' => 'This alumni account is already active. Please use the login page instead.',
-                    ]);
-            }
-
-            $emailUsedByAnotherUser = User::query()
-                ->where('email', $normalizedEmail)
-                ->when($existingUser, fn ($query) => $query->where('id', '!=', $existingUser->id))
-                ->exists();
-
-            if ($emailUsedByAnotherUser) {
-                return back()
-                    ->withInput($request->except('password', 'password_confirmation'))
-                    ->withErrors([
-                        'email' => 'That email is already used by another account. Please contact the school administrator.',
-                    ]);
-            }
-
-            $existingAlumnus->update([
-                'email' => $normalizedEmail,
-                'contact_number' => $validated['contact_number'] ?? $existingAlumnus->contact_number,
-                'address' => $validated['address'] ?? $existingAlumnus->address,
-                'birthday' => $validated['birthday'] ?? $existingAlumnus->birthday,
-                'education_level' => $validated['education_level'] ?? $existingAlumnus->education_level,
-                'course' => $validated['course'] ?? $existingAlumnus->course,
-            ]);
-
-            $syncService->syncOrCreateUserFromAlumni($existingAlumnus->fresh(), true);
-            $portalUser = $existingAlumnus->fresh(['user'])->user;
-
-            if (! $portalUser) {
-                return back()
-                    ->withInput($request->except('password', 'password_confirmation'))
-                    ->withErrors([
-                        'email' => 'We could not create your alumni portal account right now. Please contact the administrator.',
-                    ]);
-            }
-
-            $portalUser->forceFill([
+        try {
+            User::create([
+                'name' => $fullName,
+                'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'role' => 'alumni',
+                'account_status' => 'pending',
+                'approved_at' => null,
                 'portal_otp_verified_at' => null,
-            ])->save();
+                'alumni_id' => null,
+                'registration_details' => $details,
+            ]);
+        } catch (UniqueConstraintViolationException $exception) {
+            // Another submission can reserve this email after validation succeeds.
+            if (! User::query()->where('email', $validated['email'])->exists()) {
+                throw $exception;
+            }
 
-            return redirect()
-                ->route('portal.login')
-                ->with('success', 'Your alumni account is ready. Log in with your Gmail and password. A one-time OTP will be sent on your first login.');
+            throw ValidationException::withMessages([
+                'email' => PortalRegistrationRequest::EMAIL_IN_USE_MESSAGE,
+            ]);
         }
 
-        $emailUsedByAnotherUser = User::query()
-            ->where('email', $normalizedEmail)
-            ->exists();
-
-        if ($emailUsedByAnotherUser) {
-            return back()
-                ->withInput($request->except('password', 'password_confirmation'))
-                ->withErrors([
-                    'email' => 'That email is already used by another account. Please contact the school administrator.',
-                ]);
-        }
-
-        $alumnus = Alumni::create([
-            'student_id' => $submittedStudentId,
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-            'birthday' => $validated['birthday'] ?? null,
-            'education_level' => $validated['education_level'],
-            'course' => $validated['course'],
-            'year_graduated' => $validated['year_graduated'],
-            'email' => $normalizedEmail,
-            'contact_number' => $validated['contact_number'] ?? null,
-            'address' => $validated['address'] ?? null,
-        ]);
-
-        User::create([
-            'name' => $alumnus->full_name,
-            'email' => $normalizedEmail,
-            'password' => Hash::make($validated['password']),
-            'role' => 'alumni',
-            'account_status' => 'pending',
-            'approved_at' => null,
-            'portal_otp_verified_at' => null,
-            'alumni_id' => $alumnus->id,
-        ]);
-
-        return redirect()
-            ->route('portal.login')
-            ->with('success', 'Your account request has been submitted. Please wait for admin approval. On your first login after approval, a one-time OTP will be sent to your Gmail.');
-    }
-
-    private function normalizeStudentId(string $studentId): string
-    {
-        return StudentIdFormatter::normalize($studentId);
+        return redirect()->route('portal.login')->with('success', 'Your account request has been submitted. The administrator will compare your details with the school alumni records before approving access. After approval, use your Gmail and password to log in and verify your Gmail with a one-time OTP.');
     }
 }

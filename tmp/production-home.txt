@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="SRSi32dHE38dA7MB7MwGI4crAiQ2qLkNCQT808hB">
+        <meta name="firebase-messaging-sw-url" content="http://alumnilink-sbc.duckdns.org/firebase-messaging-sw.js">
+    <meta name="notification-icon-url" content="http://alumnilink-sbc.duckdns.org/icons/icon-192.png">
+    <meta name="theme-color" content="#07116f">
+    <meta name="application-name" content="Alumni Link">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Alumni Link">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Alumni Link</title>
+    <link rel="manifest" href="http://alumnilink-sbc.duckdns.org/manifest.webmanifest">
+    <link rel="icon" href="http://alumnilink-sbc.duckdns.org/images/favicon-32.png" type="image/png">
+    <link rel="icon" href="http://alumnilink-sbc.duckdns.org/images/pwa-icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="http://alumnilink-sbc.duckdns.org/images/apple-touch-icon.png">
+    <link rel="preload" as="style" href="http://alumnilink-sbc.duckdns.org/build/assets/app-CpUMYGKo.css" /><link rel="modulepreload" as="script" href="http://alumnilink-sbc.duckdns.org/build/assets/app-DxXKyubg.js" /><link rel="stylesheet" href="http://alumnilink-sbc.duckdns.org/build/assets/app-CpUMYGKo.css" /><script type="module" src="http://alumnilink-sbc.duckdns.org/build/assets/app-DxXKyubg.js"></script>    <link href="http://alumnilink-sbc.duckdns.org/vendor/bootstrap/bootstrap.min.css?v=5.3.3" rel="stylesheet">
+    <link rel="stylesheet" href="http://alumnilink-sbc.duckdns.org/css/shell.css?v=1791604104">
+    <link rel="stylesheet" href="http://alumnilink-sbc.duckdns.org/css/desktop.css?v=1789814156">
+    <link rel="stylesheet" href="http://alumnilink-sbc.duckdns.org/css/interface.css?v=1790388083">
+        <link rel="stylesheet" href="http://alumnilink-sbc.duckdns.org/css/landing.css?v=1791613894">
+</head>
+<body class="public-shell ">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+            <div class="guest-shell d-flex flex-column">
+            
+                            <main id="main-content" tabindex="-1" class="app-main flex-grow-1">
+                    
+                        
+    <div class="landing-page">
+                    <header class="landing-header">
+            <div class="landing-topbar">
+                <div class="main-wrapper landing-topbar-shell">
+                    <div class="landing-topbar-contact">
+                        <a href="https://www.google.com/maps/search/?api=1&amp;query=St.%20Bridget%20College%2C%20M.H.%20Del%20Pilar%20St.%2C%20Batangas%20City" class="landing-topbar-link" target="_blank" rel="noopener" aria-label="Open St. Bridget College location in Google Maps">
+                            <span class="landing-topbar-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+                            </span>
+                            <span>St. Bridget College, M.H. Del Pilar St., Batangas City</span>
+                        </a>
+                        <a href="tel:+63437233616" class="landing-topbar-link" aria-label="Call St. Bridget College at +63 43 723 3616">
+                            <span class="landing-topbar-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false"><path d="M6.6 10.8a15.7 15.7 0 0 0 6.6 6.6l2.2-2.2a1.2 1.2 0 0 1 1.2-.3 12 12 0 0 0 3.8.6 1.2 1.2 0 0 1 1.2 1.2v3.5a1.2 1.2 0 0 1-1.2 1.2A18.4 18.4 0 0 1 2.6 3.6a1.2 1.2 0 0 1 1.2-1.2h3.5a1.2 1.2 0 0 1 1.2 1.2 12 12 0 0 0 .6 3.8 1.2 1.2 0 0 1-.3 1.2l-2.2 2.2Z"/></svg>
+                            </span>
+                            <span>+63 43 723 3616</span>
+                        </a>
+                    </div>
+
+                    <div class="landing-topbar-actions">
+                        <form class="landing-topbar-search-form" data-landing-search-form role="search" action="http://alumnilink-sbc.duckdns.org" method="get">
+                            <label class="visually-hidden" for="landingSearchInput">Search the landing page</label>
+                            <input
+                                id="landingSearchInput"
+                                type="search"
+                                name="q"
+                                class="landing-topbar-search-input"
+                                value=""
+                                placeholder="Search Alumni Link"
+                                autocomplete="off"
+                                data-landing-search-input>
+                            <button type="submit" class="landing-topbar-search-button" aria-label="Search the landing page">
+                                <span class="landing-topbar-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false"><path d="m20.7 19.3-4.1-4.1a7.5 7.5 0 1 0-1.4 1.4l4.1 4.1 1.4-1.4ZM10.8 16a5.2 5.2 0 1 1 0-10.4 5.2 5.2 0 0 1 0 10.4Z"/></svg>
+                                </span>
+                                <span>Search</span>
+                            </button>
+                        </form>
+                        <a href="https://www.facebook.com/profile.php?id=61580277583049" class="landing-topbar-social" target="_blank" rel="noopener" aria-label="Open St. Bridget College alumni Facebook page">
+                            <span>FACEBOOK</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="school-identity-banner">
+                <div class="main-wrapper">
+                    <div class="school-identity-shell">
+                        <a href="http://alumnilink-sbc.duckdns.org" class="school-identity-lockup text-decoration-none" aria-label="Alumni Link home">
+                            <div class="school-identity-crest-pair">
+                                <div class="school-identity-crest school-identity-crest-logo">
+                                                                            <img src="http://alumnilink-sbc.duckdns.org/images/sbc-logo.svg" alt="St. Bridget College Alumni Association Logo" width="64" height="64" decoding="async">
+                                                                    </div>
+                                                                    <div class="school-identity-crest school-identity-crest-logo">
+                                        <img src="http://alumnilink-sbc.duckdns.org/images/sbc-college-logo.svg" alt="St. Bridget College Logo" width="64" height="64" decoding="async">
+                                    </div>
+                                                            </div>
+                            <div class="school-identity-copy">
+                                <div class="school-identity-title alumni-link-title">ALUMNI LINK</div>
+                            </div>
+                        </a>
+
+                        <div class="school-identity-actions">
+                                                            <a href="http://alumnilink-sbc.duckdns.org/portal/login?switch=1" class="btn btn-outline-primary">Login</a>
+                                <a href="http://alumnilink-sbc.duckdns.org/portal/register" class="btn btn-outline-primary">Create Account</a>
+                                                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="landing-nav" role="navigation" aria-label="Main navigation">
+                <div class="main-wrapper">
+                    <div class="nav flex-nowrap flex-lg-wrap">
+                        <a class="nav-link active" href="#home" data-landing-nav-link aria-current="page">Home</a>
+                        <a class="nav-link" href="#about" data-landing-nav-link>About</a>
+                        <a class="nav-link" href="#campus-gallery" data-landing-nav-link>Campus Gallery</a>
+                        <a class="nav-link" href="#alumni-feed" data-landing-nav-link>Alumni Feed</a>
+                        <a class="nav-link" href="#updates" data-landing-nav-link>Announcements</a>
+                        <a class="nav-link" href="#events" data-landing-nav-link>Events</a>
+                        <a class="nav-link" href="#leadership" data-landing-nav-link>Board of Trustees</a>
+                        <a class="nav-link" href="#alumni-office" data-landing-nav-link>Alumni Officers</a>
+                        <a class="nav-link" href="#contact" data-landing-nav-link>Contact</a>
+                    </div>
+                </div>
+            </div>
+            </header>
+        
+        <div class="main-wrapper">
+            <div class="event-card p-3 mt-3 landing-search-empty" hidden data-landing-search-empty role="status" aria-live="polite">
+                No landing page matches found. Try an alumni post, announcement, event, officer name, contact detail, or a campus keyword.
+            </div>
+        </div>
+
+                    <section class="landing-mobile-entry d-lg-none">
+            <div class="main-wrapper">
+                <div class="landing-mobile-hero p-3 mt-3">
+                    <img src="http://alumnilink-sbc.duckdns.org/landing-media/hero?v=ab53c3a6d30d" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
+                    <div class="landing-mobile-hero-head d-flex align-items-start justify-content-between gap-3">
+                        <div class="min-w-0">
+                            <div class="mobile-portal-badge">St. Bridget College Batangas</div>
+                            <h1 class="h3 mb-2">Reconnect with the Bridgetine community and manage alumni services in one place.</h1>
+                            <p class="mb-0 text-white-50">The portal brings together school record requests, SBC alumni stories, campus photo posts, and office updates for St. Bridget College Batangas graduates.</p>
+                        </div>
+                    </div>
+
+                    <div class="row row-cols-3 g-2 mt-3">
+                                                    <div class="col">
+                                <div class="mobile-portal-stat text-center h-100">
+                                    <span class="mobile-portal-stat-value">0</span>
+                                    <span class="mobile-portal-stat-label">Alumni posts</span>
+                                </div>
+                            </div>
+                                                    <div class="col">
+                                <div class="mobile-portal-stat text-center h-100">
+                                    <span class="mobile-portal-stat-value">11</span>
+                                    <span class="mobile-portal-stat-label">Board members</span>
+                                </div>
+                            </div>
+                                                    <div class="col">
+                                <div class="mobile-portal-stat text-center h-100">
+                                    <span class="mobile-portal-stat-value">2</span>
+                                    <span class="mobile-portal-stat-label">Alumni officers</span>
+                                </div>
+                            </div>
+                                            </div>
+                </div>
+
+                <div class="landing-mobile-chips mt-3 mb-2">
+                    <a href="#alumni-feed" class="landing-chip">Alumni Feed</a>
+                    <a href="#updates" class="landing-chip">Announcements</a>
+                    <a href="#about" class="landing-chip">About</a>
+                    <a href="#contact" class="landing-chip">Contact</a>
+                                            <a href="http://alumnilink-sbc.duckdns.org/portal/login?switch=1" class="landing-chip">Login</a>
+                        <a href="http://alumnilink-sbc.duckdns.org/portal/register" class="landing-chip">Create Account</a>
+                                    </div>
+            </div>
+            </section>
+
+                            <div class="landing-mobile-actions d-lg-none">
+                    <div class="main-wrapper">
+                        <div class="landing-mobile-actions-grid">
+                            <a href="http://alumnilink-sbc.duckdns.org/portal/login?switch=1" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg></span>
+                                <span class="landing-mobile-action-label">Portal</span>
+                            </a>
+                            <a href="http://alumnilink-sbc.duckdns.org/portal/register" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M2 21v-3a7 7 0 0 1 12-5M19 12v8m-4-4h8"/></svg></span>
+                                <span class="landing-mobile-action-label">Join</span>
+                            </a>
+                            <a href="tel:0437233616" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3H3v3c0 8.3 6.7 15 15 15h3v-3l-5-3-2 2a12 12 0 0 1-7-7l2-2Z"/></svg></span>
+                                <span class="landing-mobile-action-label">Call</span>
+                            </a>
+                            <a href="#contact" class="landing-mobile-action">
+                                <span class="landing-mobile-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></span>
+                                <span class="landing-mobile-action-label">Contact</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                    
+        <section id="home" class="landing-section hero-section pt-3 pt-lg-5">
+                <div class="hero-stage reveal d-none d-lg-block">
+                    <img src="http://alumnilink-sbc.duckdns.org/landing-media/hero?v=ab53c3a6d30d" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
+                    <div class="row gx-0 align-items-stretch position-relative hero-columns">
+                        <div class="col-lg-12 hero-left-panel">
+                            <h1 class="hero-heading">Reconnect with the Bridgetine community and manage alumni services in one place.</h1>
+                            <p class="hero-copy mb-4">The portal brings together school record requests, SBC alumni stories, campus photo posts, and office updates for St. Bridget College Batangas graduates.</p>
+                            <div class="row g-3">
+                                                                    <div class="col-sm-4">
+                                        <a href="#alumni-feed" class="hero-metric hero-metric-link h-100 text-decoration-none">
+                                            <div class="hero-metric-value">0</div>
+                                            <div class="small text-white-50">Alumni posts</div>
+                                        </a>
+                                    </div>
+                                                                    <div class="col-sm-4">
+                                        <a href="#leadership" class="hero-metric hero-metric-link h-100 text-decoration-none">
+                                            <div class="hero-metric-value">11</div>
+                                            <div class="small text-white-50">Board members</div>
+                                        </a>
+                                    </div>
+                                                                    <div class="col-sm-4">
+                                        <a href="#alumni-office" class="hero-metric hero-metric-link h-100 text-decoration-none">
+                                            <div class="hero-metric-value">2</div>
+                                            <div class="small text-white-50">Alumni officers</div>
+                                        </a>
+                                    </div>
+                                                            </div>
+                        </div>
+                </div>
+                </div>
+
+                <div id="campus-gallery" class="campus-gallery-hero hero-campus-gallery reveal" data-landing-search-group data-search-text="Campus Gallery St. Bridget College photos videos campus story">
+                    <div
+                        id="campusGalleryCarousel"
+                        class="carousel slide carousel-fade campus-gallery-carousel"
+                        data-bs-interval="6500"
+                        data-bs-pause="hover"
+                        role="region"
+                        aria-roledescription="carousel"
+                        aria-label="Campus gallery">
+
+                                                    <button type="button" class="campus-gallery-playback" data-gallery-playback aria-label="Pause campus slideshow" hidden>
+                                Pause slideshow
+                            </button>
+                        
+                                                    <div class="carousel-indicators campus-carousel-indicators">
+                                                                    <button
+                                        type="button"
+                                        data-bs-target="#campusGalleryCarousel"
+                                        data-bs-slide-to="0"
+                                        class="active"
+                                        aria-current="true"
+                                        aria-label="Photo slide 1"></button>
+                                                                    <button
+                                        type="button"
+                                        data-bs-target="#campusGalleryCarousel"
+                                        data-bs-slide-to="1"
+                                        class=""
+                                        aria-current="false"
+                                        aria-label="Photo slide 2"></button>
+                                                            </div>
+                        
+                        <div class="carousel-inner">
+                                                            <div class="carousel-item active">
+                                                                            <img
+                                            src="http://alumnilink-sbc.duckdns.org/landing-media/photo/0"
+                                            class="campus-gallery-image"
+                                            alt="EXCLUSIVE PERKS"
+                                            loading="lazy"
+                                            decoding="async">
+                                                                        <div class="campus-gallery-caption">
+                                        <div class="campus-gallery-kicker">Why Choose St. Bridget College Batangas?</div>
+                                        <h3 class="campus-gallery-title">EXCLUSIVE PERKS</h3>
+                                        <p class="campus-gallery-detail mb-0">Heads up, Bridgetine!
+Your SBC ID unlocks exclusive perks just for you.</p>
+                                    </div>
+                                </div>
+                                                            <div class="carousel-item ">
+                                                                            <img
+                                            src="http://alumnilink-sbc.duckdns.org/landing-media/photo/1"
+                                            class="campus-gallery-image"
+                                            alt="VINTAGE POINT CAFE"
+                                            loading="lazy"
+                                            decoding="async">
+                                                                        <div class="campus-gallery-caption">
+                                        <div class="campus-gallery-kicker">Why Choose St. Bridget College Batangas?</div>
+                                        <h3 class="campus-gallery-title">VINTAGE POINT CAFE</h3>
+                                        <p class="campus-gallery-detail mb-0">8% OFF</p>
+                                    </div>
+                                </div>
+                                                    </div>
+
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#campusGalleryCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#campusGalleryCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                                            </div>
+                        </div>
+                </section>
+
+        <section id="about" class="landing-section pt-0 about-link-section" data-landing-search-group data-search-text="About Alumni Link claim alumni access submit requests stay involved">
+            <div class="main-wrapper">
+                <div class="about-link-head mb-3 reveal">
+                    <div class="section-eyebrow">About Alumni Link</div>
+                </div>
+
+                <div class="row g-4 about-process-grid">
+                                            <div class="col-md-4 reveal about-process-item" style="--about-delay: 0ms;" data-landing-search-item data-search-text="01 claim your alumni access register using your student id, surname, graduation year, and matching school email details.">
+                            <div class="process-card about-process-card h-100">
+                                <span class="about-process-step">01</span>
+                                <div class="about-process-body">
+                                    <h3 class="about-process-title mb-2">Claim your alumni access</h3>
+                                    <p class="about-process-copy mb-0">Register using your student ID, surname, graduation year, and matching school email details.</p>
+                                </div>
+                            </div>
+                        </div>
+                                            <div class="col-md-4 reveal about-process-item" style="--about-delay: 90ms;" data-landing-search-item data-search-text="02 submit requests and updates request records online, refresh your profile, and keep your contact details and photo current.">
+                            <div class="process-card about-process-card h-100">
+                                <span class="about-process-step">02</span>
+                                <div class="about-process-body">
+                                    <h3 class="about-process-title mb-2">Submit requests and updates</h3>
+                                    <p class="about-process-copy mb-0">Request records online, refresh your profile, and keep your contact details and photo current.</p>
+                                </div>
+                            </div>
+                        </div>
+                                            <div class="col-md-4 reveal about-process-item" style="--about-delay: 180ms;" data-landing-search-item data-search-text="03 stay involved follow alumni stories, join campus moments, and prepare for the on-campus pickup instructions shared by the school.">
+                            <div class="process-card about-process-card h-100">
+                                <span class="about-process-step">03</span>
+                                <div class="about-process-body">
+                                    <h3 class="about-process-title mb-2">Stay involved</h3>
+                                    <p class="about-process-copy mb-0">Follow alumni stories, join campus moments, and prepare for the on-campus pickup instructions shared by the school.</p>
+                                </div>
+                            </div>
+                        </div>
+                                    </div>
+            </div>
+        </section>
+
+        <section class="landing-section pt-0 landing-board-section" data-landing-search-group data-search-text="Events announcements activities community calendar school notices alumni stories Bridgetine updates">
+            <div class="main-wrapper">
+                <div class="mb-4">
+                    <div class="section-eyebrow">Stay connected</div>
+                    <h2 class="h3 mt-2 mb-2">SBC Alumni Feed</h2>
+                    <p class="text-secondary mb-0">The latest events, school announcements, and stories from your alumni community.</p>
+                </div>
+                <div class="landing-board reveal">
+                    <div id="events" class="landing-board-column landing-board-column-events">
+                        <div class="landing-board-header">
+                            <div class="landing-board-title">Events</div>
+                            <div class="landing-board-count">1 event</div>
+                        </div>
+                        <div class="landing-board-list">
+                                                                                            <div class="landing-board-item reveal" data-landing-search-item data-search-text="home coming alumni homecoming 2026 ✨
+the wait is over! 💙💛
+let’s come together, reconnect, reminisce, and celebrate the friendships and memories that made us who we are.
+🗓️ december 12, 2026
+⏰ 5:00 am onwards
+📍 st. bridget college
+come home. reconnect. relive. reignite. 💫
+let your light shine, bridgetine! 🕯️💙
+#alumnihomecoming2026 #stbridgetcollege #bridgetinepride #comehometobridget st. bridget college batangas city – college auditorium october 29, 2026">
+                                    <article class="landing-board-card"
+                                        role="button"
+                                        tabindex="0"
+                                        aria-haspopup="dialog"
+                                        aria-controls="event-detail-11"
+                                        aria-label="Read full event: HOME COMING"
+                                        data-event-card
+                                        data-event-target="#event-detail-11"
+                                        data-event-view-url="http://alumnilink-sbc.duckdns.org/events/11/view">
+                                        <div class="landing-board-card-heading">
+                                            <h3 class="landing-board-card-title">HOME COMING</h3>
+                                                                                    </div>
+                                        <div class="landing-board-card-meta">
+                                            By St. Bridget College <span>|</span> October 29, 2026
+                                            <span>|</span> <span data-event-views-count>2</span> views
+                                        </div>
+                                    </article>
+                                </div>
+                                                    </div>
+                    </div>
+
+                    <div id="updates" class="landing-board-column landing-board-column-announcements">
+                        <div class="landing-board-header">
+                            <div class="landing-board-title">Announcements</div>
+                            <div class="landing-board-count">0 notices</div>
+                        </div>
+                        <div class="landing-board-list">
+                                                            <div class="landing-board-empty">No announcements yet.</div>
+                                                    </div>
+                    </div>
+
+                    <div id="alumni-feed" class="landing-board-column landing-board-column-activities">
+                        <div class="landing-board-header">
+                            <div class="landing-board-title">Activities</div>
+                            <div class="landing-board-count">0 posts</div>
+                        </div>
+                        <div class="landing-board-list">
+                                                            <div class="landing-board-empty">No alumni posts yet.</div>
+                                                    </div>
+                    </div>
+                </div>
+
+                
+                                                        <div class="modal fade event-detail-modal" id="event-detail-11" tabindex="-1" aria-labelledby="event-detail-11-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div>
+                                        <div class="alumni-post-badge mb-2">Event</div>
+                                        <h3 class="modal-title" id="event-detail-11-title">HOME COMING</h3>
+                                        <div class="alumni-post-meta mt-1">
+                                            October 29, 2026
+                                                                                            <span>| St. Bridget College Batangas City – College Auditorium</span>
+                                                                                    </div>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                                                            <div class="event-detail-register mb-4" data-event-registration-denied>
+                                            <button
+                                                type="button"
+                                                class="btn btn-primary w-100"
+                                                aria-expanded="false"
+                                                data-event-registration-denied-toggle>
+                                                Register to Event
+                                            </button>
+                                            <div class="event-registration-failed mt-3" hidden data-event-registration-denied-message>
+                                                <div class="event-registration-failed-title">Failed to register</div>
+                                                <div class="event-registration-failed-copy">Please log in or create an alumni account before registering for this event.</div>
+                                                <div class="event-registration-failed-actions">
+                                                    <a href="http://alumnilink-sbc.duckdns.org/portal/login?switch=1" class="btn btn-sm btn-primary">Login</a>
+                                                    <a href="http://alumnilink-sbc.duckdns.org/portal/register" class="btn btn-sm btn-outline-primary">Create Account</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    
+                                                                            <div class="event-detail-media mb-4">
+                                                                                            <img src="http://alumnilink-sbc.duckdns.org/events/11/media" alt="HOME COMING" loading="lazy" decoding="async">
+                                                                                    </div>
+                                                                        <div class="event-detail-copy">ALUMNI HOMECOMING 2026 ✨<br />
+The wait is over! 💙💛<br />
+Let’s come together, reconnect, reminisce, and celebrate the friendships and memories that made us who we are.<br />
+🗓️ December 12, 2026<br />
+⏰ 5:00 AM onwards<br />
+📍 St. Bridget College<br />
+Come home. Reconnect. Relive. Reignite. 💫<br />
+Let your light shine, Bridgetine! 🕯️💙<br />
+#AlumniHomecoming2026 #StBridgetCollege #BridgetinePride #ComeHomeToBridget</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                            </div>
+        </section>
+
+        <section id="leadership" class="landing-section" data-landing-search-group data-search-text="Board of Trustees school leadership St. Bridget College Batangas">
+            <div class="main-wrapper">
+                <div class="row g-4 align-items-end mb-3">
+                    <div class="col-lg-8 reveal leadership-scroll-item" style="--leadership-delay: 0ms;">
+                        <div class="section-eyebrow">School Leadership</div>
+                        <h2 class="section-title">Board of Trustees of St. Bridget College Batangas</h2>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 120ms;" data-landing-search-item data-search-text="dr. anna maria clara palacios president">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Dr. Anna Maria Clara Palacios</h3>
+                                <p class="trustee-role mb-0">President</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 210ms;" data-landing-search-item data-search-text="atty. edwin m. aguirre vice president">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Atty. Edwin M. Aguirre</h3>
+                                <p class="trustee-role mb-0">Vice President</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 300ms;" data-landing-search-item data-search-text="ms. dolores d. borras secretary">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Ms. Dolores D. Borras</h3>
+                                <p class="trustee-role mb-0">Secretary</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 390ms;" data-landing-search-item data-search-text="ms. pauline p. bondad treasurer">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Ms. Pauline P. Bondad</h3>
+                                <p class="trustee-role mb-0">Treasurer</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 480ms;" data-landing-search-item data-search-text="ms. lea m. buenafe assistant treasurer">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Ms. Lea M. Buenafe</h3>
+                                <p class="trustee-role mb-0">Assistant Treasurer</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 570ms;" data-landing-search-item data-search-text="ms. celia joyce o. caedo internal auditor">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Ms. Celia Joyce O. Caedo</h3>
+                                <p class="trustee-role mb-0">Internal Auditor</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 660ms;" data-landing-search-item data-search-text="mr. guilbert b. alea pro member">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Mr. Guilbert B. Alea</h3>
+                                <p class="trustee-role mb-0">PRO Member</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 750ms;" data-landing-search-item data-search-text="ms. ernal e. aquino pro member">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Ms. Ernal E. Aquino</h3>
+                                <p class="trustee-role mb-0">PRO Member</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 840ms;" data-landing-search-item data-search-text="ms. sharlene sawamoto pro member">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Ms. Sharlene Sawamoto</h3>
+                                <p class="trustee-role mb-0">PRO Member</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 930ms;" data-landing-search-item data-search-text="dr. maria antonette c. solomon pro member">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Dr. Maria Antonette C. Solomon</h3>
+                                <p class="trustee-role mb-0">PRO Member</p>
+                            </div>
+                        </div>
+                                            <div class="col-md-6 col-xl-4 reveal leadership-scroll-item" style="--leadership-delay: 1020ms;" data-landing-search-item data-search-text="mr. jose &quot;joe&quot; y. tolentino pro member">
+                            <div class="trustee-member text-center py-4">
+                                                                <h3 class="trustee-name mb-2">Mr. Jose &quot;Joe&quot; Y. Tolentino</h3>
+                                <p class="trustee-role mb-0">PRO Member</p>
+                            </div>
+                        </div>
+                                    </div>
+            </div>
+        </section>
+
+        <section id="alumni-office" class="landing-section pt-0" data-landing-search-group data-search-text="Alumni Officers St. Bridget College Batangas alumni office team contact">
+            <div class="main-wrapper">
+                <div class="mb-4 reveal officers-hero">
+                    <div class="section-eyebrow">Alumni Officers</div>
+                    <h2 class="section-title">Alumni Officers</h2>
+                    <p class="section-copy">Meet the officers and committee leads supporting alumni engagement at St. Bridget College Batangas.</p>
+                </div>
+
+                <div class="row g-4 officers-grid">
+                                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 reveal" data-landing-search-item data-search-text="mr. john jeffry m. mendoza external relation officer / edu hub manager  coordinates external relations and alumni-facing engagements for the institution.">
+                            <div class="officer-card p-4 h-100 d-flex flex-column">
+                                <div class="officer-media text-center mb-3">
+                                                                            <div class="officer-avatar officer-avatar-placeholder mx-auto">MJ</div>
+                                                                    </div>
+
+                                <div class="officer-body text-center mt-auto">
+                                    <div class="fw-semibold officer-name">Mr. John Jeffry M. Mendoza</div>
+                                    <div class="text-secondary officer-role mb-2">External Relation Officer / EDU HUB Manager</div>
+                                                                    </div>
+                            </div>
+                        </div>
+                                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 reveal" data-landing-search-item data-search-text="ms. gladys d. alcoba alumni office staff  supports alumni office concerns and day-to-day communication for graduates and visiting stakeholders.">
+                            <div class="officer-card p-4 h-100 d-flex flex-column">
+                                <div class="officer-media text-center mb-3">
+                                                                            <div class="officer-avatar officer-avatar-placeholder mx-auto">MG</div>
+                                                                    </div>
+
+                                <div class="officer-body text-center mt-auto">
+                                    <div class="fw-semibold officer-name">Ms. Gladys D. Alcoba</div>
+                                    <div class="text-secondary officer-role mb-2">Alumni Office Staff</div>
+                                                                    </div>
+                            </div>
+                        </div>
+                                    </div>
+            </div>
+        </section>
+
+
+
+        <section id="contact" class="landing-section pt-0" data-landing-search-group data-search-text="Contact and Access St. Bridget College Batangas address phone email alumni portal">
+            <div class="main-wrapper">
+                <div class="page-card p-4 reveal">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-lg-4">
+                            <div class="section-eyebrow">Contact and Access</div>
+                        </div>
+                        <div class="col-lg-4" data-landing-search-item data-search-text="st. bridget college batangas m.h. del pilar st., batangas city (043) 723-3616 presoffice@sbcbatangas.edu.ph">
+                            <div class="event-card p-4 h-100">
+                                <h3 class="h5 mb-3">St. Bridget College Batangas</h3>
+                                <p class="mb-2">M.H. Del Pilar St., Batangas City</p>
+                                <p class="mb-2">(043) 723-3616</p>
+                                <p class="mb-0">presoffice@sbcbatangas.edu.ph</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="d-grid gap-3">
+                                                                    <div class="event-card p-4" data-landing-search-item data-search-text="alumni portal access claim your account, update your profile, and monitor record requests from the alumni dashboard. open alumni portal">
+                                        <h3 class="h5 mb-2">Alumni Portal Access</h3>
+                                        <p class="text-secondary mb-3">Claim your account, update your profile, and monitor record requests from the alumni dashboard.</p>
+                                        <a href="http://alumnilink-sbc.duckdns.org/portal/login" class="btn btn-outline-dark">Open Alumni Portal</a>
+                                    </div>
+                                                                    <div class="event-card p-4" data-landing-search-item data-search-text="create alumni access first time here? claim your alumni account using your student record details. claim account">
+                                        <h3 class="h5 mb-2">Create Alumni Access</h3>
+                                        <p class="text-secondary mb-3">First time here? Claim your alumni account using your student record details.</p>
+                                        <a href="http://alumnilink-sbc.duckdns.org/portal/register" class="btn btn-outline-dark">Claim Account</a>
+                                    </div>
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="landing-footer">
+            <div class="landing-footer-shell py-5">
+                <div class="main-wrapper">
+                    <div class="row g-4 g-xl-5">
+                        <div class="col-lg-4">
+                            <div class="footer-brand-panel h-100">
+                                <div class="footer-kicker">St. Bridget College Batangas</div>
+                                <h2 class="footer-title mb-3">Alumni Link</h2>
+                                <div class="footer-campus-list">
+                                    <div class="footer-campus-item">
+                                        <span class="footer-campus-label">Main Campus</span>
+                                        <span>M.H. Del Pilar St., Batangas City</span>
+                                    </div>
+                                    <div class="footer-campus-item">
+                                        <span class="footer-campus-label">Alumni Helpdesk</span>
+                                        <span>(043) 723-3616</span>
+                                    </div>
+                                    <div class="footer-campus-item">
+                                        <span class="footer-campus-label">Official Email</span>
+                                        <span>presoffice@sbcbatangas.edu.ph</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-lg-2">
+                            <div class="footer-link-group">
+                                <h3 class="footer-group-title">Quick Links</h3>
+                                <a href="#home">Home</a>
+                                <a href="#about">About</a>
+                                <a href="#updates">Announcements</a>
+                                <a href="#events">Events</a>
+                                <a href="#leadership">Leadership</a>
+                                <a href="#contact">Contact</a>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-lg-3">
+                            <div class="footer-link-group">
+                                <h3 class="footer-group-title">Bridgetine Highlights</h3>
+                                <a href="#alumni-office">Alumni Office Team</a>
+                                <a href="#campus-gallery">Campus Photo Gallery</a>
+                                                                <a href="#updates">School Notices</a>
+                                <a href="#events">Community Calendar</a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="footer-cta-panel h-100">
+                                <div class="footer-kicker">Alumni Services</div>
+                                <h3 class="h5 mb-3">Stay connected with St. Bridget College Batangas</h3>
+                                <p class="footer-copy mb-4">
+                                    Access official updates, submit requests, and track alumni-related activities in one place.
+                                </p>
+                                <div class="d-grid gap-2">
+                                                                            <a href="http://alumnilink-sbc.duckdns.org/portal/login?switch=1" class="btn btn-light">Login</a>
+                                        <a href="http://alumnilink-sbc.duckdns.org/portal/register" class="btn btn-outline-light">Create Account</a>
+                                                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="landing-footer-bottom py-3">
+                <div class="main-wrapper d-flex flex-column flex-lg-row justify-content-between gap-2">
+                    <div>&copy; 2026 St. Bridget College Batangas. All rights reserved.</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+                </main>
+                    </div>
+    
+    
+    <script src="http://alumnilink-sbc.duckdns.org/vendor/bootstrap/bootstrap.bundle.min.js?v=5.3.3"></script>
+    <script>
+        (function () {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    var registerWorker = function () {
+                        navigator.serviceWorker.register("http:\/\/alumnilink-sbc.duckdns.org\/firebase-messaging-sw.js").catch(function () {
+                            return null;
+                        });
+                    };
+                    if ('requestIdleCallback' in window) {
+                        window.requestIdleCallback(registerWorker, { timeout: 5000 });
+                    } else {
+                        window.setTimeout(registerWorker, 2500);
+                    }
+                });
+            }
+
+            var deferredInstallPrompt = null;
+
+            function toggleInstallButtons(visible) {
+                document.querySelectorAll('[data-install-app]').forEach(function (button) {
+                    button.classList.toggle('d-none', !visible);
+                });
+            }
+
+            window.addEventListener('beforeinstallprompt', function (event) {
+                event.preventDefault();
+                deferredInstallPrompt = event;
+                toggleInstallButtons(true);
+            });
+
+            window.addEventListener('appinstalled', function () {
+                deferredInstallPrompt = null;
+                toggleInstallButtons(false);
+            });
+
+            document.addEventListener('click', async function (event) {
+                var button = event.target.closest('[data-install-app]');
+
+                if (!button || !deferredInstallPrompt) {
+                    return;
+                }
+
+                event.preventDefault();
+                deferredInstallPrompt.prompt();
+
+                try {
+                    await deferredInstallPrompt.userChoice;
+                } catch (error) {
+                    // Ignore prompt errors and keep the page usable.
+                }
+
+                deferredInstallPrompt = null;
+                toggleInstallButtons(false);
+            });
+
+            function formatStudentId(value) {
+                return String(value || '').trim();
+            }
+
+            document.querySelectorAll('[data-student-id-format]').forEach(function (field) {
+                var form = field.closest('form');
+
+                field.value = formatStudentId(field.value);
+
+                field.addEventListener('blur', function () {
+                    field.value = formatStudentId(field.value);
+                });
+
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        field.value = formatStudentId(field.value);
+                    });
+                }
+            });
+        })();
+    </script>
+                    <script>
+        (function () {
+            document.querySelectorAll('[data-event-registration-form]').forEach((form) => {
+                const toggle = form.querySelector('[data-event-registration-toggle]');
+                const fields = form.querySelector('[data-event-registration-fields]');
+                const inputs = form.querySelectorAll('[data-event-registration-input]');
+                const cancel = form.querySelector('[data-event-registration-cancel]');
+
+                if (!toggle || !fields) {
+                    return;
+                }
+
+                const setOpen = (isOpen) => {
+                    fields.classList.toggle('d-none', !isOpen);
+                    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+                    inputs.forEach((input) => {
+                        input.disabled = !isOpen;
+                    });
+                };
+
+                toggle.addEventListener('click', () => {
+                    setOpen(fields.classList.contains('d-none'));
+                });
+
+                if (cancel) {
+                    cancel.addEventListener('click', () => {
+                        setOpen(false);
+                    });
+                }
+
+                setOpen(!fields.classList.contains('d-none'));
+            });
+
+            document.querySelectorAll('[data-event-registration-denied]').forEach((box) => {
+                const toggle = box.querySelector('[data-event-registration-denied-toggle]');
+                const message = box.querySelector('[data-event-registration-denied-message]');
+
+                if (!toggle || !message) {
+                    return;
+                }
+
+                toggle.addEventListener('click', () => {
+                    toggle.textContent = 'Failed to register';
+                    toggle.setAttribute('aria-expanded', 'true');
+                    message.hidden = false;
+                    message.classList.remove('is-visible');
+
+                    window.requestAnimationFrame(() => {
+                        message.classList.add('is-visible');
+                    });
+                });
+            });
+        })();
+
+        (function () {
+            const carousel = document.getElementById('campusGalleryCarousel');
+
+            if (!carousel) {
+                return;
+            }
+
+            const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const connection = navigator.connection;
+            const playback = carousel.querySelector('[data-gallery-playback]');
+            const instance = window.bootstrap?.Carousel.getOrCreateInstance(carousel, { ride: false });
+            let isVisible = !('IntersectionObserver' in window);
+            let userPaused = motionQuery.matches || Boolean(connection?.saveData);
+            let isHovered = false;
+
+            const pauseVideos = () => {
+                carousel.querySelectorAll('video.campus-gallery-video').forEach((video) => {
+                    try {
+                        video.pause();
+                    } catch (error) {
+                        // Ignore pause failures from hidden slides.
+                    }
+                });
+            };
+
+            const playActiveVideo = () => {
+                if (userPaused || !isVisible || document.hidden || motionQuery.matches || connection?.saveData) {
+                    return;
+                }
+
+                const activeVideo = carousel.querySelector('.carousel-item.active video.campus-gallery-video');
+
+                if (!activeVideo) {
+                    return;
+                }
+
+                activeVideo.muted = true;
+                activeVideo.loop = true;
+                activeVideo.playsInline = true;
+
+                const attempt = activeVideo.play();
+
+                if (attempt && typeof attempt.catch === 'function') {
+                    attempt.catch(() => {});
+                }
+            };
+
+            const syncVideoState = () => {
+                pauseVideos();
+                instance?.pause();
+
+                if (isVisible && !document.hidden && !userPaused && !isHovered && !carousel.contains(document.activeElement)) {
+                    instance?.cycle();
+                    playActiveVideo();
+                }
+
+                if (playback) {
+                    playback.hidden = !instance;
+                    playback.textContent = userPaused ? 'Play slideshow' : 'Pause slideshow';
+                    playback.setAttribute('aria-label', userPaused ? 'Play campus slideshow' : 'Pause campus slideshow');
+                }
+            };
+
+            carousel.addEventListener('slide.bs.carousel', pauseVideos);
+            carousel.addEventListener('slid.bs.carousel', playActiveVideo);
+            carousel.addEventListener('mouseenter', () => { isHovered = true; syncVideoState(); });
+            carousel.addEventListener('mouseleave', () => { isHovered = false; syncVideoState(); });
+            carousel.addEventListener('focusin', syncVideoState);
+            carousel.addEventListener('focusout', () => window.setTimeout(syncVideoState, 0));
+            playback?.addEventListener('click', () => { userPaused = !userPaused; syncVideoState(); });
+            motionQuery.addEventListener('change', () => { userPaused = motionQuery.matches; syncVideoState(); });
+            document.addEventListener('visibilitychange', syncVideoState);
+            window.addEventListener('pagehide', () => { instance?.pause(); pauseVideos(); });
+            window.addEventListener('pageshow', syncVideoState);
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(([entry]) => {
+                    isVisible = entry.isIntersecting;
+                    syncVideoState();
+                }, { threshold: 0.1 });
+                observer.observe(carousel);
+            }
+
+            syncVideoState();
+        })();
+    </script>
+    <script>
+        (function () {
+            const links = Array.from(document.querySelectorAll('[data-landing-nav-link]'));
+
+            if (!links.length) {
+                return;
+            }
+
+            const sections = links
+                .map((link) => document.getElementById((link.getAttribute('href') || '').replace('#', '')))
+                .filter(Boolean);
+            let activeSectionId = null;
+
+            const setActiveLink = (sectionId) => {
+                if (sectionId === activeSectionId) return;
+                activeSectionId = sectionId;
+                links.forEach((link) => {
+                    const isActive = link.getAttribute('href') === `#${sectionId}`;
+
+                    link.classList.toggle('active', isActive);
+
+                    if (isActive) {
+                        link.setAttribute('aria-current', 'page');
+                    } else {
+                        link.removeAttribute('aria-current');
+                    }
+                });
+            };
+
+            const syncActiveLink = () => {
+                const headerOffset = 140;
+                let currentSectionId = 'home';
+
+                sections.forEach((section) => {
+                    if (section.getBoundingClientRect().top <= headerOffset) {
+                        currentSectionId = section.id;
+                    }
+                });
+
+                setActiveLink(currentSectionId);
+            };
+
+            links.forEach((link) => {
+                link.addEventListener('click', () => {
+                    const targetId = (link.getAttribute('href') || '').replace('#', '');
+
+                    if (targetId) {
+                        setActiveLink(targetId);
+                    }
+                });
+            });
+
+            let ticking = false;
+
+            window.addEventListener('scroll', () => {
+                if (ticking) {
+                    return;
+                }
+
+                ticking = true;
+                window.requestAnimationFrame(() => {
+                    syncActiveLink();
+                    ticking = false;
+                });
+            }, { passive: true });
+
+            window.addEventListener('hashchange', () => {
+                const targetId = window.location.hash.replace('#', '');
+
+                if (targetId) {
+                    setActiveLink(targetId);
+                } else {
+                    syncActiveLink();
+                }
+            });
+
+            if (window.location.hash) {
+                setActiveLink(window.location.hash.replace('#', ''));
+            } else {
+                syncActiveLink();
+            }
+        })();
+    </script>
+    <script>
+        (function () {
+            const form = document.querySelector('[data-landing-search-form]');
+            const input = document.querySelector('[data-landing-search-input]');
+            const emptyState = document.querySelector('[data-landing-search-empty]');
+            const groups = Array.from(document.querySelectorAll('[data-landing-search-group]'));
+
+            if (!input || !groups.length) {
+                return;
+            }
+
+            const normalize = (value) => String(value || '')
+                .toLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const getGroupText = (group) => group.getAttribute('data-search-text') || group.textContent || '';
+            const getItemText = (item) => item.getAttribute('data-search-text') || item.textContent || '';
+            const searchIndex = groups.map((group) => ({
+                group,
+                text: normalize(getGroupText(group)),
+                items: Array.from(group.querySelectorAll('[data-landing-search-item]')).map((item) => ({
+                    element: item,
+                    text: normalize(getItemText(item)),
+                })),
+            }));
+            let searchTimer;
+
+            const applySearch = (query, scrollToMatch = false) => {
+                const normalizedQuery = normalize(query);
+                let firstMatch = null;
+                let matchCount = 0;
+
+                searchIndex.forEach(({ group, text, items }) => {
+                    const groupMatches = normalizedQuery === '' || text.includes(normalizedQuery);
+
+                    if (!normalizedQuery) {
+                        group.hidden = false;
+                        items.forEach(({ element }) => {
+                            element.hidden = false;
+                        });
+                        return;
+                    }
+
+                    if (!items.length) {
+                        group.hidden = !groupMatches;
+                        if (groupMatches) {
+                            matchCount += 1;
+                            if (!firstMatch) {
+                                firstMatch = group;
+                            }
+                        }
+                        return;
+                    }
+
+                    let groupHasVisibleItems = false;
+
+                    items.forEach(({ element: item, text }) => {
+                        const itemMatches = text.includes(normalizedQuery);
+                        const visible = groupMatches || itemMatches;
+
+                        item.hidden = !visible;
+
+                        if (visible) {
+                            groupHasVisibleItems = true;
+                            matchCount += 1;
+
+                            if (!firstMatch) {
+                                firstMatch = item;
+                            }
+                        }
+                    });
+
+                    group.hidden = !(groupMatches || groupHasVisibleItems);
+                });
+
+                if (emptyState) {
+                    emptyState.hidden = normalizedQuery === '' || matchCount > 0;
+                }
+
+                if (scrollToMatch && firstMatch && typeof firstMatch.scrollIntoView === 'function') {
+                    firstMatch.scrollIntoView({
+                        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                        block: 'start',
+                    });
+                }
+            };
+
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    window.clearTimeout(searchTimer);
+                    applySearch(input.value, true);
+                });
+            }
+
+            input.addEventListener('input', function () {
+                window.clearTimeout(searchTimer);
+                searchTimer = window.setTimeout(() => applySearch(input.value, false), 120);
+            });
+
+            applySearch(input.value, false);
+        })();
+    </script>
+    <script>
+        (function () {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            const formatViews = (value) => {
+                const count = Number.parseInt(value, 10);
+
+                return Number.isFinite(count) ? count.toLocaleString() : '0';
+            };
+
+            const recordAnnouncementView = (card) => {
+                const url = card.getAttribute('data-announcement-view-url');
+
+                if (!url || card.getAttribute('data-announcement-view-recorded') === 'true') {
+                    return;
+                }
+
+                card.setAttribute('data-announcement-view-recorded', 'true');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then((response) => response.ok ? response.json() : null)
+                    .then((data) => {
+                        if (!data || typeof data.views_count === 'undefined') {
+                            return;
+                        }
+
+                        const counter = card.querySelector('[data-announcement-views-count]');
+
+                        if (counter) {
+                            counter.textContent = formatViews(data.views_count);
+                        }
+                    })
+                    .catch(() => {});
+            };
+
+            const recordEventView = (card) => {
+                const url = card.getAttribute('data-event-view-url');
+
+                if (!url || card.getAttribute('data-event-view-recorded') === 'true') {
+                    return;
+                }
+
+                card.setAttribute('data-event-view-recorded', 'true');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then((response) => response.ok ? response.json() : null)
+                    .then((data) => {
+                        if (!data || typeof data.views_count === 'undefined') {
+                            return;
+                        }
+
+                        const counter = card.querySelector('[data-event-views-count]');
+
+                        if (counter) {
+                            counter.textContent = formatViews(data.views_count);
+                        }
+                    })
+                    .catch(() => {});
+            };
+
+            const recordActivityView = (card) => {
+                const url = card.getAttribute('data-activity-view-url');
+
+                if (!url || card.getAttribute('data-activity-view-recorded') === 'true') {
+                    return;
+                }
+
+                card.setAttribute('data-activity-view-recorded', 'true');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then((response) => response.ok ? response.json() : null)
+                    .then((data) => {
+                        if (!data || typeof data.views_count === 'undefined') {
+                            return;
+                        }
+
+                        const counter = card.querySelector('[data-activity-views-count]');
+
+                        if (counter) {
+                            counter.textContent = formatViews(data.views_count);
+                        }
+                    })
+                    .catch(() => {});
+            };
+
+            const openAnnouncement = (card) => {
+                const target = card.getAttribute('data-announcement-target');
+                const modal = target ? document.querySelector(target) : null;
+
+                if (!modal || !window.bootstrap || !window.bootstrap.Modal) {
+                    return;
+                }
+
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                recordAnnouncementView(card);
+            };
+
+            const openEvent = (card) => {
+                const target = card.getAttribute('data-event-target');
+                const modal = target ? document.querySelector(target) : null;
+
+                if (!modal || !window.bootstrap || !window.bootstrap.Modal) {
+                    return;
+                }
+
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                recordEventView(card);
+            };
+
+            const openActivity = (card) => {
+                const target = card.getAttribute('data-activity-target');
+                const modal = target ? document.querySelector(target) : null;
+
+                if (!modal || !window.bootstrap || !window.bootstrap.Modal) {
+                    return;
+                }
+
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                recordActivityView(card);
+            };
+
+            document.addEventListener('click', function (event) {
+                const card = event.target.closest('[data-announcement-card]');
+
+                if (!card) {
+                    return;
+                }
+
+                if (event.target.closest('[data-announcement-media-control], a, button, input, select, textarea')) {
+                    return;
+                }
+
+                openAnnouncement(card);
+            });
+
+            document.addEventListener('click', function (event) {
+                const card = event.target.closest('[data-event-card]');
+
+                if (!card) {
+                    return;
+                }
+
+                if (event.target.closest('a, button, input, select, textarea')) {
+                    return;
+                }
+
+                openEvent(card);
+            });
+
+            document.addEventListener('click', function (event) {
+                const card = event.target.closest('[data-activity-card]');
+
+                if (!card) {
+                    return;
+                }
+
+                if (event.target.closest('a, button, input, select, textarea')) {
+                    return;
+                }
+
+                openActivity(card);
+            });
+
+            document.addEventListener('keydown', function (event) {
+                const card = event.target.closest('[data-announcement-card]');
+
+                if (!card || event.target !== card || !['Enter', ' '].includes(event.key)) {
+                    return;
+                }
+
+                event.preventDefault();
+                openAnnouncement(card);
+            });
+
+            document.addEventListener('keydown', function (event) {
+                const card = event.target.closest('[data-event-card]');
+
+                if (!card || event.target !== card || !['Enter', ' '].includes(event.key)) {
+                    return;
+                }
+
+                event.preventDefault();
+                openEvent(card);
+            });
+
+            document.addEventListener('keydown', function (event) {
+                const card = event.target.closest('[data-activity-card]');
+
+                if (!card || event.target !== card || !['Enter', ' '].includes(event.key)) {
+                    return;
+                }
+
+                event.preventDefault();
+                openActivity(card);
+            });
+        })();
+    </script>
+
+    <script src="http://alumnilink-sbc.duckdns.org/js/interface.js?v=1789814156" defer></script>
+
+</body>
+</html>

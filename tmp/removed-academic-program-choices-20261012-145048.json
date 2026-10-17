@@ -1,0 +1,90 @@
+[
+    {
+        "id": 1,
+        "education_level": "Elementary",
+        "name": "Grade 1",
+        "sort_order": 1,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 2,
+        "education_level": "Elementary",
+        "name": "Grade 2",
+        "sort_order": 2,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 3,
+        "education_level": "Elementary",
+        "name": "Grade 3",
+        "sort_order": 3,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 4,
+        "education_level": "Elementary",
+        "name": "Grade 4",
+        "sort_order": 4,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 5,
+        "education_level": "Elementary",
+        "name": "Grade 5",
+        "sort_order": 5,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 7,
+        "education_level": "Junior High School",
+        "name": "Grade 7",
+        "sort_order": 1,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 8,
+        "education_level": "Junior High School",
+        "name": "Grade 8",
+        "sort_order": 2,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 9,
+        "education_level": "Junior High School",
+        "name": "Grade 9",
+        "sort_order": 3,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 11,
+        "education_level": "Senior High School",
+        "name": "Grade 11 - STEM",
+        "sort_order": 1,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 12,
+        "education_level": "Senior High School",
+        "name": "Grade 11 - ABM",
+        "sort_order": 2,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    },
+    {
+        "id": 13,
+        "education_level": "Senior High School",
+        "name": "Grade 11 - HUMSS",
+        "sort_order": 3,
+        "created_at": "2026-09-24 07:02:52",
+        "updated_at": "2026-09-24 07:02:52"
+    }
+]

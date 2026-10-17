@@ -11,7 +11,6 @@
                 <div class="portal-login-brand-mark mx-auto mb-3">
                     <img src="{{ asset('images/sbc-logo.svg') }}" alt="St. Bridget College Alumni Association seal">
                 </div>
-                <div class="stat-pill text-success bg-success-subtle mb-3">Alumni Self-Service</div>
                 <h1 class="h3 mb-2">Sign in to request school records</h1>
                 <p class="text-secondary mb-0">Use your approved alumni portal account to submit digital requests and monitor when records are ready for pickup.</p>
             </div>
@@ -19,6 +18,12 @@
             @if (session('success') || session('status'))
                 <div class="alert alert-success">
                     {{ session('success') ?? session('status') }}
+                </div>
+            @endif
+
+            @if (session('login_expired'))
+                <div class="alert alert-warning" role="alert">
+                    {{ session('login_expired') }}
                 </div>
             @endif
 

@@ -6,6 +6,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,7 +34,22 @@ $app = Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (HttpException $exception, Request $request) {
+            if ($exception->getStatusCode() !== 419
+                || ! ($exception->getPrevious() instanceof TokenMismatchException)
+                || ! $request->routeIs('portal.login.attempt')
+                || $request->expectsJson()) {
+                return null;
+            }
+
+            // Reject the expired submission. Never replay or flash login passwords.
+            $email = $request->input('email');
+
+            return redirect()->route('portal.login', [], 303)
+                ->withInput(is_string($email) ? ['email' => mb_substr($email, 0, 255)] : [])
+                ->with('login_expired', 'Your login session expired. Please enter your password and sign in again.')
+                ->header('Cache-Control', 'no-store, private');
+        });
     })->create();
 
 if (($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? getenv('APP_ENV')) === 'testing') {

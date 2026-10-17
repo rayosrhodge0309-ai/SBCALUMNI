@@ -4,6 +4,9 @@
 @section('subtitle', 'Submit a digital request, then personally claim the approved record at school.')
 
 @section('content')
+    @if (! $hasLinkedRecord)
+        <div class="alert alert-info">The administrator must link your account to the school alumni records before you can submit record requests.</div>
+    @endif
     <div class="page-card p-3 p-sm-4 mb-3 d-lg-none">
         <div class="mobile-portal-badge mb-2">Record Requests</div>
         <h3 class="h5 mb-2">Use your phone to submit and track requests</h3>
@@ -20,6 +23,7 @@
         <div class="col-xl-4">
             <div class="page-card p-4 h-100" id="request-form">
                 <h3 class="h5 mb-3">Submit New Request</h3>
+                @if ($hasLinkedRecord)
                 <form method="POST" action="{{ route('portal.requests.store') }}">
                     @csrf
                     <div class="mb-3">
@@ -49,7 +53,7 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label" for="requester_year_graduate">Yr Graduate</label>
-                                    <input id="requester_year_graduate" type="number" min="1900" max="{{ now()->year + 1 }}" name="requester_year_graduate" class="form-control" value="{{ old('requester_year_graduate', $alumnus->year_graduated) }}" placeholder="e.g. 2025" data-standard-requirement-input>
+                                    <input id="requester_year_graduate" type="number" min="1920" max="{{ now()->year + 1 }}" name="requester_year_graduate" class="form-control" value="{{ old('requester_year_graduate', $alumnus->year_graduated) }}" placeholder="e.g. 2025" data-standard-requirement-input>
                                 </div>
                             </div>
                         </div>
@@ -61,13 +65,14 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="year_requested">Graduation / Record Year</label>
-                        <input id="year_requested" type="number" min="1900" max="{{ now()->year + 1 }}" name="year_requested" class="form-control" value="{{ old('year_requested', $alumnus->year_graduated) }}" required>
+                        <input id="year_requested" type="number" min="1920" max="{{ now()->year + 1 }}" name="year_requested" class="form-control" value="{{ old('year_requested', $alumnus->year_graduated) }}" required>
                     </div>
                     <div class="small text-secondary mb-3">
                         After online submission, the school administrator will process the request. You will retrieve the released document personally from the school.
                     </div>
                     <button class="btn btn-success w-100" type="submit">Submit Request</button>
                 </form>
+                @endif
             </div>
         </div>
 

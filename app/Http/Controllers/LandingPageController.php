@@ -35,6 +35,7 @@ class LandingPageController extends Controller
 
         return view('welcome', [
             'content' => $content,
+            'heroImageUrl' => $this->heroImageUrl($content['hero'] ?? []),
             'schoolAd' => $schoolAd,
             'landingStats' => [
                 [
@@ -62,6 +63,21 @@ class LandingPageController extends Controller
             'activities' => $contentService->activities(null),
             'boardMembers' => $boardMembers,
             'alumniOfficeTeam' => $alumniOfficeTeam,
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $defaults
+     */
+    private function heroImageUrl(array $defaults): string
+    {
+        $defaultPath = $defaults['image_path'] ?? 'images/alumni-header.jpg';
+        $path = SiteSetting::getValue('landing_hero_image_path', $defaultPath);
+        $path = is_string($path) && trim($path) !== '' ? trim($path) : $defaultPath;
+
+        return route('landing-media.show', [
+            'kind' => 'hero',
+            'v' => substr(sha1($path), 0, 12),
         ]);
     }
 

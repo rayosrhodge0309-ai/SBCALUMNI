@@ -5,85 +5,123 @@
 @section('school_guest_header', true)
 
 @section('content')
+    @php
+        // Keep the form renderable when an older deployed controller omits these limits.
+        $registrationToday ??= now()->toDateString();
+        $maximumGraduationYear ??= now()->year + 1;
+        $birthdayMaxDate = \App\Support\BirthDate::maximumDate($registrationToday);
+
+        // A malformed request can flash array values; only render plain field values.
+        $registrationValue = static function (string $field): string {
+            $value = old($field);
+
+            return is_string($value) || is_int($value) ? (string) $value : '';
+        };
+    @endphp
     <div class="portal-register-shell">
         <div class="page-card portal-register-card p-3 p-md-5">
             <div class="text-center mb-4">
                 <div class="portal-register-brand-mark mx-auto mb-3">
                     <img src="{{ asset('images/sbc-logo.svg') }}" alt="St. Bridget College Alumni Association seal">
                 </div>
-                <div class="stat-pill text-success bg-success-subtle mb-3">Self Registration</div>
-                <h1 class="h3 mb-2">Request or claim your alumni portal access</h1>
-                <p class="text-secondary mb-0">Use a real Gmail account. After approval, a one-time OTP will be sent to that Gmail on your first login.</p>
+                <h1 class="h3 mb-2">Request your alumni portal account</h1>
+                <p class="text-secondary mb-0">Submit your school details and Gmail for administrator review. You can log in after approval, then verify your Gmail with a one-time OTP.</p>
             </div>
 
-            <form method="POST" action="{{ route('portal.register.store') }}" id="portal-register-form">
+            <form method="POST" action="{{ route('portal.register.store') }}" id="portal-register-form" data-today="{{ $registrationToday }}" data-maximum-graduation-year="{{ $maximumGraduationYear }}">
                 @csrf
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="student_id" class="form-label">Student ID</label>
-                        <input id="student_id" type="text" class="form-control" name="student_id" value="{{ old('student_id') }}" placeholder="e.g. 12-3456-789" data-student-id-format required>
-                        <div class="form-text">Use the same ID number shown in your school record.</div>
+                        <label for="student_id" class="form-label">Student ID <span class="text-secondary fw-normal">(Optional)</span></label>
+                        <input id="student_id" type="text" class="form-control @error('student_id') is-invalid @enderror" name="student_id" value="{{ $registrationValue('student_id') }}" maxlength="50" placeholder="e.g. 12-3456-789" aria-invalid="{{ $errors->has('student_id') ? 'true' : 'false' }}" aria-describedby="student_id-hint student_id-error" data-student-id-format data-registration-field>
+                        <div id="student_id-hint" class="form-text">Enter your school ID if you still know it. You can continue without it if it was lost or forgotten.</div>
+                        <div id="student_id-error" class="invalid-feedback {{ $errors->has('student_id') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('student_id')) hidden @endif>{{ $errors->first('student_id') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="first_name" class="form-label">First Name</label>
-                        <input id="first_name" type="text" class="form-control" name="first_name" value="{{ old('first_name') }}" placeholder="e.g. Juan" required>
+                        <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" value="{{ $registrationValue('first_name') }}" maxlength="100" autocomplete="given-name" placeholder="e.g. Juan" aria-invalid="{{ $errors->has('first_name') ? 'true' : 'false' }}" aria-describedby="first_name-hint first_name-error" data-registration-field required>
+                        <div id="first_name-hint" class="form-text">Use letters, spaces, apostrophes, hyphens, or periods for names.</div>
+                        <div id="first_name-error" class="invalid-feedback {{ $errors->has('first_name') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('first_name')) hidden @endif>{{ $errors->first('first_name') }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="middle_name" class="form-label">Middle Name <span class="text-secondary fw-normal">(Optional)</span></label>
+                        <input id="middle_name" type="text" class="form-control @error('middle_name') is-invalid @enderror" name="middle_name" value="{{ $registrationValue('middle_name') }}" maxlength="100" autocomplete="additional-name" placeholder="e.g. Santos" aria-invalid="{{ $errors->has('middle_name') ? 'true' : 'false' }}" aria-describedby="first_name-hint middle_name-error" data-registration-field>
+                        <div id="middle_name-error" class="invalid-feedback {{ $errors->has('middle_name') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('middle_name')) hidden @endif>{{ $errors->first('middle_name') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="last_name" class="form-label">Last Name</label>
-                        <input id="last_name" type="text" class="form-control" name="last_name" value="{{ old('last_name') }}" placeholder="e.g. Dela Cruz" required>
+                        <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" value="{{ $registrationValue('last_name') }}" maxlength="100" autocomplete="family-name" placeholder="e.g. Dela Cruz" aria-invalid="{{ $errors->has('last_name') ? 'true' : 'false' }}" aria-describedby="first_name-hint last_name-error" data-registration-field required>
+                        <div id="last_name-error" class="invalid-feedback {{ $errors->has('last_name') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('last_name')) hidden @endif>{{ $errors->first('last_name') }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="maiden_name" class="form-label">Maiden Name <span class="text-secondary fw-normal">(Optional)</span></label>
+                        <input id="maiden_name" type="text" class="form-control @error('maiden_name') is-invalid @enderror" name="maiden_name" value="{{ $registrationValue('maiden_name') }}" maxlength="100" placeholder="e.g. Santos" aria-invalid="{{ $errors->has('maiden_name') ? 'true' : 'false' }}" aria-describedby="first_name-hint maiden_name-hint maiden_name-error" data-registration-field>
+                        <div id="maiden_name-hint" class="form-text">Enter your surname before marriage, if applicable.</div>
+                        <div id="maiden_name-error" class="invalid-feedback {{ $errors->has('maiden_name') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('maiden_name')) hidden @endif>{{ $errors->first('maiden_name') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="birthday" class="form-label">Birthday</label>
-                        <input id="birthday" type="date" class="form-control" name="birthday" value="{{ old('birthday') }}" placeholder="e.g. 2004-05-20">
-                        <div class="form-text">Example: May 20, 2004.</div>
+                        <input id="birthday" type="text" class="form-control @error('birthday') is-invalid @enderror" name="birthday" value="{{ $registrationValue('birthday') }}" placeholder="YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" data-maximum-date="{{ $birthdayMaxDate }}" autocomplete="bday" aria-controls="birthday-calendar" aria-expanded="false" aria-invalid="{{ $errors->has('birthday') ? 'true' : 'false' }}" aria-describedby="birthday-hint birthday-error birthday-age" data-registration-field required>
+                        <div id="birthday-hint" class="form-text">Choose your birthday from the calendar. Use the month and year selectors to jump directly to older years, such as 1950.</div>
+                        @include('portal.auth._birthday-calendar')
+                        <output id="birthday-age" class="form-text d-block" aria-live="polite">Age will appear after you select a birthday.</output>
+                        <div id="birthday-error" class="invalid-feedback {{ $errors->has('birthday') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('birthday')) hidden @endif>{{ $errors->first('birthday') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="education_level" class="form-label">School Level</label>
-                        <select id="education_level" class="form-select" name="education_level">
+                        <select id="education_level" class="form-select @error('education_level') is-invalid @enderror" name="education_level" aria-invalid="{{ $errors->has('education_level') ? 'true' : 'false' }}" aria-describedby="education_level-hint education_level-error" data-registration-field required>
                             <option value="">Select level</option>
                             @foreach (array_keys($programsByLevel) as $level)
-                                <option value="{{ $level }}" @selected(old('education_level') === $level)>{{ $level }}</option>
+                                <option value="{{ $level }}" @selected($registrationValue('education_level') === $level)>{{ $level }}</option>
                             @endforeach
                         </select>
-                        <div class="form-text">Optional when you are claiming an existing alumni record.</div>
+                        <div id="education_level-hint" class="form-text">Select the school level for the record the administrator will verify.</div>
+                        <div id="education_level-error" class="invalid-feedback {{ $errors->has('education_level') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('education_level')) hidden @endif>{{ $errors->first('education_level') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="course" class="form-label">Program / Grade / Course</label>
-                        <select id="course" class="form-select" name="course">
+                        <select id="course" class="form-select @error('course') is-invalid @enderror" name="course" aria-invalid="{{ $errors->has('course') ? 'true' : 'false' }}" aria-describedby="course-hint course-error" data-registration-field required>
                             <option value="">Select grade, strand, or course</option>
                             @foreach ($programsByLevel as $level => $programs)
                                 <optgroup label="{{ $level }}" data-level="{{ $level }}">
                                     @foreach ($programs as $program)
-                                        <option value="{{ $program }}" @selected(old('course') === $program)>{{ $program }}</option>
+                                        <option value="{{ $program }}" @selected($registrationValue('course') === $program && $registrationValue('education_level') === $level)>{{ $program }}</option>
                                     @endforeach
                                 </optgroup>
                             @endforeach
                         </select>
-                        <div class="form-text">Optional when you are claiming an existing alumni record.</div>
+                        <div id="course-hint" class="form-text">Select the program, grade, or course you completed.</div>
+                        <div id="course-error" class="invalid-feedback {{ $errors->has('course') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('course')) hidden @endif>{{ $errors->first('course') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="year_graduated" class="form-label">Graduation Year</label>
-                        <input id="year_graduated" type="number" min="1900" max="{{ now()->year + 1 }}" class="form-control" name="year_graduated" value="{{ old('year_graduated') }}" placeholder="e.g. 2025" required>
+                        <input id="year_graduated" type="number" min="1920" max="{{ $maximumGraduationYear }}" step="1" class="form-control @error('year_graduated') is-invalid @enderror" name="year_graduated" value="{{ $registrationValue('year_graduated') }}" inputmode="numeric" placeholder="e.g. {{ now()->year }}" aria-invalid="{{ $errors->has('year_graduated') ? 'true' : 'false' }}" aria-describedby="year_graduated-hint year_graduated-error" data-registration-field required>
+                        <div id="year_graduated-hint" class="form-text">Enter a year from 1920 to {{ $maximumGraduationYear }}.</div>
+                        <div id="year_graduated-error" class="invalid-feedback {{ $errors->has('year_graduated') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('year_graduated')) hidden @endif>{{ $errors->first('year_graduated') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="email" class="form-label">Email Address</label>
-                        <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="e.g. juan.delacruz@gmail.com" pattern="^[A-Za-z0-9._%+\-]+@gmail\.com$" title="Use a valid Gmail address ending in @gmail.com." required>
-                        <div class="form-text">Only Gmail accounts ending in @gmail.com are accepted.</div>
+                        <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $registrationValue('email') }}" maxlength="255" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="e.g. juan.delacruz@gmail.com" pattern="^[A-Za-z0-9._%+\-]+@[Gg][Mm][Aa][Ii][Ll]\.[Cc][Oo][Mm]$" title="Use a valid Gmail address ending in @gmail.com." aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}" aria-describedby="email-hint email-error" data-registration-field required>
+                        <div id="email-hint" class="form-text">Only Gmail accounts ending in @gmail.com are accepted.</div>
+                        <div id="email-error" class="invalid-feedback {{ $errors->has('email') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('email')) hidden @endif>{{ $errors->first('email') }}</div>
                     </div>
                     <div class="col-md-6">
-                        <label for="contact_number" class="form-label">Contact Number</label>
-                        <input id="contact_number" type="text" class="form-control" name="contact_number" value="{{ old('contact_number') }}" placeholder="e.g. 09123456789">
+                        <label for="contact_number" class="form-label">Contact Number <span class="text-secondary fw-normal">(Optional)</span></label>
+                        <input id="contact_number" type="tel" class="form-control @error('contact_number') is-invalid @enderror" name="contact_number" value="{{ $registrationValue('contact_number') }}" minlength="11" maxlength="11" autocomplete="tel" inputmode="numeric" pattern="09[0-9]{9}" title="Enter exactly 11 digits starting with 09, such as 09123456789." placeholder="e.g. 09123456789" aria-invalid="{{ $errors->has('contact_number') ? 'true' : 'false' }}" aria-describedby="contact_number-hint contact_number-error" data-registration-field>
+                        <div id="contact_number-hint" class="form-text">Enter exactly 11 digits starting with 09. Numbers only.</div>
+                        <div id="contact_number-error" class="invalid-feedback {{ $errors->has('contact_number') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('contact_number')) hidden @endif>{{ $errors->first('contact_number') }}</div>
                     </div>
                     <div class="col-12">
                         <label for="address" class="form-label">Address <span class="text-secondary fw-normal">(Optional)</span></label>
-                        <textarea id="address" class="form-control" name="address" rows="3" placeholder="e.g. Barangay, City, Province">{{ old('address') }}</textarea>
+                        <textarea id="address" class="form-control @error('address') is-invalid @enderror" name="address" rows="3" maxlength="1000" autocomplete="street-address" placeholder="e.g. Barangay, City, Province" aria-invalid="{{ $errors->has('address') ? 'true' : 'false' }}" aria-describedby="address-error" data-registration-field>{{ $registrationValue('address') }}</textarea>
+                        <div id="address-error" class="invalid-feedback {{ $errors->has('address') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('address')) hidden @endif>{{ $errors->first('address') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="password" class="form-label">Password</label>
                         <div class="portal-password-field">
-                            <input id="password" type="password" class="form-control" name="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
-                            <button type="button" class="portal-password-toggle" data-password-toggle="password" data-password-label="password" aria-label="Show password" title="Show password">
+                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="At least 8 characters" aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}" aria-describedby="password-hint password-error password-match-message" data-registration-field required>
+                            <button type="button" class="portal-password-toggle" data-password-toggle="password" data-password-label="password" aria-label="Show password" aria-controls="password" aria-pressed="false" title="Show password">
                                 <svg class="portal-password-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                     <path d="M2.25 12s3.5-6.25 9.75-6.25S21.75 12 21.75 12 18.25 18.25 12 18.25 2.25 12 2.25 12Z" />
                                     <circle cx="12" cy="12" r="2.75" />
@@ -91,12 +129,14 @@
                                 </svg>
                             </button>
                         </div>
+                        <div id="password-hint" class="form-text">Use at least 8 characters with letters and numbers (up to 72 bytes).</div>
+                        <div id="password-error" class="invalid-feedback {{ $errors->has('password') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('password')) hidden @endif>{{ $errors->first('password') }}</div>
                     </div>
                     <div class="col-md-6">
                         <label for="password_confirmation" class="form-label">Confirm Password</label>
                         <div class="portal-password-field">
-                            <input id="password_confirmation" type="password" class="form-control" name="password_confirmation" autocomplete="new-password" minlength="8" placeholder="Retype your password" required>
-                            <button type="button" class="portal-password-toggle" data-password-toggle="password_confirmation" data-password-label="confirm password" aria-label="Show confirm password" title="Show confirm password">
+                            <input id="password_confirmation" type="password" class="form-control @error('password_confirmation') is-invalid @enderror" name="password_confirmation" autocomplete="new-password" minlength="8" maxlength="72" placeholder="Retype your password" aria-invalid="{{ $errors->has('password_confirmation') ? 'true' : 'false' }}" aria-describedby="password_confirmation-error password-match-message" data-registration-field required>
+                            <button type="button" class="portal-password-toggle" data-password-toggle="password_confirmation" data-password-label="confirm password" aria-label="Show confirm password" aria-controls="password_confirmation" aria-pressed="false" title="Show confirm password">
                                 <svg class="portal-password-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                     <path d="M2.25 12s3.5-6.25 9.75-6.25S21.75 12 21.75 12 18.25 18.25 12 18.25 2.25 12 2.25 12Z" />
                                     <circle cx="12" cy="12" r="2.75" />
@@ -104,9 +144,10 @@
                                 </svg>
                             </button>
                         </div>
+                        <div id="password_confirmation-error" class="invalid-feedback {{ $errors->has('password_confirmation') ? 'd-block' : '' }}" aria-live="polite" @if (! $errors->has('password_confirmation')) hidden @endif>{{ $errors->first('password_confirmation') }}</div>
                     </div>
                     <div class="col-12">
-                        <div id="password-match-message" class="small text-secondary"></div>
+                        <div id="password-match-message" class="small text-secondary" aria-live="polite"></div>
                     </div>
                 </div>
 
@@ -125,6 +166,28 @@
 
 @push('styles')
     <style>
+        .birthday-calendar summary {
+            cursor: pointer;
+            color: #155e3b;
+            padding: .5rem 0;
+            font-weight: 600;
+        }
+
+        .birthday-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: .25rem;
+            text-align: center;
+        }
+
+        .portal-register-card .birthday-calendar-grid .btn {
+            min-width: 0;
+            min-height: 2.5rem;
+            width: 100%;
+            padding: .25rem;
+            white-space: nowrap;
+        }
+
         .guest-centered-main {
             width: 100%;
             max-width: none;
@@ -220,6 +283,20 @@
         .portal-register-card .form-select:focus {
             border-color: #d6a700;
             box-shadow: 0 0 0 0.18rem rgba(214, 167, 0, 0.2);
+        }
+
+        .portal-register-card .form-control.is-invalid,
+        .portal-register-card .form-select.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .portal-register-card .form-control.is-invalid:focus,
+        .portal-register-card .form-select.is-invalid:focus {
+            box-shadow: 0 0 0 0.18rem rgba(220, 53, 69, 0.2);
+        }
+
+        .portal-password-field .form-control.is-invalid {
+            background-image: none;
         }
 
         .portal-register-card .btn-success {
@@ -326,103 +403,5 @@
 @endpush
 
 @push('scripts')
-    <script>
-        (function () {
-            const form = document.getElementById('portal-register-form');
-            const educationLevel = document.getElementById('education_level');
-            const course = document.getElementById('course');
-            const password = document.getElementById('password');
-            const confirmation = document.getElementById('password_confirmation');
-            const submit = document.getElementById('portal-register-submit');
-            const message = document.getElementById('password-match-message');
-
-            if (!form || !password || !confirmation || !submit || !message) {
-                return;
-            }
-
-            if (educationLevel && course) {
-                const updateCourseOptions = (resetSelection = false) => {
-                    course.querySelectorAll('optgroup').forEach((group) => {
-                        const matchesLevel = group.dataset.level === educationLevel.value;
-                        group.disabled = !matchesLevel;
-                        group.hidden = !matchesLevel;
-                    });
-
-                    if (resetSelection || course.selectedOptions[0]?.parentElement?.dataset.level !== educationLevel.value) {
-                        course.value = '';
-                    }
-
-                    course.disabled = !educationLevel.value;
-                };
-
-                educationLevel.addEventListener('change', () => updateCourseOptions(true));
-                updateCourseOptions();
-            }
-
-            const setState = (text, cls) => {
-                message.textContent = text;
-                message.classList.remove('text-secondary', 'text-success', 'text-danger');
-                message.classList.add(cls);
-            };
-
-            const validate = () => {
-                const p = password.value;
-                const c = confirmation.value;
-
-                if (!p && !c) {
-                    submit.disabled = false;
-                    setState('Use at least 8 characters with letters and numbers.', 'text-secondary');
-                    return true;
-                }
-
-                if (p.length < 8) {
-                    submit.disabled = true;
-                    setState('Password must be at least 8 characters.', 'text-danger');
-                    return false;
-                }
-
-                if (c && p !== c) {
-                    submit.disabled = true;
-                    setState('Password and Confirm Password must match.', 'text-danger');
-                    return false;
-                }
-
-                if (c && p === c) {
-                    submit.disabled = false;
-                    setState('Passwords match.', 'text-success');
-                    return true;
-                }
-
-                submit.disabled = false;
-                setState('Confirm your password to continue.', 'text-secondary');
-                return true;
-            };
-
-            password.addEventListener('input', validate);
-            confirmation.addEventListener('input', validate);
-            document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
-                const input = document.getElementById(toggle.dataset.passwordToggle);
-
-                if (!input) {
-                    return;
-                }
-
-                toggle.addEventListener('click', () => {
-                    const isVisible = input.type === 'text';
-                    const label = toggle.dataset.passwordLabel || 'password';
-                    input.type = isVisible ? 'password' : 'text';
-                    toggle.classList.toggle('is-visible', !isVisible);
-                    toggle.setAttribute('aria-label', `${isVisible ? 'Show' : 'Hide'} ${label}`);
-                    toggle.setAttribute('title', `${isVisible ? 'Show' : 'Hide'} ${label}`);
-                });
-            });
-            form.addEventListener('submit', (event) => {
-                if (!validate()) {
-                    event.preventDefault();
-                }
-            });
-
-            validate();
-        })();
-    </script>
+    <script type="module" src="{{ asset('js/portal-registration.js') }}?v={{ filemtime(public_path('js/portal-registration.js')) }}"></script>
 @endpush

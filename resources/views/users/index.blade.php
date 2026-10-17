@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'User Accounts')
-@section('subtitle', 'Administrators can review, edit, and monitor approval status for both admin and alumni accounts.')
+@section('subtitle', 'Review new account requests against the school alumni list, approve login access, and add verified accounts to Alumni Records.')
 
 @section('content')
     <div class="page-card p-4 mb-4">
@@ -52,15 +52,18 @@
                                 @endif
                             </td>
                             <td class="text-end" data-label="Actions">
-                                <div class="d-inline-flex gap-2 mobile-table-actions">
-                                    @if ($managedUser->isAlumni() && $managedUser->isPendingApproval())
-                                        <form method="POST" action="{{ route('users.approve', $managedUser) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                        </form>
+                                <div class="d-inline-flex flex-wrap gap-2 mobile-table-actions">
+                                    @if ($managedUser->isAlumni() && $managedUser->isApproved() && ! $managedUser->alumni_id)
+                                        <a href="{{ route('users.edit', $managedUser) }}#add-alumni-record" class="btn btn-sm btn-success">Add to Alumni Records</a>
                                     @endif
-                                    <a href="{{ route('users.edit', $managedUser) }}" class="btn btn-sm btn-outline-primary">Edit Account</a>
+                                    <a href="{{ route('users.edit', $managedUser) }}" class="btn btn-sm btn-outline-primary">{{ $managedUser->isAlumni() ? 'Review Account' : 'Edit Account' }}</a>
+                                    @unless ($managedUser->is(auth()->user()))
+                                        <form method="POST" action="{{ route('users.destroy', $managedUser) }}" class="m-0" data-user-name="{{ $managedUser->name }}" onsubmit="return confirm('Delete the user account for ' + this.dataset.userName + '? This permanently removes login access. Any linked alumni record will be kept.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Delete account for {{ $managedUser->name }}">Delete</button>
+                                        </form>
+                                    @endunless
                                 </div>
                             </td>
                         </tr>

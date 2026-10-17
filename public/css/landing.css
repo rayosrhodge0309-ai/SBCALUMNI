@@ -50,6 +50,126 @@
     line-height: 1.5;
 }
 
+.landing-page .landing-header-account {
+    position: relative;
+    display: block;
+    width: min(100%, 18.75rem);
+    padding: 0.7rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 0.8rem;
+    color: #fff;
+    background: rgba(4, 16, 113, 0.34);
+    box-shadow: 0 10px 24px rgba(1, 8, 68, 0.16);
+}
+
+.landing-page .landing-header-account-summary {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-width: 0;
+    padding-right: 1.25rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.landing-page .landing-header-account-summary::-webkit-details-marker {
+    display: none;
+}
+
+.landing-page .landing-header-account-summary::after {
+    content: "";
+    position: absolute;
+    top: 0.65rem;
+    right: 0.15rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid rgba(255, 255, 255, 0.8);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+    transform: rotate(45deg);
+    transition: transform 0.18s ease;
+}
+
+.landing-page .landing-header-account[open] .landing-header-account-summary::after {
+    transform: rotate(225deg);
+}
+
+.landing-page .landing-header-account-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+}
+
+.landing-page .landing-header-account-avatar {
+    --avatar-size: 2.6rem;
+    flex: 0 0 auto;
+}
+
+.landing-page .landing-header-account-copy {
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.landing-page .landing-header-account-copy span,
+.landing-page .landing-header-account-email {
+    display: block;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.78rem;
+}
+
+.landing-page .landing-header-account-copy strong,
+.landing-page .landing-header-account-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.landing-page .landing-header-account-copy strong {
+    display: block;
+    margin-top: 0.12rem;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.landing-page .landing-header-account-actions {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.45rem);
+    right: -0.8rem;
+    left: -0.8rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.landing-page .landing-header-account-actions > .btn,
+.landing-page .landing-header-account-logout,
+.landing-page .landing-header-account-logout .btn {
+    width: 100%;
+}
+
+.landing-page .landing-header-account .landing-header-account-actions .btn {
+    padding: 0.45rem 0.75rem;
+    border-color: #fff;
+    border-radius: 0.4rem;
+    color: #07116f;
+    background: #fff;
+    font-size: 0.85rem;
+    box-shadow: 0 8px 18px rgba(1, 8, 68, 0.12);
+}
+
+.landing-page .landing-header-account .landing-header-account-actions .btn:hover,
+.landing-page .landing-header-account .landing-header-account-actions .btn:focus-visible {
+    border-color: #0b45b8;
+    color: #fff;
+    background: #0b45b8;
+}
+
 @media (min-width: 992px) {
     .landing-page .landing-header {
         font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -122,6 +242,9 @@
 }
 
 .landing-page .school-identity-banner {
+    position: relative;
+    z-index: 20;
+    overflow: visible;
     background: linear-gradient(90deg, #061069 0%, #123cad 46%, #0d75bb 100%);
     color: #fff;
     border-bottom: 3px solid #9c7a00;
@@ -147,8 +270,39 @@
     color: #fff;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.28);
     letter-spacing: 0.02em;
-    font-size: clamp(2rem, 5.0vw, 4rem);
+    font-size: clamp(1.5rem, 3vw, 2.6rem);
     white-space: nowrap;
+}
+
+.landing-page .alumni-link-title {
+    animation: alumni-link-title-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-page .school-identity-login-label {
+    color: #fff;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+@keyframes alumni-link-title-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.45rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing-page .alumni-link-title {
+        animation: none;
+    }
 }
 
 .landing-page .school-identity-motto {
@@ -2095,6 +2249,34 @@
     box-shadow: none;
     transform: none;
 }
+.landing-page .landing-board-card-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.landing-page .landing-event-registration-status {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.28rem 0.6rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 750;
+    line-height: 1;
+}
+.landing-page .landing-event-registration-status.is-registered {
+    border-color: #86efac;
+    color: #166534;
+    background: #dcfce7;
+}
+.landing-page .landing-event-registration-status.is-declined {
+    border-color: #fca5a5;
+    color: #991b1b;
+    background: #fee2e2;
+}
 .landing-page .landing-board-card-title { color: var(--landing-ink); text-transform: none; font-weight: 650; font-size: 0.96rem; line-height: 1.4; }
 .landing-page .landing-board-card:hover .landing-board-card-title,
 .landing-page .landing-board-card:focus-visible .landing-board-card-title { color: var(--landing-ink); }
@@ -2132,9 +2314,11 @@
     .landing-page .landing-mobile-hero { padding: 1.5rem !important; }
     .landing-page .landing-mobile-hero h1 { font-size: clamp(1.75rem, 5vw, 2.75rem); font-weight: 700; line-height: 1.2; }
     .landing-page .landing-mobile-hero .mobile-portal-badge { justify-content: flex-start; width: fit-content; margin-left: 0; font-size: 0.7rem; text-align: left; }
+    .landing-page .landing-header-account { width: 100%; max-width: none; }
 }
 
 @media (max-width: 767.98px) {
+    .landing-page .landing-header-account { grid-column: 1 / -1; }
     .landing-page .hero-campus-gallery { width: calc(100% - 2rem); min-height: 18rem; }
     .landing-page .campus-gallery-caption { bottom: 2rem; }
     .landing-page .campus-gallery-kicker { font-size: 0.67rem; }

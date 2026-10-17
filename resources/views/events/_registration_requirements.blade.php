@@ -109,8 +109,8 @@
                 name="attendee_year_graduated"
                 class="form-control {{ $invalid('attendee_year_graduated') ? 'is-invalid' : '' }}"
                 value="{{ old('attendee_year_graduated', $registrationAlumnus?->year_graduated) }}"
-                min="1900"
-                max="2100"
+                min="1920"
+                max="{{ now()->year + 1 }}"
                 inputmode="numeric"
                 data-event-registration-input
                 required

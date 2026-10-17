@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Edit User Account')
-@section('subtitle', 'Update the selected login account and keep linked alumni information aligned.')
+@section('title', 'Review User Account')
+@section('subtitle', 'Review account details, approve access, and add verified accounts to Alumni Records.')
 
 @section('content')
     <div class="page-card p-4 p-lg-5">
@@ -84,7 +84,11 @@
             </div>
         </form>
 
-        @if ($managedUser->isAlumni() && $managedUser->isPendingApproval())
+        @if ($managedUser->isAlumni())
+            @include('users._alumni-review')
+        @endif
+
+        @if ($managedUser->isAlumni() && ! $managedUser->isApproved())
             <div class="d-flex gap-2 mt-3">
                 <form method="POST" action="{{ route('users.approve', $managedUser) }}">
                     @csrf

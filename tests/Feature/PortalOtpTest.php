@@ -4,6 +4,7 @@ use App\Models\Alumni;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class);
 
@@ -77,8 +78,8 @@ test('approved alumni without a linked record can open the dashboard', function 
 
     $user->refresh();
 
-    expect($user->alumni_id)->not->toBeNull()
-        ->and($user->alumni?->student_id)->toBe('UNLINKED-'.$user->id);
+    expect($user->alumni_id)->toBeNull();
+    $this->assertDatabaseCount('alumni', 0);
 });
 
 test('approved alumni without a linked record can open requests', function () {
@@ -98,7 +99,8 @@ test('approved alumni without a linked record can open requests', function () {
     $this->get('/portal/requests')
         ->assertOk();
 
-    expect($user->fresh()->alumni_id)->not->toBeNull();
+    expect($user->fresh()->alumni_id)->toBeNull();
+    $this->assertDatabaseCount('alumni', 0);
 });
 
 test('alumni otp verification stores permanent verification and allows dashboard access', function () {
@@ -133,6 +135,64 @@ test('alumni otp verification stores permanent verification and allows dashboard
     expect($user->fresh()->portal_otp_verified_at)->not->toBeNull();
 
     $this->get('/portal/dashboard')->assertOk();
+});
+
+test('expired otp is emailed again only after the student requests resend', function () {
+    config()->set('mail.default', 'array');
+    $messages = Mail::mailer('array')->getSymfonyTransport()->messages();
+    $user = User::factory()->create([
+        'email' => 'student@gmail.com',
+        'role' => 'alumni',
+        'account_status' => 'approved',
+        'approved_at' => now(),
+        'portal_otp_verified_at' => null,
+    ]);
+
+    $this->actingAs($user)->get(route('portal.otp.create'))->assertOk();
+    expect($messages)->toHaveCount(1);
+
+    $this->travel(11)->minutes();
+
+    $this->get(route('portal.otp.create'))
+        ->assertOk()
+        ->assertSee('Your OTP has expired.');
+    $this->post(route('portal.otp.store'), ['otp' => '123456'])
+        ->assertSessionHasErrors('otp');
+    expect($messages)->toHaveCount(1);
+
+    $this->post(route('portal.otp.resend'))->assertSessionHas('success');
+    expect($messages)->toHaveCount(2)
+        ->and($messages->last()->getOriginalMessage()->getTo()[0]->getAddress())->toBe('student@gmail.com');
+
+    $this->get(route('portal.otp.create'))->assertOk();
+    expect($messages)->toHaveCount(2);
+});
+
+test('exhausting otp attempts waits for the resend button before emailing another code', function () {
+    config()->set('mail.default', 'array');
+    $messages = Mail::mailer('array')->getSymfonyTransport()->messages();
+    $user = User::factory()->create([
+        'email' => 'attempts@gmail.com',
+        'role' => 'alumni',
+        'account_status' => 'approved',
+        'approved_at' => now(),
+        'portal_otp_verified_at' => null,
+    ]);
+
+    $this->actingAs($user)->withSession([
+        'portal_otp_code_hash' => Hash::make('123456'),
+        'portal_otp_code_expires_at' => now()->addMinutes(10)->timestamp,
+        'portal_otp_attempts' => 5,
+    ])->post(route('portal.otp.store'), ['otp' => '123456'])
+        ->assertSessionHasErrors('otp');
+
+    $this->get(route('portal.otp.create'))
+        ->assertOk()
+        ->assertSee('You have used all verification attempts.');
+    expect($messages)->toHaveCount(0);
+
+    $this->post(route('portal.otp.resend'))->assertSessionHas('success');
+    expect($messages)->toHaveCount(1);
 });
 
 test('approved alumni login requires otp until Gmail is verified', function () {

@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class LinkedAccountSyncService
 {
-    public function resolveOrCreateAlumniForUser(User $user): ?Alumni
+    public function resolveAlumniForUser(User $user): ?Alumni
     {
         if (! $user->isAlumni()) {
             return null;
@@ -18,37 +18,7 @@ class LinkedAccountSyncService
 
         $user->loadMissing('alumni');
 
-        if ($user->alumni) {
-            return $user->alumni;
-        }
-
-        $normalizedEmail = Str::lower(trim((string) $user->email));
-        $matchingAlumnus = $normalizedEmail !== ''
-            ? Alumni::query()
-                ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
-                ->whereDoesntHave('user')
-                ->first()
-            : null;
-
-        if (! $matchingAlumnus) {
-            [$firstName, $lastName] = $this->splitFullName($user->name);
-
-            $matchingAlumnus = Alumni::create([
-                'student_id' => 'UNLINKED-'.$user->id,
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $normalizedEmail !== '' ? $normalizedEmail : null,
-                'education_level' => 'Unspecified',
-                'course' => 'Unspecified',
-                'year_graduated' => now()->year,
-            ]);
-        }
-
-        $user->forceFill([
-            'alumni_id' => $matchingAlumnus->id,
-        ])->save();
-
-        return $matchingAlumnus;
+        return $user->alumni;
     }
 
     public function syncUserFromAlumni(Alumni $alumnus): void

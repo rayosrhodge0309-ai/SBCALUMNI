@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', LandingPageController::class)->name('home');
 Route::get('/landing-media/{kind}/{index?}', [LandingVideoSettingController::class, 'media'])
-    ->where('kind', 'photo|video|poster')
+    ->where('kind', 'photo|video|poster|hero')
     ->whereNumber('index')
     ->name('landing-media.show');
 Route::get('/landing-profile-media/{group}/{key}', [LandingVideoSettingController::class, 'profileMedia'])
@@ -117,7 +117,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/users/pending/notifications', [UserController::class, 'pendingNotifications'])->name('users.pending.notifications');
     Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
     Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
-    Route::resource('users', UserController::class)->only(['index', 'edit', 'update']);
+    Route::post('/users/{user}/alumni-record', [UserController::class, 'addToAlumniRecords'])->name('users.alumni-record');
+    Route::resource('users', UserController::class)->only(['index', 'edit', 'update', 'destroy']);
     Route::get('/settings/landing-video', [LandingVideoSettingController::class, 'edit'])
         ->name('admin.settings.landing-video.edit');
     Route::put('/settings/landing-video', [LandingVideoSettingController::class, 'update'])

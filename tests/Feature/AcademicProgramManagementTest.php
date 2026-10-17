@@ -14,7 +14,9 @@ test('admins can open school level and program management from the workspace', f
         ->assertOk()
         ->assertSee('School Levels &amp; Programs', false)
         ->assertSee('Senior High School')
-        ->assertSee('BS Information Technology');
+        ->assertSee('BS Information Technology')
+        ->assertSee('data-academic-program-edit', false)
+        ->assertSee('>Edit</button>', false);
 });
 
 test('admin program changes are applied to alumni account registration', function () {
@@ -58,10 +60,10 @@ test('admin program changes are applied to alumni account registration', functio
         'password_confirmation' => 'password12',
     ])->assertRedirect(route('portal.login'));
 
-    $this->assertDatabaseHas('alumni', [
-        'student_id' => '2026-2001',
-        'course' => 'BS Nursing',
-    ]);
+    $details = User::query()->where('email', 'maria.santos@gmail.com')->firstOrFail()->registration_details;
+    expect($details['student_id'])->toBe('2026-2001')
+        ->and($details['course'])->toBe('BS Nursing');
+    $this->assertDatabaseCount('alumni', 0);
 
     $this->actingAs($admin)
         ->delete(route('admin.academic-programs.destroy', $program->fresh()))

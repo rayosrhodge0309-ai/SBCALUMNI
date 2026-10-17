@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Support\BirthDate;
 use App\Support\StudentIdFormatter;
 use Illuminate\Support\Str;
 
@@ -16,6 +17,7 @@ class Alumni extends Model
         'student_id',
         'first_name',
         'last_name',
+        'maiden_name',
         'birthday',
         'education_level',
         'course',
@@ -54,6 +56,11 @@ class Alumni extends Model
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->last_name}");
+    }
+
+    public function getAgeAttribute(): ?int
+    {
+        return BirthDate::age($this->birthday);
     }
 
     public function getStudentIdDisplayAttribute(): string

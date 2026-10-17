@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\LinkedAccountSyncService;
-use App\Support\GmailAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -37,41 +35,32 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request, LinkedAccountSyncService $syncService): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
-        $linkedAlumniId = $user->isAlumni() ? $user->alumni_id : null;
-        $submittedEmail = GmailAddress::normalize($request->input('email'));
-        $emailChanged = GmailAddress::normalize($user->email) !== $submittedEmail;
-        $emailRules = [
-            'required',
-            'email',
-            'max:255',
-            Rule::unique('users', 'email')->ignore($user->id),
-            Rule::unique('alumni', 'email')->ignore($linkedAlumniId),
-        ];
 
-        if ($user->isAlumni() && $emailChanged) {
-            $emailRules[] = GmailAddress::validationRule();
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
+        $rules = [
             'password' => ['nullable', 'confirmed', Password::min(8)->letters()->numbers()],
             'profile_photo' => ['nullable', 'image', 'max:2048'],
             'remove_profile_photo' => ['nullable', 'boolean'],
-            'email' => $emailRules,
-        ]);
+        ];
 
-        $newEmail = $user->isAlumni()
-            ? $submittedEmail
-            : $validated['email'];
+        if ($user->isAdmin()) {
+            $rules['name'] = ['required', 'string', 'max:255'];
+            $rules['email'] = [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+                Rule::unique('alumni', 'email'),
+            ];
+        }
 
-        $user->name = $validated['name'];
-        $user->email = $newEmail;
+        $validated = $request->validate($rules);
 
-        if ($user->isAlumni() && $emailChanged) {
-            $user->portal_otp_verified_at = null;
+        if ($user->isAdmin()) {
+            $user->name = $validated['name'];
+            $user->email = $validated['email'];
         }
 
         if (! empty($validated['password'])) {
@@ -92,8 +81,6 @@ class ProfileController extends Controller
         }
 
         $user->save();
-
-        $syncService->syncAlumniFromUser($user->fresh(['alumni']));
 
         return redirect()->route('profile.edit')->with('success', 'Profile updated successfully!');
     }

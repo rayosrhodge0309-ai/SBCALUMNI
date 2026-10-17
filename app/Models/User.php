@@ -32,6 +32,7 @@ class User extends Authenticatable
         'alumni_id',
         'profile_photo_path',
         'fcm_token',
+        'registration_details',
     ];
 
     /**
@@ -57,12 +58,34 @@ class User extends Authenticatable
             'approved_at' => 'datetime',
             'portal_otp_verified_at' => 'datetime',
             'fcm_token' => 'string',
+            'registration_details' => 'array',
         ];
     }
 
     public function alumni(): BelongsTo
     {
         return $this->belongsTo(Alumni::class);
+    }
+
+    public function getRegistrationProfileAttribute(): Alumni
+    {
+        if ($this->registration_details !== null) {
+            $details = $this->registration_details;
+
+            // School records and imports store given and middle names together in first_name.
+            if (filled($details['middle_name'] ?? null)) {
+                $details['first_name'] = trim(($details['first_name'] ?? '').' '.$details['middle_name']);
+            }
+            unset($details['middle_name']);
+
+            return new Alumni($details + ['email' => $this->email]);
+        }
+
+        return $this->alumni ?? new Alumni([
+            'first_name' => $this->name,
+            'last_name' => '',
+            'email' => $this->email,
+        ]);
     }
 
     public function eventRegistrations(): HasMany

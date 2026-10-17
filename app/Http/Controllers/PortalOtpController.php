@@ -18,6 +18,7 @@ class PortalOtpController extends Controller
     private const SESSION_CODE_EXPIRES_AT = 'portal_otp_code_expires_at';
     private const SESSION_ATTEMPTS = 'portal_otp_attempts';
     private const SESSION_LAST_SENT_AT = 'portal_otp_last_sent_at';
+    private const SESSION_CODE_REQUESTED = 'portal_otp_code_requested';
     private const OTP_TTL_MINUTES = 10;
     private const OTP_MAX_ATTEMPTS = 5;
     private const OTP_RESEND_COOLDOWN_SECONDS = 30;
@@ -35,15 +36,19 @@ class PortalOtpController extends Controller
         }
 
         $recipientEmail = $this->resolveOtpRecipientEmail($request);
-        $deliveryError = false;
-        if (! $this->hasActiveCode($request)) {
-            $deliveryError = ! $this->issueCode($request);
+        if (! $request->session()->has(self::SESSION_CODE_REQUESTED)
+            && ! $request->session()->has(self::SESSION_CODE_EXPIRES_AT)) {
+            $this->issueCode($request);
         }
+
+        $hasActiveCode = $this->hasActiveCode($request);
 
         return view('portal.auth.verify-otp', [
             'email' => $this->maskEmail($recipientEmail ?? (string) $user->email),
             'resendCooldownSeconds' => $this->resendCooldownSeconds($request),
-            'deliveryError' => $deliveryError,
+            'deliveryError' => ! $hasActiveCode && ! $request->session()->has(self::SESSION_CODE_EXPIRES_AT),
+            'codeExpired' => ! $hasActiveCode && $request->session()->has(self::SESSION_CODE_EXPIRES_AT),
+            'attemptsExhausted' => (int) $request->session()->get(self::SESSION_ATTEMPTS, 0) >= self::OTP_MAX_ATTEMPTS,
         ]);
     }
 
@@ -64,27 +69,15 @@ class PortalOtpController extends Controller
         ]);
 
         if (! $this->hasActiveCode($request)) {
-            if (! $this->issueCode($request)) {
-                return back()->withErrors([
-                    'otp' => 'Unable to send OTP email right now. Please try again shortly.',
-                ]);
-            }
-
             return back()->withErrors([
-                'otp' => 'Your OTP has expired. A new code was sent to your email.',
+                'otp' => 'Your OTP has expired. Click Resend OTP to request a new code.',
             ]);
         }
 
         $attempts = (int) $request->session()->get(self::SESSION_ATTEMPTS, 0);
         if ($attempts >= self::OTP_MAX_ATTEMPTS) {
-            if (! $this->issueCode($request)) {
-                return back()->withErrors([
-                    'otp' => 'Unable to send OTP email right now. Please try again shortly.',
-                ]);
-            }
-
             return back()->withErrors([
-                'otp' => 'Too many incorrect attempts. We sent a new OTP to your email.',
+                'otp' => 'Too many incorrect attempts. Click Resend OTP to request a new code.',
             ]);
         }
 
@@ -145,11 +138,14 @@ class PortalOtpController extends Controller
             self::SESSION_CODE_EXPIRES_AT,
             self::SESSION_ATTEMPTS,
             self::SESSION_LAST_SENT_AT,
+            self::SESSION_CODE_REQUESTED,
         ]);
     }
 
     private function issueCode(Request $request): bool
     {
+        $request->session()->put(self::SESSION_CODE_REQUESTED, true);
+
         $user = $request->user();
         $recipientEmail = $this->resolveOtpRecipientEmail($request);
 
@@ -179,7 +175,6 @@ class PortalOtpController extends Controller
                 'error' => $exception->getMessage(),
             ]);
 
-            $this->clearOtpChallenge($request);
             return false;
         }
 
@@ -232,11 +227,6 @@ class PortalOtpController extends Controller
 
         if (! $user) {
             return null;
-        }
-
-        $alumniEmail = GmailAddress::normalize($user->alumni?->email);
-        if (GmailAddress::isAllowed($alumniEmail)) {
-            return $alumniEmail;
         }
 
         $userEmail = GmailAddress::normalize($user->email);

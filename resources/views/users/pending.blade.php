@@ -10,7 +10,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Applicant</th>
-                        <th>Student Record</th>
+                        <th>Submitted Details</th>
                         <th>Submitted</th>
                         <th class="text-end">Actions</th>
                     </tr>
@@ -22,14 +22,14 @@
                                         <div class="fw-semibold">{{ $managedUser->name }}</div>
                                         <div class="small text-secondary">{{ $managedUser->email }}</div>
                                     </td>
-                                    <td data-label="Student Record">
-                                        @if ($managedUser->alumni)
-                                            <div class="fw-semibold">{{ $managedUser->alumni->student_id_display }}</div>
-                                            <div class="small text-secondary">{{ $managedUser->alumni->full_name }}</div>
-                                            <div class="small text-secondary">{{ $managedUser->alumni->academic_label }}</div>
-                                        @else
-                                            <span class="text-secondary">No alumni record linked</span>
+                                    <td data-label="Submitted Details">
+                                        @php($profile = $managedUser->registration_profile)
+                                        <div class="fw-semibold">{{ $profile->student_id_display }}</div>
+                                        <div class="small text-secondary">{{ $profile->full_name }}</div>
+                                        @if ($profile->maiden_name)
+                                            <div class="small text-secondary">Maiden name: {{ $profile->maiden_name }}</div>
                                         @endif
+                                        <div class="small text-secondary">{{ $profile->academic_label }}</div>
                                     </td>
                                     <td data-label="Submitted">
                                         <div>{{ $managedUser->created_at->format('F d, Y') }}</div>
@@ -37,11 +37,6 @@
                                     </td>
                                     <td class="text-end" data-label="Actions">
                                         <div class="d-inline-flex flex-wrap gap-2 justify-content-end mobile-table-actions">
-                                            <form method="POST" action="{{ route('users.approve', $managedUser) }}">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                            </form>
                                             <form method="POST" action="{{ route('users.reject', $managedUser) }}">
                                                 @csrf
                                                 @method('PATCH')
@@ -138,11 +133,14 @@
                 appendText(applicant, 'small text-secondary', request.email || '');
 
                 var studentRecord = document.createElement('td');
-                studentRecord.setAttribute('data-label', 'Student Record');
+                studentRecord.setAttribute('data-label', 'Submitted Details');
 
                 if (request.student_id || request.student_name || request.academic_label) {
                     appendText(studentRecord, 'fw-semibold', request.student_id || 'No student ID');
                     appendText(studentRecord, 'small text-secondary', request.student_name || request.name || '');
+                    if (request.maiden_name) {
+                        appendText(studentRecord, 'small text-secondary', 'Maiden name: ' + request.maiden_name);
+                    }
                     appendText(studentRecord, 'small text-secondary', request.academic_label || '');
                 } else {
                     var emptyRecord = document.createElement('span');
@@ -162,10 +160,6 @@
 
                 var actionGroup = document.createElement('div');
                 actionGroup.className = 'd-inline-flex flex-wrap gap-2 justify-content-end mobile-table-actions';
-
-                if (request.approve_url) {
-                    actionGroup.appendChild(createPatchForm(request.approve_url, 'btn btn-sm btn-success', 'Approve'));
-                }
 
                 if (request.reject_url) {
                     actionGroup.appendChild(createPatchForm(request.reject_url, 'btn btn-sm btn-outline-danger', 'Reject', 'Reject this account request?'));

@@ -4,7 +4,7 @@
     $isAdminPreview = auth()->check() && auth()->user()?->isAdmin() && request()->boolean('preview');
 @endphp
 
-@section('title', 'St. Bridget College Batangas Alumni Link')
+@section('title', 'Alumni Link')
 @if ($isAdminPreview)
     @section('workspace_preview', true)
 @else
@@ -16,6 +16,7 @@
         $content = is_array($content ?? null) ? $content : config('portal_content', []);
         $brand = is_array($content['brand'] ?? null) ? $content['brand'] : [];
         $hero = is_array($content['hero'] ?? null) ? $content['hero'] : [];
+        $heroImageUrl = is_string($heroImageUrl ?? null) ? $heroImageUrl : asset($hero['image_path'] ?? 'images/alumni-header.jpg');
         $schoolAd = is_array($schoolAd ?? null) ? $schoolAd : (is_array($content['school_ad'] ?? null) ? $content['school_ad'] : []);
         $process = is_array($content['process'] ?? null) ? $content['process'] : [];
         $boardMembers = is_array($boardMembers ?? null) ? $boardMembers : (is_array($content['board_members'] ?? null) ? $content['board_members'] : []);
@@ -126,18 +127,37 @@
                                     </div>
                                 @endif
                             </div>
-                            <div class="school-identity-copy">
-                                <div class="school-identity-title">ST. BRIDGET COLLEGE</div>
-                                <div class="school-identity-motto">Luceat Lux Vestra</div>
-                            </div>
                         </a>
 
                         <div class="school-identity-actions">
-                            @if ($isLoggedInAdmin)
-                                <a href="{{ $adminDashboardUrl }}" class="btn btn-outline-primary">Dashboard</a>
-                            @elseif ($isLoggedInAlumni)
-                                <a href="{{ $portalDashboardUrl }}" class="btn btn-outline-primary">Dashboard</a>
-                            @else
+                            @if ($isLoggedInAlumni)
+                                <details class="landing-header-account">
+                                    <summary class="landing-header-account-summary" aria-label="Open account options">
+                                        <span class="landing-header-account-identity">
+                                            <span class="user-avatar landing-header-account-avatar">
+                                            @if ($currentUser->profile_photo_url)
+                                                <img src="{{ $currentUser->profile_photo_url }}" alt="{{ $currentUser->name }}">
+                                            @else
+                                                <span class="user-avatar-placeholder">{{ $currentUser->initials }}</span>
+                                            @endif
+                                            </span>
+                                            <span class="landing-header-account-copy">
+                                                <span>Signed in as</span>
+                                                <strong title="{{ $currentUser->name }}">{{ $currentUser->name }}</strong>
+                                            </span>
+                                        </span>
+                                        <span class="landing-header-account-email" title="{{ $currentUser->email }}">{{ $currentUser->email }}</span>
+                                    </summary>
+                                    <div class="landing-header-account-actions">
+                                        <a href="{{ $portalDashboardUrl }}" class="btn btn-outline-light">Dashboard</a>
+                                        <form method="POST" action="{{ route('logout') }}" class="landing-header-account-logout">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline-light">Log out</button>
+                                        </form>
+                                    </div>
+                                </details>
+                            @elseif (! $isLoggedInAdmin)
+                                <span class="school-identity-login-label">St. Bridget College</span>
                                 <a href="{{ $portalLoginUrl }}" class="btn btn-outline-primary">Login</a>
                                 <a href="{{ $portalRegisterUrl }}" class="btn btn-outline-primary">Create Account</a>
                             @endif
@@ -174,7 +194,7 @@
             <section class="landing-mobile-entry d-lg-none">
             <div class="main-wrapper">
                 <div class="landing-mobile-hero p-3 mt-3">
-                    <img src="{{ asset('images/alumni-header.jpg') }}" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
+                    <img src="{{ $heroImageUrl }}" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
                     <div class="landing-mobile-hero-head d-flex align-items-start justify-content-between gap-3">
                         <div class="min-w-0">
                             <div class="mobile-portal-badge">{{ $brand['school'] }}</div>
@@ -240,7 +260,7 @@
 
         <section id="home" class="landing-section hero-section pt-3 pt-lg-5">
                 <div class="hero-stage reveal d-none d-lg-block">
-                    <img src="{{ asset('images/alumni-header.jpg') }}" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
+                    <img src="{{ $heroImageUrl }}" class="hero-campus-backdrop" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
                     <div class="row gx-0 align-items-stretch position-relative hero-columns">
                         <div class="col-lg-12 hero-left-panel">
                             <h1 class="hero-heading">{{ $hero['title'] }}</h1>
@@ -384,6 +404,10 @@
                                 @php
                                     $eventModalId = 'event-detail-'.$event->id;
                                     $eventViews = (int) ($event->views_count ?? 0);
+                                    $eventRegistration = $eventRegistrationsByEventId->get($event->id);
+                                    $eventRegistrationDecision = in_array($eventRegistration?->status, ['registered', 'declined'], true)
+                                        ? $eventRegistration->status
+                                        : null;
                                 @endphp
                                 <div class="landing-board-item reveal" data-landing-search-item data-search-text="{{ \Illuminate\Support\Str::lower($event->title.' '.$event->description.' '.($event->location ?? '').' '.$event->event_date?->format('F d, Y')) }}">
                                     <article class="landing-board-card"
@@ -395,7 +419,14 @@
                                         data-event-card
                                         data-event-target="#{{ $eventModalId }}"
                                         data-event-view-url="{{ route('events.view', $event) }}">
-                                        <h3 class="landing-board-card-title">{{ $event->title }}</h3>
+                                        <div class="landing-board-card-heading">
+                                            <h3 class="landing-board-card-title">{{ $event->title }}</h3>
+                                            @if ($eventRegistrationDecision)
+                                                <span class="landing-event-registration-status is-{{ $eventRegistrationDecision }}">
+                                                    {{ $eventRegistrationStatuses[$eventRegistrationDecision] ?? ucfirst($eventRegistrationDecision) }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <div class="landing-board-card-meta">
                                             By St. Bridget College <span>|</span> {{ $event->event_date->format('F d, Y') }}
                                             <span>|</span> <span data-event-views-count>{{ number_format($eventViews) }}</span> views

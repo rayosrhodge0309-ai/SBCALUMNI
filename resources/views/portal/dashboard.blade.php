@@ -4,6 +4,9 @@
 @section('subtitle', 'Your requests, school updates, and alumni community in one place.')
 
 @section('content')
+    @if (! $hasLinkedRecord)
+        <div class="alert alert-info">Your account is approved. The administrator still needs to link it to the school alumni records before you can submit record requests or register for events.</div>
+    @endif
     @php
         $user = auth()->user();
         $requestTabCount = $requestCount;
@@ -17,7 +20,7 @@
     <div class="dashboard-page">
     <section class="dashboard-hero dashboard-hero-portal mb-4" aria-labelledby="portal-welcome-heading">
         <div class="dashboard-hero-copy">
-            <span class="dashboard-eyebrow">St. Bridget College Batangas / Alumni portal</span>
+            <span class="dashboard-eyebrow">Alumni Link / Alumni portal</span>
             <h1 id="portal-welcome-heading">Welcome back, {{ $user->name }}.</h1>
             <p>Stay connected to your school. Follow your requests, find upcoming events, and keep your alumni record up to date.</p>
             <div class="dashboard-hero-actions">
@@ -35,7 +38,7 @@
                 @endif
             </div>
             <div class="dashboard-member-copy">
-                <span class="dashboard-eyebrow">Linked alumni record</span>
+                <span class="dashboard-eyebrow">{{ $hasLinkedRecord ? 'Linked alumni record' : 'Submitted account details' }}</span>
                 <strong>{{ $alumnus->student_id_display }}</strong>
                 <span>{{ $alumnus->full_name }}</span>
                 <span class="small">{{ $alumnus->academic_label }}</span>
@@ -137,7 +140,7 @@
                 <div class="row g-4">
                     <div class="col-lg-5">
                         <div class="page-card dashboard-section h-100">
-                            <h2 class="h5 mb-3">My Alumni Record</h2>
+                            <h2 class="h5 mb-3">{{ $hasLinkedRecord ? 'My Alumni Record' : 'My Account Details' }}</h2>
                             <dl class="row mb-0 dashboard-record-details">
                                 <dt class="col-5">Student ID</dt>
                                 <dd class="col-7">{{ $alumnus->student_id_display }}</dd>
@@ -145,8 +148,14 @@
                                 <dt class="col-5">Name</dt>
                                 <dd class="col-7">{{ $alumnus->full_name }}</dd>
 
+                                <dt class="col-5">Maiden Name</dt>
+                                <dd class="col-7">{{ $alumnus->maiden_name ?? 'Not specified' }}</dd>
+
                                 <dt class="col-5">Birthday</dt>
                                 <dd class="col-7">{{ $alumnus->birthday?->format('F j, Y') ?? 'Not specified' }}</dd>
+
+                                <dt class="col-5">Age</dt>
+                                <dd class="col-7">{{ $alumnus->age !== null ? $alumnus->age.' years old' : 'Not specified' }}</dd>
 
                                 <dt class="col-5">Contact Number</dt>
                                 <dd class="col-7">{{ $alumnus->contact_number ?? 'Not specified' }}</dd>
@@ -212,6 +221,7 @@
                     <div class="col-xl-4">
                         <div class="page-card dashboard-section h-100">
                             <h2 class="h5 mb-3">Submit New Request</h2>
+                            @if ($hasLinkedRecord)
                             <form method="POST" action="{{ route('portal.requests.store') }}">
                                 @csrf
                                 <div class="mb-3">
@@ -241,7 +251,7 @@
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label" for="requester_year_graduate">Graduation year</label>
-                                                <input id="requester_year_graduate" type="number" min="1900" max="{{ now()->year + 1 }}" name="requester_year_graduate" class="form-control" value="{{ old('requester_year_graduate', $alumnus->year_graduated) }}" placeholder="e.g. 2025" data-standard-requirement-input>
+                                                <input id="requester_year_graduate" type="number" min="1920" max="{{ now()->year + 1 }}" name="requester_year_graduate" class="form-control" value="{{ old('requester_year_graduate', $alumnus->year_graduated) }}" placeholder="e.g. 2025" data-standard-requirement-input>
                                             </div>
                                         </div>
                                     </div>
@@ -253,13 +263,16 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="year_requested">Graduation / Record Year</label>
-                                    <input id="year_requested" type="number" min="1900" max="{{ now()->year + 1 }}" name="year_requested" class="form-control" value="{{ old('year_requested', $alumnus->year_graduated) }}" required>
+                                    <input id="year_requested" type="number" min="1920" max="{{ now()->year + 1 }}" name="year_requested" class="form-control" value="{{ old('year_requested', $alumnus->year_graduated) }}" required>
                                 </div>
                                 <div class="small text-secondary mb-3">
                                     Track the status and any school replies in your request history.
                                 </div>
                                 <button class="btn btn-success w-100" type="submit">Submit Request</button>
                             </form>
+                            @else
+                                <p class="text-secondary mb-0">Record requests will be available after the administrator links your school record.</p>
+                            @endif
                         </div>
                     </div>
 
@@ -377,7 +390,7 @@
                                                 <div class="small text-secondary mt-1">Waiting for admin reply.</div>
                                             @endif
                                         </div>
-                                    @else
+                                    @elseif ($hasLinkedRecord)
                                         @php
                                             $registrationFormExpanded = (string) old('event_registration_event_id') === (string) $event->id;
                                             $registrationFieldsId = 'portal_event_registration_'.$event->id;
@@ -402,6 +415,8 @@
                                                 'registrationSubmitClass' => 'btn btn-success',
                                             ])
                                         </form>
+                                    @else
+                                        <p class="small text-secondary mt-3 mb-0">Event registration will be available after the administrator links your school record.</p>
                                     @endif
                                 </div>
                             @empty

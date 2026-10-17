@@ -82,7 +82,7 @@ class AlumniImportService
                 }
 
                 if ($this->shouldSyncPortalAccount($alumnus)) {
-                    $this->linkedAccountSyncService->syncOrCreateUserFromAlumni($alumnus->fresh(), true);
+                    $this->linkedAccountSyncService->syncUserFromAlumni($alumnus->fresh());
                 }
             }
 
@@ -721,7 +721,7 @@ class AlumniImportService
 
         $yearValue = $yearValue !== null && (
             ($yearValue >= 1 && $yearValue <= 12)
-            || ($yearValue >= 1900 && $yearValue <= now()->year + 1)
+            || ($yearValue >= 1920 && $yearValue <= now()->year + 1)
         )
             ? $yearValue
             : 0;

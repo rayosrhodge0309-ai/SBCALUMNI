@@ -10,6 +10,36 @@
             @method('PUT')
 
             <div class="col-12">
+                <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 align-items-lg-center mb-3">
+                    <div>
+                        <h3 class="h5 mb-1">Landing Hero Image</h3>
+                        <div class="text-secondary small">Replace the large background image shown behind the welcome message on the home page.</div>
+                    </div>
+                    <a href="{{ route('home', ['preview' => 1]) }}" target="_blank" rel="noopener" class="btn btn-outline-secondary">Preview Landing Page</a>
+                </div>
+
+                <div class="landing-hero-image-editor">
+                    <img src="{{ $heroImageUrl }}" alt="Current landing hero" class="landing-hero-image-preview">
+                    <div>
+                        <label for="hero_image" class="form-label">Replace Hero Image</label>
+                        <input id="hero_image" type="file" name="hero_image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                        <div class="form-text">Accepted: JPG, PNG, or WEBP. Maximum size: 8 MB. Recommended landscape ratio: 16:9.</div>
+
+                        @if ($hasCustomHeroImage)
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" value="1" id="remove_hero_image" name="remove_hero_image">
+                                <label class="form-check-label" for="remove_hero_image">Restore the default hero image</label>
+                            </div>
+                        @endif
+
+                        <button type="submit" class="btn btn-primary mt-3">Save Hero Image</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12"><hr class="my-0"></div>
+
+            <div class="col-12">
                 <label for="photo_files" class="form-label">Upload Photos or Videos (Multiple)</label>
                 <input id="photo_files" type="file" name="photo_files[]" class="form-control" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo,video/x-matroska" multiple>
                 <div class="form-text">Accepted: JPG, PNG, WEBP, MP4, WEBM, OGG, MOV, AVI, MKV. Max size per file: 50MB. You can select multiple files at once.</div>
@@ -20,14 +50,14 @@
             </div>
 
             <div class="col-12 d-flex flex-wrap gap-2">
-                <button type="submit" class="btn btn-primary">Save Landing Slider</button>
+                <button type="submit" class="btn btn-primary">Save</button>
                 <button
                     type="submit"
                     name="remove_photos"
                     value="1"
                     class="btn btn-outline-danger"
                     onclick="return confirm('Delete all current landing media?');">
-                    Delete Landing Slider
+                    Delete
                 </button>
                 <a href="{{ route('home', ['preview' => 1]) }}" target="_blank" rel="noopener" class="btn btn-outline-secondary">Preview Landing Page</a>
             </div>
@@ -344,6 +374,32 @@
 
 @push('styles')
     <style>
+        .landing-hero-image-editor {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+            gap: 1.25rem;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid rgba(4, 0, 120, 0.14);
+            border-radius: 1.15rem;
+            background: rgba(255, 255, 255, 0.92);
+        }
+
+        .landing-hero-image-preview {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 7;
+            object-fit: cover;
+            border: 1px solid rgba(4, 0, 120, 0.14);
+            border-radius: 1rem;
+        }
+
+        @media (max-width: 767.98px) {
+            .landing-hero-image-editor {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .landing-slide-editor {
             border: 1px solid rgba(4, 0, 120, 0.14);
             border-radius: 1.15rem;

@@ -7,9 +7,17 @@
         <div class="text-center mb-4">
             <div class="stat-pill text-success bg-success-subtle mb-3">OTP Verification</div>
             <h1 class="h3 mb-2">Verify your Gmail on first login</h1>
-            <p class="text-secondary mb-0">
-                We sent a 6-digit OTP to <strong>{{ $email }}</strong>. Enter it once to verify your Gmail and continue to your dashboard.
-            </p>
+            @if (! $deliveryError)
+                <p class="text-secondary mb-0">
+                    @if ($codeExpired)
+                        Your OTP has expired. Click <strong>Resend OTP</strong> to get a new code at <strong>{{ $email }}</strong>.
+                    @elseif ($attemptsExhausted)
+                        You have used all verification attempts. Click <strong>Resend OTP</strong> to get a new code at <strong>{{ $email }}</strong>.
+                    @else
+                        We sent a 6-digit OTP to <strong>{{ $email }}</strong>. Enter it once to verify your Gmail and continue to your dashboard.
+                    @endif
+                </p>
+            @endif
         </div>
 
         @if (!empty($deliveryError))

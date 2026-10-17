@@ -41,6 +41,63 @@ test('landing event details show a registration action', function () {
         ->assertSee('Failed to register');
 });
 
+test('landing event cards show registered and declined decisions for the signed-in alumni', function () {
+    $alumnus = Alumni::create([
+        'student_id' => '2020-0901',
+        'first_name' => 'Maria',
+        'last_name' => 'Santos',
+        'education_level' => 'College',
+        'course' => 'BS Information Technology',
+        'year_graduated' => 2024,
+        'email' => 'maria.status@gmail.com',
+    ]);
+
+    $alumniUser = User::factory()->create([
+        'name' => $alumnus->full_name,
+        'email' => $alumnus->email,
+        'role' => 'alumni',
+        'alumni_id' => $alumnus->id,
+    ]);
+
+    $registeredEvent = Event::create([
+        'title' => 'Registered Alumni Event',
+        'description' => 'An event with an approved registration.',
+        'event_date' => today()->addDays(5),
+        'is_published' => true,
+    ]);
+
+    $declinedEvent = Event::create([
+        'title' => 'Declined Alumni Event',
+        'description' => 'An event with a declined registration.',
+        'event_date' => today()->addDays(6),
+        'is_published' => true,
+    ]);
+
+    EventRegistration::create([
+        'event_id' => $registeredEvent->id,
+        'alumni_id' => $alumnus->id,
+        'user_id' => $alumniUser->id,
+        'status' => EventRegistration::STATUS_REGISTERED,
+    ]);
+
+    EventRegistration::create([
+        'event_id' => $declinedEvent->id,
+        'alumni_id' => $alumnus->id,
+        'user_id' => $alumniUser->id,
+        'status' => EventRegistration::STATUS_DECLINED,
+    ]);
+
+    $this->actingAs($alumniUser)
+        ->get(route('home'))
+        ->assertOk()
+        ->assertSee('Registered Alumni Event')
+        ->assertSee('Declined Alumni Event')
+        ->assertSee('landing-event-registration-status is-registered', false)
+        ->assertSee('landing-event-registration-status is-declined', false)
+        ->assertSee('Registered')
+        ->assertSee('Declined');
+});
+
 test('guest alumni cannot register for an event without logging in first', function () {
     Notification::fake();
 

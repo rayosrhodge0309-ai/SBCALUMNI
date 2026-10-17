@@ -13,6 +13,7 @@ use App\Notifications\RecordRequestUpdated;
 use App\Services\AlumniImportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
@@ -646,13 +647,17 @@ test('an administrator can replace the existing alumni list with the rows in an 
     $admin = User::factory()->create(['role' => 'admin']);
     $this->actingAs($admin);
 
-    Alumni::create([
+    $oldAlumnus = Alumni::create([
         'student_id' => 'OLD-1001',
         'first_name' => 'Old',
         'last_name' => 'Record',
         'education_level' => 'College',
         'course' => 'Old Program',
         'year_graduated' => 2020,
+    ]);
+    $linkedUser = User::factory()->create([
+        'role' => 'alumni',
+        'alumni_id' => $oldAlumnus->id,
     ]);
 
     $file = buildXlsxImportFile([
@@ -666,6 +671,7 @@ test('an administrator can replace the existing alumni list with the rows in an 
     ])->assertRedirect(route('alumni.index'));
 
     $this->assertDatabaseMissing('alumni', ['student_id' => 'OLD-1001']);
+    $this->assertDatabaseHas('users', ['id' => $linkedUser->id, 'alumni_id' => null]);
     $this->assertDatabaseHas('alumni', [
         'student_id' => '14965',
         'first_name' => 'Kim Shen M.',
@@ -676,7 +682,60 @@ test('an administrator can replace the existing alumni list with the rows in an 
     ]);
 });
 
-test('admins can select all alumni records on the current page and bulk delete them', function () {
+test('deleting an alumni record preserves its user account and profile photo', function (string $status) {
+    Storage::fake('public');
+
+    $admin = User::factory()->create(['role' => 'admin']);
+    $alumnus = Alumni::create([
+        'student_id' => 'KEEP-ACCOUNT-1001',
+        'first_name' => 'Alyssa',
+        'last_name' => 'Reyes',
+        'education_level' => 'College',
+        'course' => 'BS Nursing',
+        'year_graduated' => 2016,
+        'email' => 'alyssa.reyes@gmail.com',
+    ]);
+    $profilePhotoPath = 'profile-photos/alyssa.jpg';
+    Storage::disk('public')->put($profilePhotoPath, 'photo');
+    $linkedUser = User::factory()->create([
+        'name' => $alumnus->full_name,
+        'email' => $alumnus->email,
+        'password' => 'password123',
+        'role' => 'alumni',
+        'account_status' => $status,
+        'approved_at' => $status === 'approved' ? now() : null,
+        'portal_otp_verified_at' => $status === 'approved' ? now() : null,
+        'alumni_id' => $alumnus->id,
+        'profile_photo_path' => $profilePhotoPath,
+        'registration_details' => ['first_name' => 'Alyssa', 'last_name' => 'Reyes'],
+    ]);
+    $originalAccount = $linkedUser->fresh()->getAttributes();
+
+    $this->actingAs($admin)->delete(route('alumni.destroy', ['alumnus' => $alumnus]))
+        ->assertRedirect(route('alumni.index'));
+
+    $this->assertDatabaseMissing('alumni', ['id' => $alumnus->id]);
+    $this->assertDatabaseHas('users', ['id' => $linkedUser->id, 'alumni_id' => null]);
+    expect(collect($linkedUser->fresh()->getAttributes())->except(['alumni_id', 'updated_at'])->all())
+        ->toEqual(collect($originalAccount)->except(['alumni_id', 'updated_at'])->all());
+    Storage::disk('public')->assertExists($profilePhotoPath);
+    $this->get(route('users.index'))->assertOk()->assertSee('alyssa.reyes@gmail.com');
+    $this->get(route('users.edit', $linkedUser))->assertOk();
+
+    if ($status === 'approved') {
+        $this->actingAs($linkedUser->fresh())->get(route('portal.dashboard'))
+            ->assertOk()->assertSee('My Account Details');
+        $this->post(route('logout'));
+        $this->post(route('portal.login.attempt'), [
+            'email' => 'alyssa.reyes@gmail.com',
+            'password' => 'password123',
+        ])->assertSessionHasNoErrors()->assertRedirect();
+        $this->assertAuthenticatedAs($linkedUser->fresh());
+        $this->assertDatabaseMissing('alumni', ['id' => $alumnus->id]);
+    }
+})->with(['approved', 'pending', 'rejected']);
+
+test('admins can bulk delete alumni records without deleting linked user accounts', function () {
     Storage::fake('public');
 
     $admin = User::factory()->create(['role' => 'admin']);
@@ -702,6 +761,7 @@ test('admins can select all alumni records on the current page and bulk delete t
     $profilePhotoPath = 'profile-photos/alyssa.jpg';
     Storage::disk('public')->put($profilePhotoPath, 'photo');
     $linkedUser->forceFill(['profile_photo_path' => $profilePhotoPath])->save();
+    $originalAccount = $linkedUser->fresh()->getAttributes();
 
     $secondAlumnus = Alumni::create([
         'student_id' => '2012-1002',
@@ -722,6 +782,10 @@ test('admins can select all alumni records on the current page and bulk delete t
         'year_graduated' => 2010,
         'email' => 'nina@example.com',
     ]);
+    $unselectedUser = User::factory()->create([
+        'role' => 'alumni',
+        'alumni_id' => $thirdAlumnus->id,
+    ]);
 
     $this->get(route('alumni.index'))
         ->assertOk()
@@ -734,9 +798,12 @@ test('admins can select all alumni records on the current page and bulk delete t
 
     $this->assertDatabaseMissing('alumni', ['id' => $firstAlumnus->id]);
     $this->assertDatabaseMissing('alumni', ['id' => $secondAlumnus->id]);
-    $this->assertDatabaseMissing('users', ['id' => $linkedUser->id]);
+    $this->assertDatabaseHas('users', ['id' => $linkedUser->id, 'alumni_id' => null]);
+    expect(collect($linkedUser->fresh()->getAttributes())->except(['alumni_id', 'updated_at'])->all())
+        ->toEqual(collect($originalAccount)->except(['alumni_id', 'updated_at'])->all());
     $this->assertDatabaseHas('alumni', ['id' => $thirdAlumnus->id]);
-    Storage::disk('public')->assertMissing($profilePhotoPath);
+    $this->assertDatabaseHas('users', ['id' => $unselectedUser->id, 'alumni_id' => $thirdAlumnus->id]);
+    Storage::disk('public')->assertExists($profilePhotoPath);
 });
 
 test('admins can view alumni grouped by course on the index page', function () {
@@ -824,7 +891,7 @@ test('admins can access the activity post composer', function () {
         ->assertSee('Post Headline');
 });
 
-test('an alumnus can claim an imported record and access the alumni portal', function () {
+test('an alumnus requests access to an imported record and waits for admin review', function () {
     $alumnus = Alumni::create([
         'student_id' => '2015211',
         'first_name' => 'Liza',
@@ -839,6 +906,8 @@ test('an alumnus can claim an imported record and access the alumni portal', fun
         'student_id' => '2015211',
         'first_name' => 'Liza',
         'last_name' => 'Cruz',
+        'education_level' => 'College',
+        'course' => 'BS Information Technology',
         'year_graduated' => 2023,
         'email' => 'liza@gmail.com',
         'password' => 'password12',
@@ -855,20 +924,16 @@ test('an alumnus can claim an imported record and access the alumni portal', fun
     $portalUser = User::query()->where('email', 'liza@gmail.com')->first();
 
     expect($portalUser)->not->toBeNull()
-        ->and($portalUser?->isApproved())->toBeTrue()
-        ->and($portalUser?->alumni_id)->toBe($alumnus->id)
+        ->and($portalUser?->isPendingApproval())->toBeTrue()
+        ->and($portalUser?->alumni_id)->toBeNull()
         ->and($portalUser?->portal_otp_verified_at)->toBeNull();
 
     $this->post(route('portal.login.attempt'), [
         'email' => 'liza@gmail.com',
         'password' => 'password12',
-    ])->assertRedirect(route('portal.otp.create'));
-
-    $this->withSession([
-        'portal_otp_verified_user_id' => $portalUser?->id,
-    ])->get(route('portal.dashboard'))
-        ->assertOk()
-        ->assertSee('My Alumni Record');
+    ])->assertSessionHasErrors('email');
+    $this->assertGuest();
+    $this->assertDatabaseCount('alumni', 1);
 });
 
 test('admins can edit student ids without automatic formatting', function () {
@@ -1227,6 +1292,39 @@ test('admins can upload a landing slider video and show it on the landing page',
         ->assertSee('Bridgetine Campus Highlight');
 });
 
+test('admins can replace the landing hero image', function () {
+    Storage::fake('public');
+
+    Storage::disk('public')->put('landing-hero/old-hero.png', 'old-image');
+    SiteSetting::setMany([
+        'landing_hero_image_path' => 'storage:landing-hero/old-hero.png',
+    ]);
+
+    $admin = User::factory()->create(['role' => 'admin']);
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4//8/AwAI/AL+KDAdmwAAAABJRU5ErkJggg==');
+
+    $this->actingAs($admin)
+        ->put(route('admin.settings.landing-video.update'), [
+            'hero_image' => UploadedFile::fake()->createWithContent('new-hero.png', $png),
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('admin.settings.landing-video.edit'));
+
+    $heroPath = (string) SiteSetting::getValue('landing_hero_image_path');
+    $storedHeroPath = str_replace('storage:', '', $heroPath);
+
+    expect($heroPath)->toStartWith('storage:landing-hero/');
+    Storage::disk('public')->assertExists($storedHeroPath);
+    Storage::disk('public')->assertMissing('landing-hero/old-hero.png');
+
+    $this->get(route('home', ['preview' => 1]))
+        ->assertOk()
+        ->assertSee('/landing-media/hero', false);
+
+    $this->get(route('landing-media.show', ['kind' => 'hero']))
+        ->assertOk();
+});
+
 test('admins can delete the current landing slider media from the settings page', function () {
     Storage::fake('public');
 
@@ -1524,11 +1622,12 @@ test('only admins can manage announcements and activities', function () {
     $this->get(route('activities.index'))->assertOk();
 });
 
-test('alumni profile updates sync back to the admin-facing alumni record', function () {
+test('alumni can update only their password and profile picture from profile settings', function () {
     $alumnus = Alumni::create([
         'student_id' => '2015-1001',
         'first_name' => 'Ana',
         'last_name' => 'Lopez',
+        'maiden_name' => 'Reyes',
         'education_level' => 'College',
         'course' => 'BS Psychology',
         'year_graduated' => 2020,
@@ -1544,18 +1643,32 @@ test('alumni profile updates sync back to the admin-facing alumni record', funct
 
     $this->actingAs($alumniUser);
 
+    $this->get(route('profile.edit'))
+        ->assertOk()
+        ->assertSee('readonly aria-readonly="true"', false)
+        ->assertDontSee('name="name"', false)
+        ->assertDontSee('name="email"', false)
+        ->assertDontSee('name="maiden_name"', false);
+
     $this->put(route('profile.update'), [
         'name' => 'Ana Marie Lopez',
         'email' => 'ana.marie@gmail.com',
-        'password' => '',
-        'password_confirmation' => '',
-    ])->assertRedirect(route('profile.edit'));
+        'maiden_name' => 'Changed Maiden Name',
+        'password' => 'newpassword123',
+        'password_confirmation' => 'newpassword123',
+    ])->assertSessionHasNoErrors()
+        ->assertRedirect(route('profile.edit'));
 
+    $alumniUser->refresh();
     $alumnus->refresh();
 
-    expect($alumnus->first_name)->toBe('Ana Marie');
-    expect($alumnus->last_name)->toBe('Lopez');
-    expect($alumnus->email)->toBe('ana.marie@gmail.com');
+    expect($alumniUser->name)->toBe('Ana Lopez')
+        ->and($alumniUser->email)->toBe('ana@gmail.com')
+        ->and(Hash::check('newpassword123', $alumniUser->password))->toBeTrue()
+        ->and($alumnus->first_name)->toBe('Ana')
+        ->and($alumnus->last_name)->toBe('Lopez')
+        ->and($alumnus->maiden_name)->toBe('Reyes')
+        ->and($alumnus->email)->toBe('ana@gmail.com');
 });
 
 test('admins can open the alumni edit page from the admin workspace', function () {

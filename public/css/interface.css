@@ -77,6 +77,64 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 400;
     line-height: 1.5;
 }
+.workspace-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    min-width: 0;
+}
+.workspace-header-actions > .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+.workspace-header-account {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .65rem;
+    min-width: 0;
+    padding: .42rem .5rem;
+    border: 1px solid rgba(255, 255, 255, .24);
+    border-radius: .75rem;
+    background: rgba(4, 16, 71, .2);
+}
+.workspace-header-avatar {
+    --avatar-size: 2.55rem;
+    color: #fff;
+    background: rgba(255, 255, 255, .14);
+}
+.workspace-header-account-copy {
+    min-width: 0;
+    max-width: 13rem;
+    line-height: 1.2;
+}
+.workspace-header-account-label,
+.workspace-header-account-email {
+    display: block;
+    color: rgba(255, 255, 255, .72);
+    font-size: .72rem;
+}
+.workspace-header-account-copy strong,
+.workspace-header-account-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.workspace-header-account-copy strong {
+    display: block;
+    margin: .08rem 0;
+    color: #fff;
+    font-size: .9rem;
+}
+.workspace-header-logout {
+    margin: 0;
+}
+.workspace-shell .school-system-bar .workspace-header-logout .btn {
+    padding: .3rem .65rem;
+    font-size: .82rem;
+    white-space: nowrap;
+}
 .workspace-shell .mobile-toolbar .btn-sm { padding: .25rem .5rem; font-size: .875rem; }
 .workspace-shell .mobile-toolbar .mobile-menu-trigger { min-height: 2.6rem; padding: .5rem; }
 .workspace-shell .mobile-toolbar .workspace-brand-crests { gap: .3rem; }
@@ -242,6 +300,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (min-width: 1280px) {
     .admin-workspace { --sidebar-width: 320px; }
+}
+@media (min-width: 992px) and (max-width: 1399.98px) {
+    .workspace-header-account-email { display: none; }
+    .workspace-header-account-copy { max-width: 9rem; }
+}
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .workspace-header-product,
+    .workspace-header-account-copy { display: none; }
+    .workspace-header-account {
+        grid-template-columns: auto auto;
+        gap: .45rem;
+    }
+}
+@media (min-width: 992px) and (max-width: 1099.98px) {
+    .workspace-header-home-link { display: none; }
 }
 @media (min-width: 1600px) {
     .admin-workspace { --sidebar-width: 360px; }

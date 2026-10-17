@@ -13,31 +13,31 @@ class PortalDashboardController extends Controller
     public function index(PortalContentService $contentService, LinkedAccountSyncService $syncService): View
     {
         $user = auth()->user();
-        $alumnus = $syncService->resolveOrCreateAlumniForUser($user);
-
-        abort_if(! $alumnus, 403);
+        $linkedAlumnus = $syncService->resolveAlumniForUser($user);
+        $alumnus = $linkedAlumnus ?? $user->registration_profile;
 
         $upcomingEvents = $contentService->events(null);
-        $eventRegistrationsByEventId = $alumnus->eventRegistrations()
+        $eventRegistrationsByEventId = $linkedAlumnus ? $linkedAlumnus->eventRegistrations()
             ->whereIn('event_id', $upcomingEvents->pluck('id'))
             ->get()
-            ->keyBy('event_id');
+            ->keyBy('event_id') : collect();
 
         return view('portal.dashboard', [
             'alumnus' => $alumnus,
+            'hasLinkedRecord' => $linkedAlumnus !== null,
             'requestTypes' => RecordRequest::requestTypes(),
-            'requestCount' => $alumnus->requests()->count(),
-            'pendingCount' => $alumnus->requests()->whereIn('status', ['pending', 'processing'])->count(),
-            'readyCount' => $alumnus->requests()->where('status', 'ready_for_pickup')->count(),
-            'recentRequests' => $alumnus->requests()
+            'requestCount' => $linkedAlumnus?->requests()->count() ?? 0,
+            'pendingCount' => $linkedAlumnus?->requests()->whereIn('status', ['pending', 'processing'])->count() ?? 0,
+            'readyCount' => $linkedAlumnus?->requests()->where('status', 'ready_for_pickup')->count() ?? 0,
+            'recentRequests' => $linkedAlumnus?->requests()
                 ->latest()
                 ->take(5)
-                ->get(),
-            'requestUpdates' => $alumnus->requests()
+                ->get() ?? collect(),
+            'requestUpdates' => $linkedAlumnus?->requests()
                 ->whereNotNull('admin_replied_at')
                 ->latest('admin_replied_at')
                 ->take(5)
-                ->get(),
+                ->get() ?? collect(),
             'announcements' => $contentService->announcements(),
             'activities' => $contentService->activities(6),
             'upcomingEvents' => $upcomingEvents,

@@ -98,7 +98,7 @@ class EventRegistrationController extends Controller
             'attendee_email' => $emailRules,
             'attendee_student_id' => ['required', 'string', 'max:100'],
             'attendee_course' => ['required', 'string', 'max:255'],
-            'attendee_year_graduated' => ['required', 'integer', 'digits:4', 'min:1900', 'max:2100'],
+            'attendee_year_graduated' => ['required', 'integer', 'digits:4', 'min:1920', 'max:'.(now()->year + 1)],
             'attendee_contact_number' => ['required', 'string', 'max:50'],
             'attendee_note' => ['nullable', 'string', 'max:2000'],
         ], [
@@ -115,9 +115,12 @@ class EventRegistrationController extends Controller
         $validated['attendee_email'] = GmailAddress::normalize($validated['attendee_email']);
         $validated['attendee_note'] = $validated['attendee_note'] ?? null;
 
-        $alumnus = $syncService->resolveOrCreateAlumniForUser($user);
+        $alumnus = $syncService->resolveAlumniForUser($user);
 
-        abort_if(! $alumnus, 403);
+        if (! $alumnus) {
+            return $this->redirectAfterRegistration($request)
+                ->with('warning', 'The administrator must link your account to a school alumni record before you can register for events.');
+        }
 
         $registration = EventRegistration::query()->firstOrCreate(
             [

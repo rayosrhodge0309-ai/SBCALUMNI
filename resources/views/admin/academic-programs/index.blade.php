@@ -73,13 +73,13 @@
 
                     <div class="p-3 p-lg-4">
                         @forelse ($levelPrograms as $program)
-                            <div class="academic-program-row d-flex flex-column flex-lg-row gap-2 align-items-lg-center {{ ! $loop->last ? 'border-bottom pb-3 mb-3' : '' }}">
-                                <form method="POST" action="{{ route('admin.academic-programs.update', $program) }}" class="row g-2 flex-grow-1 align-items-center">
+                            <div class="academic-program-row d-flex flex-column flex-lg-row gap-2 align-items-lg-center {{ ! $loop->last ? 'border-bottom pb-3 mb-3' : '' }}" data-academic-program-row>
+                                <form method="POST" action="{{ route('admin.academic-programs.update', $program) }}" class="row g-2 flex-grow-1 align-items-center" data-academic-program-form>
                                     @csrf
                                     @method('PUT')
                                     <div class="col-lg-4">
                                         <label class="visually-hidden" for="level-{{ $program->id }}">School Level</label>
-                                        <select id="level-{{ $program->id }}" name="education_level" class="form-select form-select-sm" required>
+                                        <select id="level-{{ $program->id }}" name="education_level" class="form-select form-select-sm" data-academic-program-field required disabled>
                                             @foreach ($educationLevels as $availableLevel)
                                                 <option value="{{ $availableLevel }}" @selected($program->education_level === $availableLevel)>{{ $availableLevel }}</option>
                                             @endforeach
@@ -87,10 +87,12 @@
                                     </div>
                                     <div class="col-lg-6">
                                         <label class="visually-hidden" for="program-{{ $program->id }}">Grade, strand, or course name</label>
-                                        <input id="program-{{ $program->id }}" name="name" type="text" class="form-control form-control-sm" value="{{ $program->name }}" maxlength="150" required>
+                                        <input id="program-{{ $program->id }}" name="name" type="text" class="form-control form-control-sm" value="{{ $program->name }}" maxlength="150" data-academic-program-field required disabled>
                                     </div>
-                                    <div class="col-lg-2 d-grid">
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                    <div class="col-lg-2 d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary flex-fill" data-academic-program-edit>Edit</button>
+                                        <button type="submit" class="btn btn-sm btn-primary flex-fill d-none" data-academic-program-save>Save</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill d-none" data-academic-program-cancel>Cancel</button>
                                     </div>
                                 </form>
                                 <form method="POST" action="{{ route('admin.academic-programs.destroy', $program) }}">
@@ -110,3 +112,45 @@
         @endforeach
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.querySelectorAll('[data-academic-program-row]').forEach(function (row) {
+            var form = row.querySelector('[data-academic-program-form]');
+            var fields = Array.from(form.querySelectorAll('[data-academic-program-field]'));
+            var editButton = form.querySelector('[data-academic-program-edit]');
+            var saveButton = form.querySelector('[data-academic-program-save]');
+            var cancelButton = form.querySelector('[data-academic-program-cancel]');
+            var originalValues = fields.map(function (field) {
+                return field.value;
+            });
+
+            function setEditing(isEditing) {
+                fields.forEach(function (field) {
+                    field.disabled = ! isEditing;
+                });
+
+                editButton.classList.toggle('d-none', isEditing);
+                saveButton.classList.toggle('d-none', ! isEditing);
+                cancelButton.classList.toggle('d-none', ! isEditing);
+
+                if (isEditing) {
+                    fields[0].focus();
+                }
+            }
+
+            editButton.addEventListener('click', function () {
+                setEditing(true);
+            });
+
+            cancelButton.addEventListener('click', function () {
+                fields.forEach(function (field, index) {
+                    field.value = originalValues[index];
+                });
+
+                setEditing(false);
+                editButton.focus();
+            });
+        });
+    </script>
+@endpush

@@ -10,6 +10,7 @@ return [
         'email' => 'presoffice@sbcbatangas.edu.ph',
     ],
     'hero' => [
+        'image_path' => 'images/alumni-header.jpg',
         'eyebrow' => 'Official Alumni Portal',
         'title' => 'Reconnect with the Bridgetine community and manage alumni services in one place.',
         'summary' => 'The portal brings together school record requests, SBC alumni stories, campus photo posts, and office updates for St. Bridget College Batangas graduates.',

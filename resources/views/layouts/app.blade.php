@@ -105,9 +105,9 @@
                         @endif
                     </div>
                     <div class="min-w-0">
-                        @if (auth()->user()->isAdmin())
-                            <div class="small text-uppercase text-white-50">Alumni Link</div>
-                        @endif
+                        <div class="small text-uppercase text-white-50">
+                            Alumni Link
+                        </div>
                         <div class="fw-semibold text-truncate">{{ auth()->user()->isAdmin() ? 'Administrator' : 'Alumni Portal' }}</div>
                     </div>
                 </a>
@@ -251,16 +251,17 @@
                         @endif
                     </div>
                     <div>
-                        <div class="school-system-title">St. Bridget College</div>
-                        <div class="school-system-subtitle">luceat lux vestra</div>
+                        <div class="school-system-title alumni-link-heading">Alumni Link</div>
                     </div>
                 </a>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="text-end">
-                        <div class="h4 fw-bold mb-0">Alumni Link</div>
+                <div class="workspace-header-actions">
+                    <div class="text-end workspace-header-product">
+                        <div class="h4 fw-bold mb-0">St. Bridget College</div>
                         <div class="small text-white-50 text-uppercase">{{ auth()->user()->isAdmin() ? 'Administrator' : 'Alumni Portal' }}</div>
                     </div>
-                    <a href="{{ auth()->user()->isAdmin() ? route('home', ['preview' => 1]) : route('home') }}" class="btn btn-light">Home Page</a>
+                    @unless ($workspacePreview)
+                        <a href="{{ $layoutUser->isAdmin() ? route('home', ['preview' => 1]) : route('home') }}" class="btn btn-light workspace-header-home-link">Home Page</a>
+                    @endunless
                 </div>
             </div>
         </div>
@@ -410,17 +411,16 @@
                 <nav class="navbar navbar-expand-lg bg-white border-bottom guest-navbar {{ $schoolGuestHeader ? 'guest-navbar-school' : '' }}">
                     <div class="main-wrapper">
                         @if ($schoolGuestHeader)
-                            <div class="guest-school-brand" aria-label="St. Bridget College">
+                            <div class="guest-school-brand" aria-label="Alumni Link">
                                 <span class="guest-school-seal" aria-hidden="true">
                                     <img src="{{ asset('images/sbc-logo.svg') }}" alt="">
                                 </span>
                                 <span class="guest-school-copy">
-                                    <span class="guest-school-title">ST. BRIDGET COLLEGE</span>
-                                    <span class="guest-school-motto">luceat lux vestra</span>
+                                    <span class="guest-school-title alumni-link-heading">ALUMNI LINK</span>
                                 </span>
                             </div>
                         @endif
-                        <a class="navbar-brand fw-semibold guest-home-button" href="{{ route('home') }}">HOME</a>
+                        <a class="navbar-brand fw-semibold guest-home-button" href="{{ route('home') }}">{{ request()->routeIs('portal.login', 'portal.register', 'login', 'register') ? 'Back' : 'HOME' }}</a>
                     </div>
                 </nav>
             @endunless

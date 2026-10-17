@@ -49,11 +49,10 @@ test('registration accepts an SBC strand and rejects a course from another level
         'course' => 'Grade 12 - STEM',
     ]))->assertRedirect(route('portal.login'));
 
-    $this->assertDatabaseHas('alumni', [
-        'email' => 'gina.reyes@gmail.com',
-        'education_level' => 'Senior High School',
-        'course' => 'Grade 12 - STEM',
-    ]);
+    $details = User::query()->where('email', 'gina.reyes@gmail.com')->firstOrFail()->registration_details;
+    expect($details['education_level'])->toBe('Senior High School')
+        ->and($details['course'])->toBe('Grade 12 - STEM');
+    $this->assertDatabaseCount('alumni', 0);
 
     $this->post(route('portal.register.store'), alumniRegistrationPayload([
         'student_id' => '2026-1002',
@@ -73,13 +72,53 @@ test('alumni registration creates a pending account request without OTP first', 
         'account_status' => 'pending',
     ]);
 
-    $this->assertDatabaseHas('alumni', [
-        'email' => 'gina.reyes@gmail.com',
-        'student_id' => '2026-1001',
-    ]);
+    $this->assertDatabaseCount('alumni', 0);
+    expect(User::query()->where('email', 'gina.reyes@gmail.com')->firstOrFail()->registration_details['student_id'])->toBe('2026-1001');
 
     expect(User::query()->where('email', 'gina.reyes@gmail.com')->first()?->portal_otp_verified_at)
         ->toBeNull();
+});
+
+test('alumni can register without a student ID', function () {
+    $this->get(route('portal.register'))
+        ->assertOk()
+        ->assertSee('Student ID')
+        ->assertSee('(Optional)')
+        ->assertDontSee('data-student-id-format required', false);
+
+    $this->post(route('portal.register.store'), alumniRegistrationPayload([
+        'student_id' => '',
+        'email' => 'forgot.id@gmail.com',
+    ]))->assertRedirect(route('portal.login'))
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('success');
+
+    $user = User::query()->where('email', 'forgot.id@gmail.com')->firstOrFail();
+    expect($user->registration_details['student_id'])->toBeNull()
+        ->and($user->alumni_id)->toBeNull();
+    $this->assertDatabaseCount('alumni', 0);
+
+    $this->assertDatabaseHas('users', [
+        'email' => 'forgot.id@gmail.com',
+        'role' => 'alumni',
+        'account_status' => 'pending',
+    ]);
+});
+
+test('alumni registration stores an optional maiden name', function () {
+    $this->get(route('portal.register'))
+        ->assertOk()
+        ->assertSee('Maiden Name')
+        ->assertSee('name="maiden_name"', false);
+
+    $this->post(route('portal.register.store'), alumniRegistrationPayload([
+        'student_id' => '2026-1003',
+        'email' => 'married.alumna@gmail.com',
+        'maiden_name' => 'Santos',
+    ]))->assertRedirect(route('portal.login'));
+
+    expect(User::query()->where('email', 'married.alumna@gmail.com')->firstOrFail()->registration_details['maiden_name'])->toBe('Santos');
+    $this->assertDatabaseCount('alumni', 0);
 });
 
 test('alumni login rejects non Gmail accounts', function () {
