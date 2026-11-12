@@ -1,0 +1,1041 @@
+/*
+ * Alumni Link — white & blue glass + soft neumorphic design system.
+ * Loaded after the base styles so it can unify every screen.
+ *
+ * Note: in-flow content cards use translucent layered fills instead of
+ * backdrop-filter. A backdrop-filter (or transform) on a card would become the
+ * containing block for any Bootstrap modal placed inside it and break the
+ * modal's fixed positioning. Real blur is reserved for fixed/sticky chrome.
+ */
+
+:root {
+    /* Palette */
+    --gl-ink: #14284a;
+    --gl-ink-soft: #3a5277;
+    --gl-muted: #6a7e9c;
+    --gl-blue-50: #f3f8ff;
+    --gl-blue-100: #e4efff;
+    --gl-blue-200: #cfe1fb;
+    --gl-blue-400: #5b93e8;
+    --gl-blue-500: #2f6fde;
+    --gl-blue-600: #1f58c4;
+    --gl-blue-700: #17449c;
+    --gl-navy: #0d2a5c;
+    --gl-navy-deep: #081c43;
+
+    /* Surfaces */
+    --gl-canvas: #eef4fc;
+    --gl-surface: rgb(255 255 255 / 64%);
+    --gl-surface-strong: rgb(255 255 255 / 84%);
+    --gl-surface-tint: rgb(232 241 255 / 62%);
+    --gl-border: rgb(255 255 255 / 82%);
+    --gl-border-soft: rgb(148 180 228 / 26%);
+    --gl-sheen: linear-gradient(145deg, rgb(255 255 255 / 78%) 0%, rgb(255 255 255 / 52%) 46%, rgb(236 244 255 / 60%) 100%);
+
+    /* Neumorphic depth (blue-tinted shadow + white highlight) */
+    --gl-shade: 22 58 120;
+    --gl-raised: 10px 12px 30px rgb(var(--gl-shade) / 11%), -8px -8px 22px rgb(255 255 255 / 78%), inset 0 1px 0 rgb(255 255 255 / 95%);
+    --gl-raised-sm: 5px 6px 14px rgb(var(--gl-shade) / 12%), -4px -4px 10px rgb(255 255 255 / 85%), inset 0 1px 0 rgb(255 255 255 / 95%);
+    --gl-raised-hover: 14px 18px 38px rgb(var(--gl-shade) / 15%), -8px -8px 22px rgb(255 255 255 / 82%), inset 0 1px 0 #fff;
+    --gl-inset: inset 3px 3px 7px rgb(var(--gl-shade) / 11%), inset -3px -3px 7px rgb(255 255 255 / 92%);
+    --gl-inset-deep: inset 4px 4px 10px rgb(var(--gl-shade) / 15%), inset -4px -4px 10px rgb(255 255 255 / 90%);
+    --gl-focus: 0 0 0 .22rem rgb(47 111 222 / 22%);
+
+    --gl-radius-lg: 1.35rem;
+    --gl-radius: 1.05rem;
+    --gl-radius-sm: .8rem;
+    --gl-blur: blur(22px) saturate(165%);
+
+    /* Bridge older tokens used by shell.css / interface.css. */
+    --app-bg: var(--gl-canvas);
+    --panel: var(--gl-surface);
+    --panel-strong: var(--gl-surface-strong);
+    --panel-border: var(--gl-border);
+    --ink: var(--gl-ink);
+    --muted: var(--gl-muted);
+    --action: var(--gl-blue-600);
+    --action-dark: var(--gl-blue-700);
+    --ui-radius: var(--gl-radius);
+    --ui-shadow: var(--gl-raised);
+
+    /* Bootstrap variables */
+    --bs-body-color: var(--gl-ink);
+    --bs-secondary-color: var(--gl-muted);
+    --bs-border-color: var(--gl-border-soft);
+    --bs-primary: var(--gl-blue-600);
+    --bs-primary-rgb: 31, 88, 196;
+    --bs-link-color: var(--gl-blue-600);
+    --bs-link-color-rgb: 31, 88, 196;
+    --bs-link-hover-color: var(--gl-blue-700);
+}
+
+/* ---------------------------------------------------------------- Canvas */
+
+body.workspace-shell,
+body.public-shell {
+    position: relative;
+    min-height: 100vh;
+    color: var(--gl-ink);
+    background-color: var(--gl-canvas);
+    background-image:
+        radial-gradient(42rem 32rem at 6% 4%, rgb(150 196 255 / 42%), transparent 70%),
+        radial-gradient(38rem 30rem at 96% 18%, rgb(178 222 255 / 46%), transparent 70%),
+        radial-gradient(46rem 36rem at 70% 104%, rgb(160 190 255 / 34%), transparent 72%),
+        radial-gradient(30rem 24rem at 22% 78%, rgb(206 232 255 / 50%), transparent 70%),
+        linear-gradient(160deg, #f9fbff 0%, #eef4fc 46%, #e6effb 100%);
+    background-attachment: fixed;
+}
+
+body .text-secondary,
+body .text-muted {
+    color: var(--gl-muted) !important;
+}
+
+body h1, body h2, body h3, body h4, body h5, body h6,
+body .h1, body .h2, body .h3, body .h4, body .h5, body .h6 {
+    color: var(--gl-ink);
+}
+
+body a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link) {
+    text-decoration-color: rgb(47 111 222 / 35%);
+    text-underline-offset: .18em;
+}
+
+::selection {
+    background: rgb(47 111 222 / 22%);
+    color: var(--gl-navy);
+}
+
+/* Slim frosted scrollbars */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(47 111 222 / 32%) transparent;
+}
+
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: rgb(47 111 222 / 30%) padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: rgb(47 111 222 / 48%) padding-box; }
+
+/* ---------------------------------------------------------------- Glass panels */
+
+body .page-card,
+body .content-panel:not(.app-main > .content-panel),
+body .card,
+body .dashboard-hero,
+body .dashboard-member-card,
+body .dashboard-tabstrip,
+body .dashboard-action-link,
+body .dashboard-page .event-card,
+body .dashboard-page .activity-card,
+body .event-card,
+body .activity-card,
+body .portal-login-card,
+body .portal-register-card,
+body .portal-password-reset-card {
+    border: 1px solid var(--gl-border);
+    border-radius: var(--gl-radius-lg);
+    background: var(--gl-sheen);
+    background-color: var(--gl-surface);
+    color: var(--gl-ink);
+    box-shadow: var(--gl-raised);
+}
+
+body .card-header,
+body .card-footer {
+    border-color: var(--gl-border-soft);
+    background: rgb(255 255 255 / 38%);
+}
+
+body a.page-card,
+body a.dashboard-stat,
+body .dashboard-action-link,
+body .dashboard-content-link,
+body .event-card,
+body .activity-card {
+    transition: box-shadow 220ms ease, background-color 220ms ease, border-color 220ms ease;
+}
+
+body a.page-card:hover,
+body .dashboard-page a.dashboard-stat:hover,
+body .dashboard-action-link:hover,
+body .dashboard-page .dashboard-content-link:hover,
+body .event-card:hover,
+body .activity-card:hover {
+    border-color: #fff;
+    background-color: var(--gl-surface-strong);
+    box-shadow: var(--gl-raised-hover);
+}
+
+/* Hero: a brighter pane with a soft blue light leak. */
+body .dashboard-hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background:
+        radial-gradient(28rem 18rem at 100% 0%, rgb(125 178 255 / 30%), transparent 70%),
+        radial-gradient(20rem 14rem at 0% 100%, rgb(190 226 255 / 40%), transparent 70%),
+        var(--gl-sheen);
+    background-color: var(--gl-surface-strong);
+}
+
+body .dashboard-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    z-index: -1;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 100%), transparent);
+}
+
+body .dashboard-hero-aside {
+    border-left-color: var(--gl-border-soft);
+}
+
+body .dashboard-eyebrow,
+body .workspace-eyebrow,
+body .section-eyebrow {
+    color: var(--gl-blue-600);
+    letter-spacing: .14em;
+}
+
+body .dashboard-stat-icon,
+body .dashboard-action-icon {
+    border: 1px solid rgb(255 255 255 / 85%);
+    border-radius: .85rem;
+    background: linear-gradient(145deg, #f6faff, #e2edfd);
+    color: var(--gl-blue-600);
+    box-shadow: var(--gl-raised-sm);
+}
+
+body .dashboard-page .dashboard-stat-ready {
+    border-top: 1px solid var(--gl-border);
+    box-shadow: inset 0 3px 0 rgb(35 145 118 / 70%), var(--gl-raised);
+}
+
+body .dashboard-page .dashboard-workflow,
+body .dashboard-help-note,
+body .dashboard-page .request-type-details,
+body .dashboard-page .event-registration-box,
+body .dashboard-page .event-registration-requirements,
+body .request-update-alert {
+    border: 1px solid rgb(255 255 255 / 70%);
+    background: var(--gl-surface-tint);
+    box-shadow: var(--gl-inset);
+}
+
+body .dashboard-process li > span {
+    border-color: #fff;
+    background: linear-gradient(145deg, #fff, #e8f1ff);
+    box-shadow: var(--gl-raised-sm);
+}
+
+body .dashboard-empty {
+    border: 1px dashed rgb(91 147 232 / 38%);
+    background: rgb(243 248 255 / 60%);
+    box-shadow: var(--gl-inset);
+}
+
+body .dashboard-pickup-callout {
+    border: 1px solid rgb(255 255 255 / 80%);
+    border-left: 3px solid #239176;
+    background: linear-gradient(135deg, rgb(236 250 243 / 82%), rgb(255 255 255 / 60%));
+    box-shadow: var(--gl-raised-sm);
+}
+
+/* Tabs as a recessed track with a raised active pill. */
+body .dashboard-tabstrip {
+    padding: .45rem;
+    background: var(--gl-surface-tint);
+    box-shadow: var(--gl-inset);
+}
+
+body .dashboard-tablist .nav-link {
+    border-radius: .8rem;
+    color: var(--gl-ink-soft);
+}
+
+body .dashboard-tablist .nav-link:hover {
+    background: rgb(255 255 255 / 60%);
+    color: var(--gl-blue-600);
+}
+
+body .dashboard-tablist .nav-link.active {
+    background: linear-gradient(135deg, var(--gl-blue-500), var(--gl-blue-700));
+    color: #fff;
+    box-shadow: 0 8px 20px rgb(31 88 196 / 30%), inset 0 1px 0 rgb(255 255 255 / 30%);
+}
+
+body .nav-tabs {
+    gap: .35rem;
+    border-bottom: 0;
+}
+
+body .nav-tabs .nav-link,
+body .nav-pills .nav-link {
+    border: 1px solid transparent;
+    border-radius: .85rem;
+    color: var(--gl-ink-soft);
+}
+
+body .nav-tabs .nav-link:hover,
+body .nav-pills .nav-link:hover {
+    border-color: rgb(255 255 255 / 80%);
+    background: rgb(255 255 255 / 55%);
+}
+
+body .nav-tabs .nav-link.active,
+body .nav-pills .nav-link.active {
+    border-color: #fff;
+    background: var(--gl-surface-strong);
+    color: var(--gl-blue-700);
+    box-shadow: var(--gl-raised-sm);
+}
+
+/* ---------------------------------------------------------------- Buttons */
+
+body .btn:not(.btn-link):not(.btn-close) {
+    border-radius: .9rem;
+    font-weight: 600;
+    letter-spacing: .005em;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+body .btn-primary,
+body .btn-success,
+body .btn-danger,
+body .btn-warning,
+body .btn-info,
+body .btn-secondary,
+body .btn-light,
+body [class*="btn-outline-"] {
+    --gl-btn-shadow: 0 8px 20px rgb(var(--gl-shade) / 14%);
+}
+
+body .btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+    border: 1px solid rgb(255 255 255 / 30%);
+    background: linear-gradient(135deg, #3b80ec 0%, var(--gl-blue-600) 52%, var(--gl-blue-700) 100%);
+    box-shadow: 0 10px 24px rgb(31 88 196 / 30%), inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+body .btn-primary:hover,
+body .btn-primary:focus-visible {
+    border-color: rgb(255 255 255 / 45%);
+    background: linear-gradient(135deg, #4b8ef3 0%, #2a66d6 52%, #1b4eae 100%);
+    box-shadow: 0 14px 30px rgb(31 88 196 / 36%), inset 0 1px 0 rgb(255 255 255 / 45%);
+}
+
+body .btn-success {
+    border: 1px solid rgb(255 255 255 / 30%);
+    background: linear-gradient(135deg, #2fae8a, #1c8467);
+    box-shadow: 0 10px 22px rgb(28 132 103 / 26%), inset 0 1px 0 rgb(255 255 255 / 30%);
+}
+
+body .btn-danger {
+    border: 1px solid rgb(255 255 255 / 30%);
+    background: linear-gradient(135deg, #e0606d, #bd3646);
+    box-shadow: 0 10px 22px rgb(189 54 70 / 24%), inset 0 1px 0 rgb(255 255 255 / 30%);
+}
+
+/* Soft glass buttons: light, secondary and every outline variant. */
+body .btn-light,
+body .btn-secondary,
+body .btn-outline-primary,
+body .btn-outline-secondary,
+body .btn-outline-dark {
+    border: 1px solid rgb(255 255 255 / 85%);
+    background: linear-gradient(145deg, rgb(255 255 255 / 92%), rgb(234 242 255 / 80%));
+    color: var(--gl-blue-700);
+    box-shadow: var(--gl-raised-sm);
+}
+
+body .btn-outline-success,
+body .btn-outline-danger,
+body .btn-outline-warning,
+body .btn-outline-info {
+    border: 1px solid rgb(255 255 255 / 85%);
+    background: linear-gradient(145deg, rgb(255 255 255 / 92%), rgb(240 245 252 / 80%));
+    box-shadow: var(--gl-raised-sm);
+}
+
+body .btn-outline-success { color: #177a5d; }
+body .btn-outline-danger { color: #b3313f; }
+body .btn-outline-warning { color: #9a6406; }
+body .btn-outline-info { color: #0b74a0; }
+
+body .btn-light:hover,
+body .btn-secondary:hover,
+body .btn-outline-primary:hover,
+body .btn-outline-secondary:hover,
+body .btn-outline-dark:hover,
+body .btn-light:focus-visible,
+body .btn-outline-primary:focus-visible,
+body .btn-outline-secondary:focus-visible {
+    border-color: #fff;
+    background: linear-gradient(145deg, #fff, rgb(224 236 255 / 92%));
+    color: var(--gl-blue-600);
+    box-shadow: 7px 9px 20px rgb(var(--gl-shade) / 15%), -5px -5px 12px rgb(255 255 255 / 90%), inset 0 1px 0 #fff;
+}
+
+body .btn-outline-success:hover { background: #e7f7f0; color: #11654c; border-color: #fff; }
+body .btn-outline-danger:hover { background: #fdecee; color: #9a2532; border-color: #fff; }
+body .btn-outline-warning:hover { background: #fff4df; color: #7f5205; border-color: #fff; }
+body .btn-outline-info:hover { background: #e5f5fc; color: #095f83; border-color: #fff; }
+
+/* Pressed = sinks into the surface. */
+body .btn:not(.btn-link):not(.btn-close):active,
+body .btn:not(.btn-link):not(.btn-close).active {
+    transform: translateY(1px);
+    box-shadow: var(--gl-inset-deep);
+}
+
+body .btn-primary:active,
+body .btn-success:active,
+body .btn-danger:active {
+    box-shadow: inset 0 3px 8px rgb(5 25 70 / 30%);
+}
+
+body .btn:disabled,
+body .btn.disabled {
+    opacity: .55;
+    box-shadow: none;
+}
+
+body .btn-link {
+    color: var(--gl-blue-600);
+    font-weight: 600;
+}
+
+body .btn-close {
+    border-radius: 50%;
+    background-color: rgb(255 255 255 / 70%);
+    box-shadow: var(--gl-raised-sm);
+    opacity: .75;
+}
+
+body .btn-close:hover { opacity: 1; }
+
+/* ---------------------------------------------------------------- Forms */
+
+body .form-control,
+body .form-select,
+body textarea.form-control,
+body .input-group-text {
+    border: 1px solid rgb(255 255 255 / 80%);
+    border-radius: var(--gl-radius-sm);
+    background-color: rgb(240 246 255 / 72%);
+    color: var(--gl-ink);
+    box-shadow: var(--gl-inset);
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+body .form-control::placeholder {
+    color: #8a9bb5;
+}
+
+body .form-control:hover,
+body .form-select:hover {
+    background-color: rgb(245 249 255 / 86%);
+}
+
+body .form-control:focus,
+body .form-select:focus,
+body textarea.form-control:focus {
+    border-color: rgb(91 147 232 / 70%);
+    background-color: rgb(255 255 255 / 92%);
+    color: var(--gl-ink);
+    box-shadow: inset 2px 2px 5px rgb(var(--gl-shade) / 8%), inset -2px -2px 5px #fff, var(--gl-focus);
+}
+
+body .form-control.is-invalid,
+body .form-select.is-invalid {
+    border-color: rgb(205 64 80 / 60%);
+    box-shadow: var(--gl-inset), 0 0 0 .18rem rgb(205 64 80 / 12%);
+}
+
+body .form-control:disabled,
+body .form-control[readonly],
+body .form-select:disabled {
+    background-color: rgb(228 236 248 / 60%);
+    color: var(--gl-muted);
+}
+
+body .form-label {
+    color: var(--gl-ink-soft);
+    font-weight: 600;
+}
+
+body .form-text {
+    color: var(--gl-muted);
+}
+
+body .form-check-input {
+    border: 1px solid rgb(120 156 210 / 45%);
+    background-color: rgb(240 246 255 / 90%);
+    box-shadow: var(--gl-inset);
+}
+
+body .form-check-input:checked {
+    border-color: var(--gl-blue-600);
+    background-color: var(--gl-blue-600);
+    box-shadow: 0 4px 10px rgb(31 88 196 / 28%);
+}
+
+body .form-check-input:focus {
+    border-color: var(--gl-blue-400);
+    box-shadow: var(--gl-focus);
+}
+
+body .form-switch .form-check-input {
+    box-shadow: var(--gl-inset);
+}
+
+body input[type="file"].form-control::file-selector-button {
+    border: 0;
+    border-right: 1px solid rgb(255 255 255 / 80%);
+    background: linear-gradient(145deg, #fff, #e4eefc);
+    color: var(--gl-blue-700);
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- Tables */
+
+body .table-responsive {
+    border: 1px solid var(--gl-border);
+    border-radius: var(--gl-radius);
+    background: rgb(255 255 255 / 50%);
+    box-shadow: var(--gl-inset);
+}
+
+body .page-card .table-responsive,
+body .card .table-responsive {
+    border-color: rgb(255 255 255 / 70%);
+    background: rgb(248 251 255 / 48%);
+}
+
+body .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--gl-ink);
+    --bs-table-striped-bg: rgb(232 241 255 / 40%);
+    --bs-table-hover-bg: rgb(219 234 255 / 55%);
+    --bs-table-hover-color: var(--gl-ink);
+    --bs-table-border-color: rgb(148 180 228 / 22%);
+    margin-bottom: 0;
+}
+
+body .table > thead > tr > th,
+body .table thead th,
+body .table-light {
+    --bs-table-bg: transparent;
+    border-bottom: 1px solid rgb(148 180 228 / 30%);
+    background: linear-gradient(180deg, rgb(236 244 255 / 92%), rgb(225 236 253 / 86%)) !important;
+    color: var(--gl-ink-soft);
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+body .table > tbody > tr {
+    transition: background-color 140ms ease;
+}
+
+body .table > tbody > tr:hover > * {
+    background-color: rgb(219 234 255 / 45%);
+}
+
+/* ---------------------------------------------------------------- Badges, pills, status */
+
+body .badge {
+    border-radius: 999px;
+    font-weight: 650;
+    letter-spacing: .02em;
+}
+
+body .badge.text-bg-light,
+body .badge.bg-light {
+    border: 1px solid rgb(255 255 255 / 85%);
+    background: linear-gradient(145deg, #fff, #e6effc) !important;
+    color: var(--gl-blue-700) !important;
+    box-shadow: 0 3px 8px rgb(var(--gl-shade) / 12%);
+}
+
+body .badge.text-bg-primary,
+body .badge.bg-primary {
+    background: linear-gradient(135deg, #3b80ec, var(--gl-blue-700)) !important;
+    box-shadow: 0 4px 10px rgb(31 88 196 / 25%);
+}
+
+body .badge.text-bg-info,
+body .badge.bg-info {
+    background: linear-gradient(135deg, #dff3ff, #c8e6fb) !important;
+    color: #0b5f86 !important;
+}
+
+body .dashboard-status,
+body .notice-label,
+body .stat-pill,
+body .brand-pill {
+    border: 1px solid rgb(255 255 255 / 85%);
+    border-radius: 999px;
+    box-shadow: 0 3px 10px rgb(var(--gl-shade) / 10%), inset 0 1px 0 #fff;
+}
+
+body .dashboard-status { background: linear-gradient(145deg, #f3f8ff, #e1ecfd); }
+body .dashboard-status.is-pending { background: linear-gradient(145deg, #fffaf0, #fdefd2); }
+body .dashboard-status.is-ready { background: linear-gradient(145deg, #f2fcf7, #dcf3e8); }
+body .dashboard-status.is-rejected { background: linear-gradient(145deg, #fff6f7, #fbe0e3); }
+
+/* ---------------------------------------------------------------- Alerts */
+
+body .alert {
+    border: 1px solid rgb(255 255 255 / 80%);
+    border-left-width: 4px;
+    border-radius: var(--gl-radius);
+    box-shadow: var(--gl-raised-sm);
+}
+
+body .alert-success { border-left-color: #26a07d; background: linear-gradient(135deg, rgb(232 249 241 / 90%), rgb(255 255 255 / 70%)); color: #145d47; }
+body .alert-danger { border-left-color: #cf4352; background: linear-gradient(135deg, rgb(253 236 238 / 90%), rgb(255 255 255 / 70%)); color: #8f2430; }
+body .alert-warning { border-left-color: #d79a1c; background: linear-gradient(135deg, rgb(255 245 223 / 90%), rgb(255 255 255 / 70%)); color: #7a4f06; }
+body .alert-info,
+body .alert-primary { border-left-color: var(--gl-blue-500); background: linear-gradient(135deg, rgb(226 238 255 / 92%), rgb(255 255 255 / 70%)); color: var(--gl-blue-700); }
+
+/* ---------------------------------------------------------------- Overlays */
+
+body .modal-backdrop.show {
+    background-color: rgb(10 32 72 / 46%);
+    opacity: 1;
+}
+
+body .modal-content {
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 85%);
+    border-radius: var(--gl-radius-lg);
+    background: linear-gradient(160deg, rgb(255 255 255 / 92%), rgb(238 245 255 / 86%));
+    box-shadow: 0 30px 80px rgb(6 26 64 / 30%), inset 0 1px 0 #fff;
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+}
+
+body .modal-header,
+body .modal-footer {
+    border-color: var(--gl-border-soft);
+    background: rgb(255 255 255 / 40%);
+}
+
+body .dropdown-menu {
+    padding: .4rem;
+    border: 1px solid rgb(255 255 255 / 85%);
+    border-radius: var(--gl-radius);
+    background: rgb(250 252 255 / 88%);
+    box-shadow: 0 20px 44px rgb(var(--gl-shade) / 18%), inset 0 1px 0 #fff;
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+}
+
+body .dropdown-item {
+    border-radius: .65rem;
+    color: var(--gl-ink);
+}
+
+body .dropdown-item:hover,
+body .dropdown-item:focus {
+    background: rgb(219 234 255 / 70%);
+    color: var(--gl-blue-700);
+}
+
+body .dropdown-item.active,
+body .dropdown-item:active {
+    background: linear-gradient(135deg, var(--gl-blue-500), var(--gl-blue-700));
+    color: #fff;
+}
+
+body .tooltip-inner,
+body .popover {
+    border-radius: .7rem;
+}
+
+/* ---------------------------------------------------------------- Pagination */
+
+body .pagination {
+    gap: .35rem;
+}
+
+body .page-link {
+    border: 1px solid rgb(255 255 255 / 85%) !important;
+    border-radius: .75rem !important;
+    background: linear-gradient(145deg, rgb(255 255 255 / 92%), rgb(234 242 255 / 80%));
+    color: var(--gl-blue-700);
+    box-shadow: var(--gl-raised-sm);
+}
+
+body .page-link:hover {
+    background: #fff;
+    color: var(--gl-blue-600);
+}
+
+body .page-item.active .page-link {
+    background: linear-gradient(135deg, #3b80ec, var(--gl-blue-700));
+    color: #fff;
+    box-shadow: 0 8px 18px rgb(31 88 196 / 28%);
+}
+
+body .page-item.disabled .page-link {
+    background: rgb(236 242 251 / 60%);
+    color: #9aaac2;
+    box-shadow: var(--gl-inset);
+}
+
+/* ---------------------------------------------------------------- Workspace chrome (blue glass) */
+
+/* Desktop banner */
+body.workspace-shell .school-system-bar {
+    position: relative;
+    border-bottom: 1px solid rgb(255 255 255 / 22%);
+    background:
+        radial-gradient(40rem 10rem at 85% -40%, rgb(140 194 255 / 38%), transparent 70%),
+        linear-gradient(100deg, rgb(10 37 86 / 94%) 0%, rgb(24 72 160 / 92%) 55%, rgb(52 122 216 / 90%) 100%);
+    box-shadow: 0 10px 32px rgb(8 30 72 / 22%), inset 0 -1px 0 rgb(255 255 255 / 14%);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+}
+
+body.workspace-shell .workspace-header-account {
+    border-color: rgb(255 255 255 / 26%);
+    background: rgb(255 255 255 / 12%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), 0 8px 20px rgb(3 20 55 / 16%);
+}
+
+/* Mobile toolbar */
+body.workspace-shell .mobile-toolbar {
+    border-bottom: 1px solid rgb(255 255 255 / 20%);
+    background: linear-gradient(100deg, rgb(10 37 86 / 88%) 0%, rgb(24 72 160 / 86%) 60%, rgb(52 122 216 / 84%) 100%);
+    box-shadow: 0 8px 24px rgb(8 30 72 / 20%);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+}
+
+/* Sidebars (admin + alumni portal) and the mobile off-canvas menu */
+body.workspace-shell .sidebar,
+body.workspace-shell .offcanvas-mobile-nav {
+    color: #f6faff;
+    border: 0;
+    border-right: 1px solid rgb(255 255 255 / 18%);
+    background:
+        radial-gradient(26rem 20rem at 110% -6%, rgb(132 186 255 / 30%), transparent 70%),
+        radial-gradient(22rem 18rem at -20% 104%, rgb(90 160 255 / 24%), transparent 70%),
+        linear-gradient(170deg, rgb(34 86 170 / 94%) 0%, rgb(16 52 116 / 95%) 50%, rgb(8 28 67 / 97%) 100%);
+    box-shadow: 14px 0 40px rgb(8 30 72 / 18%), inset -1px 0 0 rgb(255 255 255 / 12%), inset 0 1px 0 rgb(255 255 255 / 18%);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+}
+
+body.workspace-shell .sidebar h2,
+body.workspace-shell .offcanvas-mobile-nav h2 {
+    color: #fff;
+    text-shadow: 0 2px 16px rgb(1 19 50 / 25%);
+}
+
+body.workspace-shell .sidebar .text-white-50,
+body.workspace-shell .offcanvas-mobile-nav .text-white-50 {
+    color: rgb(226 238 255 / 74%) !important;
+}
+
+body.workspace-shell .sidebar .brand-pill,
+body.workspace-shell .offcanvas-mobile-nav .brand-pill {
+    border: 1px solid rgb(255 255 255 / 28%);
+    background: rgb(255 255 255 / 14%) !important;
+    color: #fff !important;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 24%), 0 8px 20px rgb(3 24 58 / 16%);
+}
+
+body.workspace-shell .sidebar .nav-link,
+body.workspace-shell .offcanvas-mobile-nav .nav-link {
+    border: 1px solid transparent;
+    border-radius: .95rem;
+    background: transparent;
+    color: rgb(240 246 255 / 90%);
+    transform: none;
+    transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+body.workspace-shell .sidebar .nav-link:hover,
+body.workspace-shell .sidebar .nav-link:focus-visible,
+body.workspace-shell .offcanvas-mobile-nav .nav-link:hover,
+body.workspace-shell .offcanvas-mobile-nav .nav-link:focus-visible {
+    border-color: rgb(255 255 255 / 16%) !important;
+    background: rgb(255 255 255 / 10%) !important;
+    color: #fff !important;
+    transform: none;
+}
+
+/* Active item: a frosted white tile lifted off the blue glass. */
+body.workspace-shell .sidebar .nav-link.active,
+body.workspace-shell .offcanvas-mobile-nav .nav-link.active {
+    border-color: rgb(255 255 255 / 34%) !important;
+    background: linear-gradient(125deg, rgb(255 255 255 / 26%), rgb(255 255 255 / 10%)) !important;
+    color: #fff !important;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 30%), 0 10px 24px rgb(3 20 55 / 24%);
+}
+
+body.workspace-shell .sidebar .sidebar-nav-toggle.active,
+body.workspace-shell .offcanvas-mobile-nav .sidebar-nav-toggle.active {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 22%);
+}
+
+body.workspace-shell .sidebar .sidebar-subnav,
+body.workspace-shell .offcanvas-mobile-nav .sidebar-subnav {
+    margin-left: .6rem;
+    border-left: 1px solid rgb(255 255 255 / 16%);
+}
+
+body.workspace-shell .sidebar .sidebar-subnav-link,
+body.workspace-shell .offcanvas-mobile-nav .sidebar-subnav-link {
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-left: 2px solid rgb(255 255 255 / 28%);
+    background: rgb(255 255 255 / 7%) !important;
+}
+
+body.workspace-shell .sidebar .sidebar-subnav-link.active,
+body.workspace-shell .offcanvas-mobile-nav .sidebar-subnav-link.active {
+    border-left-color: #fff;
+    background: rgb(255 255 255 / 20%) !important;
+}
+
+body.workspace-shell .sidebar .badge,
+body.workspace-shell .offcanvas-mobile-nav .badge {
+    border: 1px solid rgb(255 255 255 / 70%);
+    background: rgb(255 255 255 / 92%) !important;
+    color: var(--gl-blue-700) !important;
+    box-shadow: 0 4px 12px rgb(3 24 58 / 18%);
+}
+
+body.workspace-shell .sidebar .page-card,
+body.workspace-shell .offcanvas-mobile-nav .page-card {
+    border: 1px solid rgb(255 255 255 / 20%) !important;
+    background: linear-gradient(135deg, rgb(255 255 255 / 14%), rgb(255 255 255 / 6%)) !important;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%), 0 12px 28px rgb(3 24 58 / 16%) !important;
+}
+
+/* Glass buttons on the dark chrome */
+body.workspace-shell .sidebar .btn-outline-light,
+body.workspace-shell .offcanvas-mobile-nav .btn-outline-light,
+body.workspace-shell .mobile-toolbar .btn-outline-light,
+body.workspace-shell .school-system-bar .btn-outline-light {
+    border: 1px solid rgb(255 255 255 / 40%);
+    background: rgb(255 255 255 / 12%);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 22%), 0 6px 16px rgb(3 20 55 / 14%);
+}
+
+body.workspace-shell .sidebar .btn-outline-light:hover,
+body.workspace-shell .offcanvas-mobile-nav .btn-outline-light:hover,
+body.workspace-shell .mobile-toolbar .btn-outline-light:hover,
+body.workspace-shell .school-system-bar .btn-outline-light:hover {
+    border-color: rgb(255 255 255 / 70%);
+    background: rgb(255 255 255 / 22%);
+    color: #fff;
+}
+
+body.workspace-shell .sidebar .btn-light,
+body.workspace-shell .offcanvas-mobile-nav .btn-light,
+body.workspace-shell .mobile-toolbar .btn-light,
+body.workspace-shell .school-system-bar .btn-light {
+    border: 1px solid #fff;
+    background: linear-gradient(145deg, #fff, #e3eefe);
+    color: var(--gl-blue-700);
+    box-shadow: 0 8px 18px rgb(3 20 55 / 22%), inset 0 1px 0 #fff;
+}
+
+body.workspace-shell .offcanvas-mobile-nav .offcanvas-header {
+    border-color: rgb(255 255 255 / 14%) !important;
+}
+
+body.workspace-shell .offcanvas-mobile-nav .btn-close {
+    background-color: rgb(255 255 255 / 85%);
+    opacity: .9;
+}
+
+body.workspace-shell .sidebar :where(a, button, [tabindex]):focus-visible,
+body.workspace-shell .offcanvas-mobile-nav :where(a, button, [tabindex]):focus-visible,
+body.workspace-shell .mobile-toolbar :where(a, button):focus-visible,
+body.workspace-shell .school-system-bar :where(a, button):focus-visible {
+    outline-color: rgb(214 233 255 / 95%);
+}
+
+/* Alumni mobile dock */
+body .mobile-portal-dock {
+    border-top: 1px solid rgb(255 255 255 / 22%);
+    background: linear-gradient(180deg, rgb(20 62 138 / 86%), rgb(8 28 67 / 92%));
+    box-shadow: 0 -16px 40px rgb(8 30 72 / 22%), inset 0 1px 0 rgb(255 255 255 / 18%);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+}
+
+body .mobile-portal-dock-item.active {
+    border-color: rgb(255 255 255 / 30%);
+    background: linear-gradient(140deg, rgb(255 255 255 / 24%), rgb(255 255 255 / 10%));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 30%);
+}
+
+/* Page header inside the workspace */
+body .workspace-page-header h1 {
+    color: var(--gl-ink);
+}
+
+/* ---------------------------------------------------------------- Guest / auth screens */
+
+body .guest-shell > .guest-navbar.guest-navbar-school {
+    border-bottom: 1px solid rgb(255 255 255 / 24%) !important;
+    background:
+        radial-gradient(40rem 10rem at 85% -40%, rgb(140 194 255 / 38%), transparent 70%),
+        linear-gradient(100deg, rgb(10 37 86 / 94%) 0%, rgb(24 72 160 / 92%) 55%, rgb(52 122 216 / 90%) 100%) !important;
+    box-shadow: 0 10px 30px rgb(8 30 72 / 20%);
+}
+
+body .guest-shell > .guest-navbar .guest-home-button {
+    border: 1px solid rgb(255 255 255 / 40%);
+    border-radius: .9rem;
+    background: linear-gradient(135deg, #3b80ec, var(--gl-blue-700));
+    box-shadow: 0 10px 22px rgb(31 88 196 / 28%), inset 0 1px 0 rgb(255 255 255 / 30%);
+}
+
+body .guest-shell > .guest-navbar.guest-navbar-school .guest-home-button {
+    border-color: #fff;
+    background: linear-gradient(145deg, #fff, #e3eefe);
+    color: var(--gl-blue-700) !important;
+}
+
+body .guest-school-seal {
+    box-shadow: 0 0 0 4px rgb(255 255 255 / 22%), 0 10px 22px rgb(1 12 74 / 25%);
+}
+
+body .portal-login-card,
+body .portal-register-card,
+body .portal-password-reset-card {
+    border: 1px solid rgb(255 255 255 / 90%);
+    background:
+        radial-gradient(22rem 14rem at 100% 0%, rgb(140 190 255 / 22%), transparent 70%),
+        linear-gradient(160deg, rgb(255 255 255 / 86%), rgb(240 246 255 / 74%));
+    box-shadow: 18px 22px 54px rgb(var(--gl-shade) / 16%), -10px -10px 30px rgb(255 255 255 / 80%), inset 0 1px 0 #fff;
+}
+
+/* Replace the old gold glow behind auth cards with a cool blue one. */
+body .portal-login-shell::after,
+body .portal-register-shell::after,
+body .portal-password-reset-shell::after {
+    background: radial-gradient(circle, rgb(91 147 232 / 30%), rgb(160 205 255 / 10%) 60%, transparent 72%) !important;
+    filter: blur(1.5rem) !important;
+}
+
+/* Auth pages ship their own inline input/button styles; bring them into the theme. */
+body :is(.portal-login-card, .portal-register-card, .portal-password-reset-card) :is(.form-control, .form-select) {
+    border-color: rgb(255 255 255 / 85%);
+    background-color: rgb(240 246 255 / 75%);
+    box-shadow: var(--gl-inset);
+}
+
+body :is(.portal-login-card, .portal-register-card, .portal-password-reset-card) :is(.form-control, .form-select):focus {
+    border-color: rgb(91 147 232 / 70%);
+    background-color: rgb(255 255 255 / 94%);
+    box-shadow: inset 2px 2px 5px rgb(var(--gl-shade) / 8%), inset -2px -2px 5px #fff, var(--gl-focus);
+}
+
+body :is(.portal-login-card, .portal-register-card, .portal-password-reset-card) :is(.form-control, .form-select).is-invalid {
+    border-color: rgb(205 64 80 / 60%);
+}
+
+body :is(.portal-login-card, .portal-register-card, .portal-password-reset-card) :is(.btn-success, .btn-primary) {
+    border: 1px solid rgb(255 255 255 / 30%);
+    background: linear-gradient(135deg, #3b80ec 0%, var(--gl-blue-600) 52%, var(--gl-blue-700) 100%);
+    box-shadow: 0 12px 26px rgb(31 88 196 / 30%), inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+body :is(.portal-login-card, .portal-register-card, .portal-password-reset-card) :is(.btn-success, .btn-primary):is(:hover, :focus-visible) {
+    background: linear-gradient(135deg, #4b8ef3 0%, #2a66d6 52%, #1b4eae 100%);
+    box-shadow: 0 16px 32px rgb(31 88 196 / 36%), inset 0 1px 0 rgb(255 255 255 / 45%);
+}
+
+body .portal-login-brand-mark,
+body .portal-register-brand-mark {
+    border: 1px solid #fff;
+    background: linear-gradient(145deg, #fff, #e6effc);
+    box-shadow: var(--gl-raised);
+}
+
+/* ---------------------------------------------------------------- Avatars */
+
+body .profile-avatar,
+body .user-avatar {
+    border: 2px solid rgb(255 255 255 / 90%);
+    box-shadow: 0 6px 16px rgb(var(--gl-shade) / 18%);
+}
+
+body .profile-avatar-placeholder,
+body .user-avatar-placeholder {
+    background: linear-gradient(140deg, #4b8ef3, var(--gl-blue-700));
+    color: #fff;
+}
+
+/* ---------------------------------------------------------------- Focus */
+
+body :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid rgb(47 111 222 / 55%);
+    outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------- Fallbacks */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    body .modal-content,
+    body .dropdown-menu {
+        background: #f7faff;
+    }
+
+    body.workspace-shell .mobile-toolbar,
+    body .mobile-portal-dock {
+        background: linear-gradient(100deg, #0a2556, #1848a0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body .btn,
+    body .page-card,
+    body .event-card,
+    body .activity-card,
+    body .dashboard-action-link,
+    body .form-control,
+    body .form-select,
+    body .table > tbody > tr,
+    body.workspace-shell .sidebar .nav-link,
+    body.workspace-shell .offcanvas-mobile-nav .nav-link {
+        transition: none !important;
+    }
+
+    body .btn:active {
+        transform: none !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    body.workspace-shell,
+    body.public-shell {
+        /* Fixed backgrounds are janky on mobile browsers. */
+        background-attachment: scroll;
+    }
+
+    body .page-card,
+    body .card,
+    body .dashboard-hero {
+        border-radius: var(--gl-radius);
+    }
+}

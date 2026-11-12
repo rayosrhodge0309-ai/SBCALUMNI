@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="{{ asset('css/desktop.css') }}?v={{ filemtime(public_path('css/desktop.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/interface.css') }}?v={{ filemtime(public_path('css/interface.css')) }}">
     @stack('styles')
+    <link rel="stylesheet" href="{{ asset('css/glass-theme.css') }}?v={{ filemtime(public_path('css/glass-theme.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/landing-glass.css') }}?v={{ filemtime(public_path('css/landing-glass.css')) }}">
 </head>
 @php
     $layoutUser = auth()->user();
