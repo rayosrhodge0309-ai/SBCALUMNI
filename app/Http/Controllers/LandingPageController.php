@@ -33,6 +33,9 @@ class LandingPageController extends Controller
                 ->keyBy('event_id');
         }
 
+        $announcementTotal = $contentService->announcementsCount();
+        $upcomingEventTotal = $contentService->upcomingEventsCount();
+
         return view('welcome', [
             'content' => $content,
             'heroImageUrl' => $this->heroImageUrl($content['hero'] ?? []),
@@ -53,11 +56,21 @@ class LandingPageController extends Controller
                     'label' => 'Alumni officers',
                     'href' => '#alumni-office',
                 ],
+                [
+                    'value' => $upcomingEventTotal,
+                    'label' => 'Upcoming events',
+                    'href' => '#events',
+                ],
+                [
+                    'value' => $announcementTotal,
+                    'label' => 'Announcements',
+                    'href' => '#updates',
+                ],
             ],
             'announcements' => $contentService->announcements(null),
-            'announcementTotal' => $contentService->announcementsCount(),
+            'announcementTotal' => $announcementTotal,
             'upcomingEvents' => $upcomingEvents,
-            'upcomingEventTotal' => $contentService->upcomingEventsCount(),
+            'upcomingEventTotal' => $upcomingEventTotal,
             'eventRegistrationsByEventId' => $eventRegistrationsByEventId,
             'eventRegistrationStatuses' => EventRegistration::statusOptions(),
             'activities' => $contentService->activities(null),
