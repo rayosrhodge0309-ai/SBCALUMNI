@@ -264,6 +264,27 @@
        of the campus photo behind it. */
     isolation: auto;
     animation: none;
+    /* No inner padding, so the glass panel lines up with the gallery box. */
+    padding: 0 !important;
+}
+
+/* Panel spans the full content width, same as the gallery box below;
+   its content keeps a readable width. */
+.landing-page .hero-stage .hero-left-panel {
+    width: 100%;
+    max-width: none;
+}
+
+.landing-page .hero-left-panel .hero-heading {
+    max-width: 16ch;
+}
+
+.landing-page .hero-left-panel .hero-copy {
+    max-width: 44rem;
+}
+
+.landing-page .hero-left-panel > .row {
+    max-width: 52rem;
 }
 
 .landing-page .hero-stage::before,
