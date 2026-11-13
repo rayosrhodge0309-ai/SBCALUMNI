@@ -1040,3 +1040,51 @@ body :where(a, button, input, select, textarea, [tabindex]):focus-visible {
         border-radius: var(--gl-radius);
     }
 }
+
+/* ---------------------------------------------------------------- Text on dark chrome */
+
+/* The general heading color above is for light surfaces; on the blue
+   banner, sidebars, menus and footer, headings stay white. */
+body .school-system-bar :is(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6),
+body .mobile-toolbar :is(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6),
+body .sidebar :is(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6),
+body .offcanvas-mobile-nav :is(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6),
+body .guest-navbar-school :is(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6),
+body .landing-footer :is(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6) {
+    color: #fff;
+    text-shadow: 0 2px 12px rgb(2 14 44 / 25%);
+}
+
+body .school-system-bar .text-white-50,
+body .mobile-toolbar .text-white-50 {
+    color: rgb(226 238 255 / 82%) !important;
+}
+
+/* ---------------------------------------------------------------- One hover style for every button */
+
+/* Every button, on every page and every role: hover/focus turns soft blue
+   with dark blue text so the label always stays readable. Destructive
+   buttons keep red text so they still read as "delete". */
+body {
+    --gl-hover-bg: linear-gradient(150deg, #eef5ff 0%, #dbe9fe 100%);
+    --gl-hover-border: rgb(165 198 246 / 95%);
+    --gl-hover-text: #143f94;
+    --gl-hover-shadow: 8px 10px 22px rgb(22 58 120 / 18%), inset 0 1px 0 rgb(255 255 255 / 60%);
+}
+
+body .btn:not(.btn-link):not(.btn-close):not(:disabled):not(.disabled):is(:hover, :focus-visible),
+body .page-link:is(:hover, :focus-visible) {
+    border-color: var(--gl-hover-border) !important;
+    background: var(--gl-hover-bg) !important;
+    color: var(--gl-hover-text) !important;
+    box-shadow: var(--gl-hover-shadow) !important;
+}
+
+/* Extra :not() keeps this more specific than the rule above. */
+body .btn:is(.btn-danger, .btn-outline-danger):not(.btn-link):not(.btn-close):not(:disabled):not(.disabled):is(:hover, :focus-visible) {
+    color: #a3212f !important;
+}
+
+body .btn-link:hover {
+    color: var(--gl-hover-text);
+}
