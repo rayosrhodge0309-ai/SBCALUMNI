@@ -580,6 +580,187 @@
     box-shadow: var(--lg-inset-soft);
 }
 
+/* Footer text sits on deep blue: keep it white for contrast. */
+.landing-page .landing-footer :is(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .footer-title, .footer-group-title) {
+    color: #fff;
+}
+
+.landing-page .landing-footer .footer-kicker {
+    color: #bcd6ff;
+}
+
+.landing-page .landing-footer :is(.footer-copy, .footer-campus-item, .footer-link-group a) {
+    color: rgb(234 242 255 / 90%);
+}
+
+.landing-page .landing-footer .footer-campus-label {
+    color: #fff;
+}
+
+.landing-page .landing-footer .footer-link-group a:hover {
+    color: #fff;
+}
+
+/* Footer buttons: solid white primary + white-outlined glass secondary. */
+.landing-page .landing-footer .btn-light {
+    border-color: #fff;
+    background: linear-gradient(150deg, #fff, #e3eefe);
+    color: var(--lg-blue-deep) !important;
+    box-shadow: 8px 10px 22px rgb(2 14 44 / 30%), inset 0 1px 0 rgb(255 255 255 / 60%);
+}
+
+.landing-page .landing-footer .btn-light:hover,
+.landing-page .landing-footer .btn-light:focus-visible {
+    background: #fff;
+    color: var(--lg-blue) !important;
+}
+
+.landing-page .landing-footer .btn-outline-light {
+    border-color: rgb(255 255 255 / 55%);
+    background: rgb(255 255 255 / 10%);
+    color: #fff !important;
+    box-shadow: 8px 10px 22px rgb(2 14 44 / 24%), inset 0 1px 0 rgb(255 255 255 / 20%);
+}
+
+.landing-page .landing-footer .btn-outline-light:hover,
+.landing-page .landing-footer .btn-outline-light:focus-visible {
+    border-color: rgb(255 255 255 / 80%);
+    background: rgb(255 255 255 / 20%);
+    color: #fff !important;
+}
+
+.landing-page .landing-footer .btn:active {
+    box-shadow: inset 3px 3px 8px rgb(2 14 44 / 35%);
+}
+
+/* ------------------------------------------------------------ Header buttons (on the blue banner) */
+
+.landing-page .school-identity-actions .btn {
+    min-height: 2.6rem;
+    padding: .5rem 1.15rem;
+    border-radius: .9rem;
+    font-weight: 600;
+}
+
+/* Login: frosted glass with white text, readable in every state. */
+.landing-page .school-identity-actions .btn-outline-primary:first-of-type,
+.landing-page .school-identity-actions .btn-outline-primary:first-of-type:hover,
+.landing-page .school-identity-actions .btn-outline-primary:first-of-type:focus-visible,
+.landing-page .school-identity-actions .btn-outline-primary:first-of-type:active {
+    border: 1px solid rgb(255 255 255 / 55%);
+    color: #fff !important;
+}
+
+.landing-page .school-identity-actions .btn-outline-primary:first-of-type {
+    background: rgb(255 255 255 / 14%);
+    box-shadow: 6px 8px 18px rgb(2 14 44 / 26%), inset 0 1px 0 rgb(255 255 255 / 25%);
+}
+
+.landing-page .school-identity-actions .btn-outline-primary:first-of-type:hover,
+.landing-page .school-identity-actions .btn-outline-primary:first-of-type:focus-visible {
+    border-color: rgb(255 255 255 / 85%);
+    background: rgb(255 255 255 / 26%);
+    box-shadow: 9px 11px 24px rgb(2 14 44 / 32%), inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+/* Create Account: solid white with blue text, readable in every state. */
+.landing-page .school-identity-actions .btn-outline-primary:not(:first-of-type),
+.landing-page .school-identity-actions .btn-outline-primary:not(:first-of-type):hover,
+.landing-page .school-identity-actions .btn-outline-primary:not(:first-of-type):focus-visible,
+.landing-page .school-identity-actions .btn-outline-primary:not(:first-of-type):active {
+    border: 1px solid #fff;
+    color: var(--lg-blue-deep) !important;
+}
+
+.landing-page .school-identity-actions .btn-outline-primary:not(:first-of-type) {
+    background: linear-gradient(150deg, #fff, #e3eefe);
+    box-shadow: 6px 8px 18px rgb(2 14 44 / 26%), inset 0 1px 0 rgb(255 255 255 / 60%);
+}
+
+.landing-page .school-identity-actions .btn-outline-primary:not(:first-of-type):hover,
+.landing-page .school-identity-actions .btn-outline-primary:not(:first-of-type):focus-visible {
+    background: #fff;
+    color: var(--lg-blue) !important;
+    box-shadow: 9px 11px 24px rgb(2 14 44 / 32%), inset 0 1px 0 rgb(255 255 255 / 70%);
+}
+
+.landing-page .school-identity-actions .btn:active {
+    transform: none;
+    box-shadow: inset 3px 3px 8px rgb(2 14 44 / 35%) !important;
+}
+
+/* ------------------------------------------------------------ Top bar: one size for every item */
+
+.landing-page .landing-topbar {
+    --topbar-item-h: 2.5rem;
+    --topbar-gap: .65rem;
+}
+
+.landing-page .landing-topbar-shell {
+    gap: var(--topbar-gap);
+    padding-block: .55rem;
+}
+
+.landing-page .landing-topbar-contact,
+.landing-page .landing-topbar-actions,
+.landing-page .landing-topbar-search-form {
+    gap: var(--topbar-gap);
+}
+
+.landing-page .landing-topbar-search-form {
+    min-width: 0;
+}
+
+.landing-page .landing-topbar .landing-topbar-link,
+.landing-page .landing-topbar .landing-topbar-search-input,
+.landing-page .landing-topbar .landing-topbar-search-button,
+.landing-page .landing-topbar .landing-topbar-social {
+    box-sizing: border-box;
+    height: var(--topbar-item-h);
+    min-height: var(--topbar-item-h);
+    padding: 0 1rem;
+    border-radius: .85rem;
+    font-size: .9rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.landing-page .landing-topbar .landing-topbar-link,
+.landing-page .landing-topbar .landing-topbar-search-button,
+.landing-page .landing-topbar .landing-topbar-social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+}
+
+.landing-page .landing-topbar .landing-topbar-social {
+    min-width: 0;
+    font-family: inherit;
+    letter-spacing: .04em;
+}
+
+/* Room for descenders in the truncated address/phone text. */
+.landing-page .landing-topbar .landing-topbar-link span:last-child {
+    line-height: 1.35;
+}
+
+.landing-page .landing-topbar .landing-topbar-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.landing-page .landing-topbar .landing-topbar-search-input {
+    font-weight: 500;
+}
+
+/* No lift on hover here, so the row stays perfectly aligned. */
+.landing-page .landing-topbar .landing-topbar-link:hover,
+.landing-page .landing-topbar .landing-topbar-search-button:hover,
+.landing-page .landing-topbar .landing-topbar-social:hover {
+    transform: none;
+}
+
 /* ------------------------------------------------------------ Focus, motion, fallbacks */
 
 .landing-page a:focus-visible,
