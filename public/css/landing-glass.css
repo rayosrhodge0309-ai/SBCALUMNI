@@ -945,3 +945,106 @@
 .landing-page .campus-gallery-playback {
     display: none !important;
 }
+
+/* Campus gallery: Expand button (top-right) */
+.landing-page .campus-gallery-expand {
+    position: absolute;
+    top: .85rem;
+    right: .85rem;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    min-height: 2.5rem;
+    padding: .45rem .9rem;
+    border: 1px solid rgb(255 255 255 / 40%);
+    border-radius: 999px;
+    background: rgb(12 38 92 / 55%);
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 600;
+    box-shadow: 8px 10px 22px rgb(2 14 44 / 28%), inset 0 1px 0 rgb(255 255 255 / 25%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.landing-page .campus-gallery-expand svg {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+/* Same soft-blue hover as every other button. */
+.landing-page .campus-gallery-expand:is(:hover, :focus-visible) {
+    border-color: rgb(165 198 246 / 95%);
+    background: linear-gradient(150deg, #eef5ff 0%, #dbe9fe 100%);
+    color: #143f94;
+    transform: none;
+}
+
+/* Expanded photo pop-up */
+.campus-lightbox .modal-content {
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 30%);
+    border-radius: 1.5rem;
+    background: linear-gradient(160deg, rgb(10 33 85 / 90%), rgb(20 63 148 / 86%));
+    color: #fff;
+    box-shadow: 0 32px 80px rgb(4 20 56 / 45%), inset 0 1px 0 rgb(255 255 255 / 20%);
+    -webkit-backdrop-filter: blur(26px) saturate(170%);
+    backdrop-filter: blur(26px) saturate(170%);
+}
+
+.campus-lightbox .modal-header {
+    border-bottom: 1px solid rgb(255 255 255 / 14%);
+    background: transparent;
+}
+
+.campus-lightbox .modal-title {
+    color: #fff;
+}
+
+.campus-lightbox .btn-close {
+    background-color: rgb(255 255 255 / 85%);
+    border-radius: 50%;
+    opacity: .9;
+}
+
+.campus-lightbox .modal-body {
+    padding: 1rem;
+}
+
+.campus-lightbox-media {
+    display: grid;
+    place-items: center;
+    border-radius: 1rem;
+    background: rgb(0 0 0 / 25%);
+    overflow: hidden;
+}
+
+.campus-lightbox-media :is(img, video) {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(100vh - 13rem);
+    object-fit: contain;
+}
+
+.campus-lightbox-detail {
+    margin-top: .85rem;
+    color: rgb(226 238 255 / 88%);
+    text-align: center;
+}
+
+@media (max-width: 575.98px) {
+    .landing-page .campus-gallery-expand span {
+        display: none;
+    }
+
+    .landing-page .campus-gallery-expand {
+        width: 2.5rem;
+        padding: 0;
+        justify-content: center;
+    }
+}
