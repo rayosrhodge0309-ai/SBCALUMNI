@@ -196,3 +196,58 @@ test("GET, external targets and opt-out forms keep native behavior, including su
         assert.equal(page.timerCount(), 0);
     }
 });
+
+test("admin sidebar toggle closes, remembers, and reopens the sidebar", () => {
+    const classes = new Set();
+    const storage = new Map();
+    const make = () => {
+        const handlers = new Map();
+        return {
+            attributes: new Map(),
+            setAttribute(name, value) { this.attributes.set(name, String(value)); },
+            removeAttribute(name) { this.attributes.delete(name); },
+            getAttribute(name) { return this.attributes.get(name) ?? null; },
+            addEventListener: (name, handler) => handlers.set(name, handler),
+            click: () => handlers.get("click")(),
+            focused: false,
+            focus() { this.focused = true; },
+        };
+    };
+    const closeButton = make();
+    const reopenButton = make();
+    const sidebar = make();
+
+    runInNewContext(source, {
+        document: {
+            documentElement: {
+                classList: {
+                    contains: (name) => classes.has(name),
+                    toggle: (name, force) => (force ? classes.add(name) : classes.delete(name)),
+                },
+            },
+            querySelectorAll: (selector) => (selector === "[data-admin-sidebar-toggle]" ? [closeButton, reopenButton] : []),
+            querySelector: (selector) => ({ ".sidebar-collapse-button": closeButton, ".sidebar-reopen-button": reopenButton })[selector] ?? null,
+            getElementById: (id) => (id === "admin-sidebar" ? sidebar : null),
+            addEventListener: () => {},
+        },
+        window: { addEventListener: () => {} },
+        localStorage: { setItem: (key, value) => storage.set(key, value) },
+        setTimeout,
+        clearTimeout,
+    });
+
+    assert.equal(closeButton.getAttribute("aria-expanded"), "true");
+
+    closeButton.click();
+    assert.ok(classes.has("admin-sidebar-collapsed"));
+    assert.equal(storage.get("alumniLink.adminSidebar"), "collapsed");
+    assert.equal(reopenButton.getAttribute("aria-expanded"), "false");
+    assert.equal(sidebar.getAttribute("inert"), "");
+    assert.ok(reopenButton.focused);
+
+    reopenButton.click();
+    assert.ok(!classes.has("admin-sidebar-collapsed"));
+    assert.equal(storage.get("alumniLink.adminSidebar"), "open");
+    assert.equal(sidebar.getAttribute("inert"), null);
+    assert.ok(closeButton.focused);
+});

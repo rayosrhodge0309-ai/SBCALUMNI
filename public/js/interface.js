@@ -98,4 +98,33 @@
         }, 0);
     });
     window.addEventListener('pageshow', () => [...pendingForms.keys()].forEach(release));
+
+    // Admin desktop sidebar: close/open buttons, remembered per browser.
+    const sidebarToggles = [...document.querySelectorAll('[data-admin-sidebar-toggle]')];
+    if (sidebarToggles.length > 0) {
+        const root = document.documentElement;
+        const storageKey = 'alumniLink.adminSidebar';
+        const closeButton = document.querySelector('.sidebar-collapse-button');
+        const reopenButton = document.querySelector('.sidebar-reopen-button');
+        const sidebar = document.getElementById('admin-sidebar');
+
+        const apply = (collapsed) => {
+            root.classList.toggle('admin-sidebar-collapsed', collapsed);
+            sidebarToggles.forEach((button) => button.setAttribute('aria-expanded', String(!collapsed)));
+            // Keep the hidden sidebar's links out of the keyboard tab order.
+            if (sidebar) {
+                if (collapsed) sidebar.setAttribute('inert', '');
+                else sidebar.removeAttribute('inert');
+            }
+        };
+
+        apply(root.classList.contains('admin-sidebar-collapsed'));
+
+        sidebarToggles.forEach((button) => button.addEventListener('click', () => {
+            const collapsed = !root.classList.contains('admin-sidebar-collapsed');
+            apply(collapsed);
+            try { localStorage.setItem(storageKey, collapsed ? 'collapsed' : 'open'); } catch (error) { /* storage blocked */ }
+            (collapsed ? reopenButton : closeButton)?.focus();
+        }));
+    }
 })();

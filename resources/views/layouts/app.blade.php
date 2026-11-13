@@ -27,6 +27,10 @@
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('css/glass-theme.css') }}?v={{ filemtime(public_path('css/glass-theme.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/landing-glass.css') }}?v={{ filemtime(public_path('css/landing-glass.css')) }}">
+    @if (auth()->user()?->isAdmin())
+        {{-- Apply the saved admin sidebar state before first paint so it doesn't flash open. --}}
+        <script>try { if (localStorage.getItem('alumniLink.adminSidebar') === 'collapsed') document.documentElement.classList.add('admin-sidebar-collapsed'); } catch (e) {}</script>
+    @endif
 </head>
 @php
     $layoutUser = auth()->user();
@@ -271,10 +275,15 @@
         <div class="app-workspace-fluid">
             <div class="main-wrapper app-workspace-wrapper">
                 <div class="row min-vh-100">
-                <aside class="sidebar {{ auth()->user()->isAdmin() ? 'sidebar-admin' : 'sidebar-portal' }} d-none d-lg-flex col-lg-3 col-xl-2 p-4 flex-column gap-4">
+                <aside @if (auth()->user()->isAdmin()) id="admin-sidebar" @endif class="sidebar {{ auth()->user()->isAdmin() ? 'sidebar-admin' : 'sidebar-portal' }} d-none d-lg-flex col-lg-3 col-xl-2 p-4 flex-column gap-4">
                     <div>
                         @if (auth()->user()->isAdmin())
-                            <div class="brand-pill mb-3">Records Admin</div>
+                            <div class="sidebar-admin-top mb-3">
+                                <div class="brand-pill">Records Admin</div>
+                                <button type="button" class="sidebar-collapse-button" data-admin-sidebar-toggle aria-controls="admin-sidebar" aria-expanded="true" aria-label="Close sidebar" title="Close sidebar">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </button>
+                            </div>
                         @endif
                         <h2 class="h4 fw-bold mb-2">{{ auth()->user()->isAdmin() ? 'Admin Workspace' : 'Alumni Portal' }}</h2>
                         @if (auth()->user()->isAdmin())
@@ -343,6 +352,13 @@
                         </form>
                     </div>
                 </aside>
+
+                @if (auth()->user()->isAdmin())
+                    <button type="button" class="sidebar-reopen-button" data-admin-sidebar-toggle aria-controls="admin-sidebar" aria-expanded="true" aria-label="Open sidebar" title="Open sidebar">
+                        <x-ui-icon name="menu" />
+                        <span>Menu</span>
+                    </button>
+                @endif
 
                 <main id="main-content" tabindex="-1" class="app-main col-12 {{ $workspacePreview ? 'p-0' : 'p-3 p-lg-4 p-xl-5' }}">
                     @if ($workspacePreview)
