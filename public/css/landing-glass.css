@@ -940,3 +940,8 @@
         border-radius: 1.25rem;
     }
 }
+
+/* Campus gallery: no "Pause slideshow" button (the slideshow still autoplays). */
+.landing-page .campus-gallery-playback {
+    display: none !important;
+}
