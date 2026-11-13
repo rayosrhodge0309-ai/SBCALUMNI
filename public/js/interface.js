@@ -138,7 +138,8 @@
         expandButton.className = 'campus-gallery-expand';
         expandButton.setAttribute('aria-label', 'Expand photo');
         expandButton.setAttribute('aria-haspopup', 'dialog');
-        expandButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Expand</span>';
+        expandButton.title = 'Expand photo';
+        expandButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         gallery.appendChild(expandButton);
 
         const modalElement = document.createElement('div');
