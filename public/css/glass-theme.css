@@ -1187,3 +1187,25 @@ body .sidebar-reopen-button {
         transition: none !important;
     }
 }
+
+/* ---------------------------------------------------------------- Rejected / declined notices (alumni dashboard) */
+
+/* A rejected request update or declined event registration reads red at a
+   glance: red-tinted glass, a solid red left edge, and a red title. */
+body .request-update-alert.is-rejected,
+body .dashboard-page .event-registration-box.is-rejected {
+    border: 1px solid rgb(214 98 112 / 40%);
+    border-left: 4px solid #c23447;
+    background: linear-gradient(135deg, rgb(253 232 235 / 95%), rgb(255 246 247 / 80%));
+    box-shadow: 6px 8px 18px rgb(150 40 55 / 10%), inset 0 1px 0 rgb(255 255 255 / 60%);
+}
+
+body .request-update-alert.is-rejected .fw-semibold {
+    color: #a3212f;
+}
+
+body .request-update-alert.is-rejected .text-danger,
+body .dashboard-page .event-registration-box.is-rejected .text-danger {
+    color: #b3283a !important;
+    font-weight: 600;
+}
