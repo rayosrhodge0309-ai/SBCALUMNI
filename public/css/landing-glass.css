@@ -275,19 +275,22 @@
     max-width: none;
 }
 
-/* Centered content */
-.landing-page .hero-left-panel {
-    text-align: center;
+/* Heading and description share one block centered in the panel, with the
+   same width and left edge. The description is justified (straight left and
+   right edges); the large heading stays left-aligned, because justifying a
+   few big words per line leaves wide gaps between them. */
+.landing-page .hero-left-panel .hero-heading,
+.landing-page .hero-left-panel .hero-copy {
+    max-width: 48rem;
+    margin-inline: auto;
 }
 
 .landing-page .hero-left-panel .hero-heading {
-    max-width: 22ch;
-    margin-inline: auto;
+    text-align: left;
 }
 
 .landing-page .hero-left-panel .hero-copy {
-    max-width: 46rem;
-    margin-inline: auto;
+    text-align: justify;
 }
 
 /* Stat cards: one even row of five on desktop; on narrower screens they wrap
