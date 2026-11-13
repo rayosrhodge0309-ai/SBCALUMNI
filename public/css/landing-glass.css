@@ -1,355 +1,319 @@
-/* Frosted white and blue glass treatment for the public landing page. */
+/*
+ * Public landing page: strong glassmorphism + neumorphism, white & blue.
+ * Depth comes from deep blue-tinted shadows; white highlights stay small and
+ * faint so edges look crisp rather than glowing.
+ *
+ * Feed columns and cards contain Bootstrap modals, so they use layered
+ * translucent fills instead of backdrop-filter/transform (either would trap
+ * the fixed-position modal inside the card). Real blur is used on the header,
+ * nav, hero panel, gallery caption, mobile action bar and the modals.
+ */
 .landing-page {
-    --landing-ink: #142b4d;
-    --landing-muted: #5b6f89;
-    --landing-blue: #1455a0;
-    --landing-glass: rgb(255 255 255 / 66%);
-    --landing-glass-strong: rgb(255 255 255 / 82%);
-    --landing-glass-border: rgb(255 255 255 / 76%);
-    --landing-glass-shadow: 0 18px 48px rgb(35 75 125 / 12%), inset 0 1px 0 rgb(255 255 255 / 90%);
+    --lg-ink: #10264a;
+    --lg-ink-soft: #3a5277;
+    --lg-muted: #5f7392;
+    --lg-blue: #1f58c4;
+    --lg-blue-deep: #143f94;
+    --lg-shade: 20 52 112;
+
+    /* Glass */
+    --lg-glass: linear-gradient(150deg, rgb(255 255 255 / 66%) 0%, rgb(244 249 255 / 46%) 55%, rgb(226 238 255 / 52%) 100%);
+    --lg-glass-solid: rgb(246 250 255 / 62%);
+    --lg-glass-border: rgb(255 255 255 / 62%);
+    --lg-blur: blur(26px) saturate(180%);
+
+    /* Neumorphic depth: strong blue shadow, faint small white highlight */
+    --lg-raised: 16px 18px 40px rgb(var(--lg-shade) / 18%), 4px 5px 12px rgb(var(--lg-shade) / 10%), -3px -3px 9px rgb(255 255 255 / 32%), inset 0 1px 0 rgb(255 255 255 / 50%);
+    --lg-raised-sm: 8px 9px 20px rgb(var(--lg-shade) / 17%), 2px 3px 6px rgb(var(--lg-shade) / 10%), -2px -2px 6px rgb(255 255 255 / 35%), inset 0 1px 0 rgb(255 255 255 / 50%);
+    --lg-raised-hover: 22px 26px 52px rgb(var(--lg-shade) / 22%), 6px 7px 16px rgb(var(--lg-shade) / 12%), -3px -3px 9px rgb(255 255 255 / 35%), inset 0 1px 0 rgb(255 255 255 / 55%);
+    --lg-inset: inset 6px 6px 14px rgb(var(--lg-shade) / 15%), inset -3px -3px 8px rgb(255 255 255 / 38%);
+    --lg-inset-soft: inset 3px 3px 8px rgb(var(--lg-shade) / 12%), inset -2px -2px 5px rgb(255 255 255 / 38%);
+
     position: relative;
+    color: var(--lg-ink);
     background:
-        radial-gradient(ellipse at 8% 18%, rgb(182 216 255 / 36%), transparent 34rem),
-        radial-gradient(ellipse at 92% 52%, rgb(190 229 255 / 38%), transparent 38rem),
-        linear-gradient(145deg, #f8fbff 0%, #eef5fd 48%, #e7f1fc 100%);
-    color: var(--landing-ink);
+        radial-gradient(44rem 34rem at 4% 8%, rgb(120 176 255 / 42%), transparent 70%),
+        radial-gradient(40rem 32rem at 98% 30%, rgb(150 208 255 / 44%), transparent 70%),
+        radial-gradient(48rem 38rem at 30% 62%, rgb(182 214 255 / 40%), transparent 72%),
+        radial-gradient(42rem 34rem at 88% 92%, rgb(132 178 255 / 36%), transparent 72%),
+        linear-gradient(165deg, #f4f8ff 0%, #e8f0fc 45%, #dde9fa 100%);
+    background-attachment: fixed;
 }
 
-/* Keep Bootstrap dialogs above the body-level backdrop when opened from the landing feed. */
-.landing-page .modal {
-    z-index: 1060;
-}
-
-.modal-backdrop.show {
-    z-index: 1050;
-    background-color: rgb(13 41 74 / 54%);
-    opacity: 1;
-}
-
-.landing-page .modal-content {
-    overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 82%);
-    background: rgb(246 250 255 / 91%);
-    box-shadow: 0 28px 80px rgb(4 24 51 / 32%), inset 0 1px 0 #fff;
-    -webkit-backdrop-filter: blur(24px) saturate(145%);
-    backdrop-filter: blur(24px) saturate(145%);
-}
-
-.landing-page .modal-header,
-.landing-page .modal-footer {
-    border-color: rgb(83 122 169 / 16%);
-    background: rgb(255 255 255 / 34%);
-}
+/* ------------------------------------------------------------ Header */
 
 .landing-page .landing-topbar,
 .landing-page .landing-nav {
-    border-color: rgb(255 255 255 / 68%);
-    background: rgb(247 251 255 / 68%);
-    -webkit-backdrop-filter: blur(18px) saturate(145%);
-    backdrop-filter: blur(18px) saturate(145%);
+    border-color: rgb(255 255 255 / 45%);
+    background: linear-gradient(180deg, rgb(248 251 255 / 64%), rgb(236 244 255 / 52%));
+    -webkit-backdrop-filter: var(--lg-blur);
+    backdrop-filter: var(--lg-blur);
 }
 
 .landing-page .landing-topbar {
-    color: #174a86;
-    box-shadow: 0 8px 26px rgb(35 75 125 / 5%);
+    color: var(--lg-blue-deep);
+    box-shadow: 0 6px 20px rgb(var(--lg-shade) / 8%);
 }
 
-.landing-page .landing-topbar-link,
-.landing-page .landing-topbar-social,
-.landing-page .landing-topbar-search-button,
-.landing-page .landing-nav .nav-link,
-.landing-page .landing-chip,
-.landing-page .landing-mobile-action {
-    border: 1px solid var(--landing-glass-border);
-    background: var(--landing-glass);
-    color: #174a86;
-    box-shadow: 0 8px 24px rgb(42 83 134 / 9%), inset 0 1px 0 rgb(255 255 255 / 90%);
-    -webkit-backdrop-filter: blur(14px) saturate(145%);
-    backdrop-filter: blur(14px) saturate(145%);
-}
-
-.landing-page .landing-topbar-link:hover,
-.landing-page .landing-topbar-social:hover,
-.landing-page .landing-topbar-search-button:hover,
-.landing-page .landing-nav .nav-link:hover,
-.landing-page .landing-nav .nav-link:focus-visible,
-.landing-page .landing-nav .nav-link.active,
-.landing-page .landing-mobile-action:hover {
-    border-color: rgb(255 255 255 / 92%);
-    background: rgb(219 236 255 / 86%);
-    color: #103e78;
-    box-shadow: 0 12px 30px rgb(42 83 134 / 14%), inset 0 1px 0 #fff;
+.landing-page .landing-nav {
+    box-shadow: 0 14px 34px rgb(var(--lg-shade) / 12%), inset 0 -1px 0 rgb(255 255 255 / 30%);
 }
 
 .landing-page .landing-topbar .landing-topbar-search-input {
-    border: 1px solid var(--landing-glass-border);
-    background: rgb(255 255 255 / 60%);
-    color: var(--landing-ink);
-    box-shadow: inset 0 2px 7px rgb(39 76 122 / 8%), 0 1px 0 #fff;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    border: 1px solid rgb(255 255 255 / 55%);
+    background: rgb(233 241 253 / 70%);
+    color: var(--lg-ink);
+    box-shadow: var(--lg-inset-soft);
 }
 
-.landing-page .hero-stage,
-.landing-page .landing-mobile-hero {
-    overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 70%);
-    border-radius: 1.65rem;
-    box-shadow: 0 28px 72px rgb(22 58 103 / 20%);
+.landing-page .landing-topbar .landing-topbar-search-input:focus {
+    border-color: rgb(91 147 232 / 70%);
+    background: rgb(255 255 255 / 85%);
+    box-shadow: var(--lg-inset-soft), 0 0 0 .22rem rgb(47 111 222 / 20%);
 }
 
-.landing-page .hero-stage::before {
-    background: linear-gradient(110deg, rgb(13 39 78 / 24%), rgb(24 69 119 / 8%) 58%, rgb(9 50 93 / 18%));
-}
+/* ------------------------------------------------------------ Controls */
 
-.landing-page .hero-left-panel {
-    padding: clamp(1.5rem, 3vw, 2.5rem) !important;
-    border: 1px solid rgb(255 255 255 / 82%);
-    border-radius: 1.35rem;
-    background: rgb(248 252 255 / 78%);
-    color: #18365c;
-    box-shadow: 0 20px 52px rgb(10 41 78 / 15%), inset 0 1px 0 rgb(255 255 255 / 95%);
-    -webkit-backdrop-filter: blur(22px) saturate(140%);
-    backdrop-filter: blur(22px) saturate(140%);
-}
-
-.landing-page .hero-heading,
-.landing-page .hero-copy,
-.landing-page .hero-metric,
-.landing-page .hero-metric .text-white-50 {
-    color: #17385f !important;
-}
-
-.landing-page .hero-metric {
-    border: 1px solid rgb(255 255 255 / 85%);
-    background: rgb(224 239 255 / 68%);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 8px 20px rgb(35 75 125 / 7%);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-}
-
-.landing-page .hero-metric:hover,
-.landing-page .hero-metric:focus-visible {
-    background: rgb(255 255 255 / 88%);
-    box-shadow: 0 12px 26px rgb(35 75 125 / 14%), inset 0 1px 0 #fff;
-}
-
-.landing-page .campus-gallery-hero {
-    overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 84%);
-    border-radius: 1.4rem;
-    box-shadow: 0 20px 50px rgb(30 68 115 / 15%);
-}
-
-.landing-page .campus-gallery-caption {
-    border: 1px solid rgb(255 255 255 / 56%);
-    background: rgb(14 43 78 / 62%);
-    box-shadow: 0 10px 28px rgb(4 22 48 / 15%), inset 0 1px 0 rgb(255 255 255 / 22%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
-}
-
-.landing-page .landing-section {
-    background-color: transparent;
-}
-
-.landing-page .page-card,
-.landing-page .event-card,
-.landing-page .activity-card,
-.landing-page .notice-item,
-.landing-page .team-card,
-.landing-page .trustee-card,
-.landing-page .process-card,
-.landing-page .about-process-card,
-.landing-page .landing-board-column,
-.landing-page .landing-board-card,
-.landing-page .landing-event-summary-card,
-.landing-page .landing-search-empty,
-.landing-page .footer-brand-panel,
-.landing-page .footer-cta-panel {
-    border: 1px solid var(--landing-glass-border) !important;
-    border-radius: 1.15rem !important;
-    background: var(--landing-glass) !important;
-    box-shadow: var(--landing-glass-shadow) !important;
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-    backdrop-filter: blur(18px) saturate(140%);
-}
-
-.landing-page .landing-board-column {
-    overflow: hidden;
-    background: rgb(225 239 255 / 50%) !important;
-}
-
-.landing-page .landing-board-header,
-.landing-page .landing-board-list {
-    border-color: rgb(255 255 255 / 58%);
-    background: transparent !important;
-    color: var(--landing-ink);
-}
-
-.landing-page .landing-board-header {
-    border-bottom: 1px solid rgb(255 255 255 / 72%);
-}
-
-.landing-page .landing-board-title,
-.landing-page .landing-board-column:hover .landing-board-title,
-.landing-page .landing-board-card-title,
-.landing-page .landing-board-card:hover .landing-board-card-title,
-.landing-page .landing-board-card:focus-visible .landing-board-card-title {
-    color: #173f70;
-}
-
-.landing-page .landing-board-count,
-.landing-page .landing-board-column:hover .landing-board-count {
-    color: var(--landing-muted);
-}
-
-.landing-page .landing-board-card {
-    background: rgb(255 255 255 / 70%) !important;
-    transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
-}
-
-.landing-page .landing-board-card:hover,
-.landing-page .landing-board-card:focus-visible {
-    transform: translateY(-3px);
-    background: var(--landing-glass-strong) !important;
-    box-shadow: 0 20px 38px rgb(33 73 121 / 15%), inset 0 1px 0 #fff !important;
-}
-
-.landing-page .about-process-step,
-.landing-page .landing-event-registration-status,
-.landing-page .alumni-post-badge {
-    border-color: rgb(255 255 255 / 82%);
-    background: rgb(220 237 255 / 76%);
-    color: #174d89;
-    box-shadow: inset 0 1px 0 #fff, 0 5px 14px rgb(34 75 123 / 8%);
-}
-
-.landing-page .landing-mobile-hero::before {
-    background: rgb(245 250 255 / 78%);
-    -webkit-backdrop-filter: blur(22px) saturate(140%);
-    backdrop-filter: blur(22px) saturate(140%);
-}
-
-.landing-page .landing-mobile-hero,
-.landing-page .landing-mobile-hero h1,
-.landing-page .landing-mobile-hero p,
-.landing-page .landing-mobile-hero .text-white-50,
-.landing-page .landing-mobile-hero .mobile-portal-badge {
-    color: #17385f !important;
-}
-
-.landing-page .landing-mobile-hero .landing-chip,
-.landing-page .landing-mobile-hero .landing-mobile-action {
-    color: #174a86;
-}
-
-.landing-page .landing-mobile-actions {
-    border: 1px solid rgb(255 255 255 / 78%);
-    background: rgb(244 249 255 / 76%);
-    box-shadow: 0 -12px 36px rgb(35 75 125 / 12%);
-    -webkit-backdrop-filter: blur(20px) saturate(145%);
-    backdrop-filter: blur(20px) saturate(145%);
-}
-
-.landing-page .landing-mobile-action-icon {
-    background: rgb(218 235 255 / 82%);
-}
-
-.landing-page .footer-brand-panel,
-.landing-page .footer-cta-panel {
-    background: rgb(239 247 255 / 14%) !important;
-    border-color: rgb(255 255 255 / 32%) !important;
-    color: #fff;
-    box-shadow: 0 18px 44px rgb(3 22 55 / 20%), inset 0 1px 0 rgb(255 255 255 / 28%) !important;
-}
-
-/* Give every landing-page control the same glass finish and a generous touch area. */
+/* Every landing control: raised glass pill with a generous touch area. */
 .landing-page .btn,
-.landing-page button:not(.btn-close):not(.carousel-control-prev):not(.carousel-control-next):not(.campus-gallery-playback),
+.landing-page button:not(.btn-close):not(.carousel-control-prev):not(.carousel-control-next):not(.campus-gallery-playback):not([data-bs-target]),
 .landing-page [role="button"],
 .landing-page .landing-topbar-link,
 .landing-page .landing-topbar-social,
+.landing-page .landing-topbar-search-button,
 .landing-page .landing-chip,
 .landing-page .landing-mobile-action,
-.landing-page .landing-nav .nav-link,
-.landing-page .hero-metric-link {
+.landing-page .landing-nav .nav-link {
     min-height: 2.75rem;
-    border: 1px solid rgb(255 255 255 / 80%);
-    border-radius: .9rem;
-    background-color: rgb(255 255 255 / 68%);
-    color: #174a86;
-    box-shadow: 0 9px 24px rgb(36 78 128 / 10%), inset 0 1px 0 rgb(255 255 255 / 92%);
-    -webkit-backdrop-filter: blur(14px) saturate(145%);
-    backdrop-filter: blur(14px) saturate(145%);
+    border: 1px solid var(--lg-glass-border);
+    border-radius: .95rem;
+    background: linear-gradient(150deg, rgb(255 255 255 / 82%), rgb(228 239 255 / 66%));
+    color: var(--lg-blue-deep);
+    font-weight: 600;
+    box-shadow: var(--lg-raised-sm);
     touch-action: manipulation;
-    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    transition: color 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
 .landing-page .btn:hover,
-.landing-page button:not(.btn-close):not(.carousel-control-prev):not(.carousel-control-next):not(.campus-gallery-playback):hover,
+.landing-page button:not(.btn-close):not(.carousel-control-prev):not(.carousel-control-next):not(.campus-gallery-playback):not([data-bs-target]):hover,
 .landing-page [role="button"]:hover,
+.landing-page .landing-topbar-link:hover,
+.landing-page .landing-topbar-social:hover,
+.landing-page .landing-topbar-search-button:hover,
 .landing-page .landing-chip:hover,
 .landing-page .landing-mobile-action:hover,
 .landing-page .landing-nav .nav-link:hover,
-.landing-page .landing-nav .nav-link:focus-visible,
-.landing-page .landing-nav .nav-link.active,
-.landing-page .hero-metric-link:hover {
-    border-color: rgb(255 255 255 / 96%);
-    background-color: rgb(255 255 255 / 88%);
-    color: #103c70;
-    box-shadow: 0 14px 32px rgb(29 72 124 / 16%), inset 0 1px 0 #fff;
+.landing-page .landing-nav .nav-link:focus-visible {
+    border-color: rgb(255 255 255 / 75%);
+    background: linear-gradient(150deg, rgb(255 255 255 / 92%), rgb(220 234 255 / 78%));
+    color: var(--lg-blue);
+    box-shadow: 11px 13px 26px rgb(var(--lg-shade) / 20%), 3px 4px 8px rgb(var(--lg-shade) / 10%), -2px -2px 6px rgb(255 255 255 / 38%), inset 0 1px 0 rgb(255 255 255 / 55%);
     transform: translateY(-1px);
 }
 
+/* Current page and pressed state: the control sinks into the surface. */
+.landing-page .landing-nav .nav-link.active,
 .landing-page .btn:active,
-.landing-page button:not(.btn-close):active,
+.landing-page button:not(.btn-close):not([data-bs-target]):active,
 .landing-page [role="button"]:active,
 .landing-page .landing-chip:active,
 .landing-page .landing-mobile-action:active,
-.landing-page .hero-metric-link:active {
-    transform: translateY(1px);
-    box-shadow: inset 0 2px 7px rgb(29 72 124 / 16%), 0 1px 0 rgb(255 255 255 / 80%);
+.landing-page .landing-topbar-link:active {
+    border-color: rgb(255 255 255 / 40%);
+    background: linear-gradient(150deg, rgb(222 234 252 / 80%), rgb(236 243 255 / 70%));
+    color: var(--lg-blue);
+    box-shadow: var(--lg-inset);
+    transform: none;
 }
 
 .landing-page .btn-primary,
 .landing-page .btn-success {
-    border-color: rgb(255 255 255 / 58%);
-    background: linear-gradient(135deg, rgb(35 105 184 / 91%), rgb(17 69 135 / 94%));
+    border: 1px solid rgb(255 255 255 / 30%);
+    background: linear-gradient(135deg, #3d84f0 0%, #1f58c4 52%, #143f94 100%);
     color: #fff;
-    box-shadow: 0 12px 28px rgb(20 72 130 / 23%), inset 0 1px 0 rgb(255 255 255 / 32%);
+    box-shadow: 12px 14px 28px rgb(20 63 148 / 32%), 3px 4px 8px rgb(20 63 148 / 18%), inset 0 1px 0 rgb(255 255 255 / 30%);
 }
 
 .landing-page .btn-primary:hover,
 .landing-page .btn-success:hover,
 .landing-page .btn-primary:focus-visible,
 .landing-page .btn-success:focus-visible {
-    border-color: rgb(255 255 255 / 82%);
-    background: linear-gradient(135deg, rgb(48 124 207 / 96%), rgb(22 82 152 / 97%));
+    border-color: rgb(255 255 255 / 45%);
+    background: linear-gradient(135deg, #4d91f6 0%, #2a66d6 52%, #1a4cab 100%);
     color: #fff;
-    box-shadow: 0 16px 34px rgb(20 72 130 / 28%), inset 0 1px 0 rgb(255 255 255 / 44%);
+    box-shadow: 16px 18px 34px rgb(20 63 148 / 36%), 4px 5px 10px rgb(20 63 148 / 20%), inset 0 1px 0 rgb(255 255 255 / 40%);
+}
+
+.landing-page .btn-primary:active,
+.landing-page .btn-success:active {
+    background: linear-gradient(135deg, #1f58c4, #143f94);
+    color: #fff;
+    box-shadow: inset 4px 4px 10px rgb(4 20 60 / 40%);
 }
 
 .landing-page .btn-outline-primary,
 .landing-page .btn-outline-secondary,
 .landing-page .btn-outline-success,
 .landing-page .btn-outline-dark,
-.landing-page .btn-outline-light,
 .landing-page .btn-light {
-    border-color: rgb(255 255 255 / 84%) !important;
-    background-color: rgb(255 255 255 / 70%) !important;
-    color: #174a86 !important;
+    color: var(--lg-blue-deep) !important;
+}
+
+/* Buttons sitting on the blue header bar */
+.landing-page .school-system-bar .btn,
+.landing-page .school-system-bar .btn-outline-light {
+    border-color: rgb(255 255 255 / 40%);
+    background: rgb(255 255 255 / 16%);
+    color: #fff !important;
+    box-shadow: 6px 7px 16px rgb(2 14 44 / 26%), inset 0 1px 0 rgb(255 255 255 / 25%);
+}
+
+.landing-page .school-system-bar .btn:hover {
+    background: rgb(255 255 255 / 26%);
+    color: #fff !important;
+}
+
+.landing-page .school-system-bar .btn-light {
+    border-color: rgb(255 255 255 / 70%);
+    background: linear-gradient(150deg, #fff, #dfeafc);
+    color: var(--lg-blue-deep) !important;
+}
+
+.landing-page .btn-close {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border: 1px solid var(--lg-glass-border);
+    border-radius: 50%;
+    background-color: rgb(255 255 255 / 75%);
+    box-shadow: var(--lg-raised-sm);
+    touch-action: manipulation;
+}
+
+/* ------------------------------------------------------------ Hero */
+
+.landing-page .hero-stage,
+.landing-page .landing-mobile-hero {
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 30%);
+    border-radius: 1.75rem;
+    box-shadow: 24px 30px 70px rgb(var(--lg-shade) / 30%), 6px 8px 18px rgb(var(--lg-shade) / 16%);
+}
+
+.landing-page .hero-stage {
+    background:
+        radial-gradient(40rem 26rem at 88% 10%, rgb(90 160 255 / 55%), transparent 70%),
+        radial-gradient(30rem 22rem at 70% 100%, rgb(60 130 240 / 45%), transparent 70%),
+        linear-gradient(125deg, #0a2155 0%, #143f94 55%, #2b6fd6 100%);
+}
+
+.landing-page .hero-stage::before {
+    background: linear-gradient(110deg, rgb(8 26 70 / 55%), rgb(20 63 148 / 18%) 58%, rgb(10 40 100 / 30%));
+}
+
+/* Frosted glass panel over the hero image */
+.landing-page .hero-left-panel {
+    padding: clamp(1.5rem, 3vw, 2.6rem) !important;
+    border: 1px solid rgb(255 255 255 / 34%);
+    border-radius: 1.5rem;
+    background: linear-gradient(150deg, rgb(255 255 255 / 22%), rgb(255 255 255 / 8%));
+    color: #fff;
+    box-shadow: 18px 22px 50px rgb(2 14 44 / 34%), inset 0 1px 0 rgb(255 255 255 / 35%), inset 0 0 0 1px rgb(255 255 255 / 6%);
+    -webkit-backdrop-filter: var(--lg-blur);
+    backdrop-filter: var(--lg-blur);
+}
+
+.landing-page .hero-heading {
+    color: #fff !important;
+    text-shadow: 0 4px 24px rgb(2 14 44 / 35%);
+}
+
+.landing-page .hero-copy,
+.landing-page .hero-left-panel .text-white-50 {
+    color: rgb(232 241 255 / 88%) !important;
+}
+
+/* Metric tiles: glass chips that lift off the panel */
+.landing-page .hero-metric {
+    border: 1px solid rgb(255 255 255 / 34%);
+    border-radius: 1.1rem;
+    background: linear-gradient(150deg, rgb(255 255 255 / 26%), rgb(255 255 255 / 10%));
+    color: #fff !important;
+    box-shadow: 10px 12px 26px rgb(2 14 44 / 28%), inset 0 1px 0 rgb(255 255 255 / 35%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    transition: background 180ms ease, box-shadow 180ms ease;
+}
+
+.landing-page .hero-metric .text-white-50,
+.landing-page .hero-metric * {
+    color: inherit;
+}
+
+.landing-page .hero-metric .text-white-50 {
+    color: rgb(226 238 255 / 80%) !important;
+}
+
+.landing-page .hero-metric:hover,
+.landing-page .hero-metric:focus-visible,
+.landing-page .hero-metric-link:hover {
+    background: linear-gradient(150deg, rgb(255 255 255 / 34%), rgb(255 255 255 / 16%));
+    box-shadow: 14px 16px 32px rgb(2 14 44 / 34%), inset 0 1px 0 rgb(255 255 255 / 45%);
+}
+
+.landing-page .hero-metric-link {
+    min-height: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: inherit;
+}
+
+/* Mobile hero */
+.landing-page .landing-mobile-hero::before {
+    background: linear-gradient(150deg, rgb(10 33 85 / 78%), rgb(31 88 196 / 62%));
+    -webkit-backdrop-filter: var(--lg-blur);
+    backdrop-filter: var(--lg-blur);
+}
+
+.landing-page .landing-mobile-hero,
+.landing-page .landing-mobile-hero h1,
+.landing-page .landing-mobile-hero p,
+.landing-page .landing-mobile-hero .mobile-portal-badge {
+    color: #fff !important;
+}
+
+.landing-page .landing-mobile-hero .text-white-50 {
+    color: rgb(226 238 255 / 82%) !important;
+}
+
+/* ------------------------------------------------------------ Campus gallery */
+
+.landing-page .campus-gallery-hero {
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 50%);
+    border-radius: 1.6rem;
+    box-shadow: var(--lg-raised);
+}
+
+.landing-page .campus-gallery-caption {
+    border: 1px solid rgb(255 255 255 / 30%);
+    border-radius: 1.2rem;
+    background: linear-gradient(150deg, rgb(12 38 92 / 58%), rgb(20 63 148 / 38%));
+    box-shadow: 12px 14px 32px rgb(2 14 44 / 30%), inset 0 1px 0 rgb(255 255 255 / 25%);
+    -webkit-backdrop-filter: var(--lg-blur);
+    backdrop-filter: var(--lg-blur);
 }
 
 .landing-page .campus-gallery-playback,
 .landing-page .carousel-control-prev,
 .landing-page .carousel-control-next,
 .landing-page .campus-carousel-indicators [data-bs-target] {
-    border: 1px solid rgb(255 255 255 / 72%);
-    background-color: rgb(15 49 87 / 64%);
-    box-shadow: 0 10px 26px rgb(4 24 51 / 20%), inset 0 1px 0 rgb(255 255 255 / 26%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgb(255 255 255 / 40%);
+    background-color: rgb(12 38 92 / 50%);
+    box-shadow: 8px 10px 22px rgb(2 14 44 / 28%), inset 0 1px 0 rgb(255 255 255 / 25%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
     touch-action: manipulation;
 }
 
@@ -361,9 +325,9 @@
 
 .landing-page .carousel-control-prev,
 .landing-page .carousel-control-next {
+    top: 50%;
     width: 3rem;
     height: 3rem;
-    top: 50%;
     border-radius: 50%;
     opacity: 1;
     transform: translateY(-50%);
@@ -372,8 +336,7 @@
 .landing-page .carousel-control-prev:hover,
 .landing-page .carousel-control-next:hover,
 .landing-page .campus-gallery-playback:hover {
-    background-color: rgb(18 77 139 / 82%);
-    box-shadow: 0 14px 32px rgb(4 24 51 / 28%), inset 0 1px 0 rgb(255 255 255 / 34%);
+    background-color: rgb(31 88 196 / 72%);
 }
 
 .landing-page .campus-carousel-indicators [data-bs-target] {
@@ -393,7 +356,7 @@
     width: 1.15rem;
     height: .22rem;
     border-radius: 999px;
-    background: rgb(255 255 255 / 68%);
+    background: rgb(255 255 255 / 65%);
 }
 
 .landing-page .campus-carousel-indicators .active {
@@ -402,25 +365,227 @@
 
 .landing-page .campus-carousel-indicators .active::before {
     background: #fff;
-    box-shadow: 0 0 12px rgb(255 255 255 / 70%);
 }
 
-.landing-page .btn-close {
-    min-width: 2.75rem;
-    min-height: 2.75rem;
-    border: 1px solid rgb(255 255 255 / 80%);
-    border-radius: 50%;
-    background-color: rgb(255 255 255 / 76%);
-    box-shadow: 0 8px 22px rgb(36 78 128 / 12%), inset 0 1px 0 #fff;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    touch-action: manipulation;
+/* ------------------------------------------------------------ Sections */
+
+.landing-page .landing-section {
+    background-color: transparent;
 }
+
+.landing-page .section-eyebrow {
+    color: var(--lg-blue);
+    letter-spacing: .16em;
+}
+
+.landing-page .section-title {
+    color: var(--lg-ink);
+}
+
+.landing-page .section-copy {
+    color: var(--lg-muted);
+}
+
+/* Shared raised glass card */
+.landing-page .page-card,
+.landing-page .event-card,
+.landing-page .activity-card,
+.landing-page .notice-item,
+.landing-page .process-card,
+.landing-page .about-process-card,
+.landing-page .landing-board-card,
+.landing-page .landing-event-summary-card,
+.landing-page .landing-search-empty {
+    border: 1px solid var(--lg-glass-border) !important;
+    border-radius: 1.3rem !important;
+    background: var(--lg-glass) !important;
+    background-color: var(--lg-glass-solid) !important;
+    box-shadow: var(--lg-raised) !important;
+}
+
+/* About steps: numbered badge pressed into the card */
+.landing-page .about-process-card {
+    transition: box-shadow 220ms ease;
+}
+
+.landing-page .about-process-card:hover {
+    box-shadow: var(--lg-raised-hover) !important;
+}
+
+.landing-page .about-process-step,
+.landing-page .landing-event-registration-status,
+.landing-page .alumni-post-badge {
+    border: 1px solid rgb(255 255 255 / 50%);
+    background: linear-gradient(150deg, rgb(222 234 252 / 85%), rgb(240 246 255 / 75%));
+    color: var(--lg-blue);
+    box-shadow: var(--lg-inset-soft);
+}
+
+.landing-page .about-process-title {
+    color: var(--lg-ink);
+}
+
+/* ------------------------------------------------------------ Alumni feed board */
+
+/* Each column is a recessed glass tray; its cards are raised out of it. */
+.landing-page .landing-board-column {
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 50%) !important;
+    border-radius: 1.4rem !important;
+    background: linear-gradient(160deg, rgb(226 237 253 / 62%), rgb(240 246 255 / 46%)) !important;
+    box-shadow: var(--lg-inset), 0 1px 0 rgb(255 255 255 / 40%) !important;
+}
+
+.landing-page .landing-board-header,
+.landing-page .landing-board-list {
+    border-color: rgb(255 255 255 / 40%);
+    background: transparent !important;
+    color: var(--lg-ink);
+}
+
+.landing-page .landing-board-header {
+    border-bottom: 1px solid rgb(var(--lg-shade) / 10%);
+}
+
+.landing-page .landing-board-title,
+.landing-page .landing-board-column:hover .landing-board-title,
+.landing-page .landing-board-card-title,
+.landing-page .landing-board-card:hover .landing-board-card-title,
+.landing-page .landing-board-card:focus-visible .landing-board-card-title {
+    color: var(--lg-blue-deep);
+}
+
+.landing-page .landing-board-count,
+.landing-page .landing-board-column:hover .landing-board-count,
+.landing-page .landing-board-card-meta {
+    color: var(--lg-muted);
+}
+
+.landing-page .landing-board-card {
+    transition: box-shadow 200ms ease, background 200ms ease;
+}
+
+.landing-page .landing-board-card:hover,
+.landing-page .landing-board-card:focus-visible {
+    background: linear-gradient(150deg, rgb(255 255 255 / 82%), rgb(234 243 255 / 66%)) !important;
+    box-shadow: var(--lg-raised-hover) !important;
+}
+
+.landing-page .landing-board-empty {
+    border: 1px dashed rgb(91 147 232 / 35%);
+    border-radius: 1rem;
+    background: rgb(236 244 255 / 50%);
+    color: var(--lg-muted);
+    box-shadow: var(--lg-inset-soft);
+}
+
+/* ------------------------------------------------------------ Leadership & officers */
+
+.landing-page #leadership .trustee-member,
+.landing-page #alumni-office .officer-card {
+    width: 100%;
+    height: 100%;
+    padding: 1.9rem 1.25rem !important;
+    border: 1px solid var(--lg-glass-border) !important;
+    border-radius: 1.4rem;
+    background: var(--lg-glass) !important;
+    background-color: var(--lg-glass-solid) !important;
+    box-shadow: var(--lg-raised) !important;
+    transition: box-shadow 220ms ease;
+}
+
+.landing-page #leadership .trustee-member:hover,
+.landing-page #alumni-office .officer-card:hover {
+    box-shadow: var(--lg-raised-hover) !important;
+}
+
+/* Avatar sits in a pressed ring */
+.landing-page #leadership .trustee-avatar,
+.landing-page #alumni-office .officer-avatar {
+    border: 4px solid rgb(234 242 255 / 85%);
+    background: linear-gradient(145deg, #4b8ef3, #143f94);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 8px 9px 20px rgb(var(--lg-shade) / 22%), inset 0 0 0 1px rgb(255 255 255 / 30%);
+}
+
+.landing-page .trustee-name,
+.landing-page #alumni-office .officer-name {
+    color: var(--lg-ink);
+}
+
+.landing-page .trustee-role,
+.landing-page #alumni-office .officer-role {
+    color: var(--lg-blue);
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------ Modals */
+
+.landing-page .modal {
+    z-index: 1060;
+}
+
+.modal-backdrop.show {
+    z-index: 1050;
+    background-color: rgb(8 26 66 / 55%);
+    opacity: 1;
+}
+
+.landing-page .modal-content {
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 60%);
+    border-radius: 1.5rem;
+    background: linear-gradient(160deg, rgb(250 252 255 / 88%), rgb(232 241 255 / 80%));
+    box-shadow: 0 32px 80px rgb(4 20 56 / 36%), inset 0 1px 0 rgb(255 255 255 / 55%);
+    -webkit-backdrop-filter: var(--lg-blur);
+    backdrop-filter: var(--lg-blur);
+}
+
+.landing-page .modal-header,
+.landing-page .modal-footer {
+    border-color: rgb(var(--lg-shade) / 10%);
+    background: rgb(255 255 255 / 28%);
+}
+
+/* ------------------------------------------------------------ Footer */
+
+.landing-page .landing-footer-shell {
+    background:
+        radial-gradient(40rem 24rem at 90% 0%, rgb(90 160 255 / 40%), transparent 70%),
+        linear-gradient(120deg, #0a2155 0%, #143f94 60%, #2b6fd6 100%);
+}
+
+.landing-page .footer-brand-panel,
+.landing-page .footer-cta-panel {
+    border: 1px solid rgb(255 255 255 / 26%) !important;
+    border-radius: 1.4rem !important;
+    background: linear-gradient(150deg, rgb(255 255 255 / 16%), rgb(255 255 255 / 5%)) !important;
+    color: #fff;
+    box-shadow: 14px 16px 36px rgb(2 14 44 / 30%), inset 0 1px 0 rgb(255 255 255 / 22%) !important;
+}
+
+/* ------------------------------------------------------------ Mobile action bar */
+
+.landing-page .landing-mobile-actions {
+    border: 1px solid rgb(255 255 255 / 50%);
+    background: linear-gradient(180deg, rgb(246 250 255 / 72%), rgb(230 240 255 / 66%));
+    box-shadow: 0 -14px 36px rgb(var(--lg-shade) / 16%);
+    -webkit-backdrop-filter: var(--lg-blur);
+    backdrop-filter: var(--lg-blur);
+}
+
+.landing-page .landing-mobile-action-icon {
+    background: linear-gradient(150deg, rgb(222 234 252 / 90%), rgb(240 246 255 / 80%));
+    box-shadow: var(--lg-inset-soft);
+}
+
+/* ------------------------------------------------------------ Focus, motion, fallbacks */
 
 .landing-page a:focus-visible,
 .landing-page button:focus-visible,
 .landing-page [role="button"]:focus-visible {
-    outline: 3px solid rgb(52 119 196 / 72%);
+    outline: 3px solid rgb(47 111 222 / 70%);
     outline-offset: 3px;
 }
 
@@ -429,20 +594,30 @@
     .landing-page button,
     .landing-page [role="button"],
     .landing-page .landing-chip,
-    .landing-page .landing-mobile-action {
+    .landing-page .landing-mobile-action,
+    .landing-page .landing-board-card,
+    .landing-page .about-process-card,
+    .landing-page #leadership .trustee-member,
+    .landing-page #alumni-office .officer-card {
         transition: none;
+    }
+
+    .landing-page .btn:hover,
+    .landing-page button:hover,
+    .landing-page .landing-chip:hover {
+        transform: none;
     }
 }
 
-@supports not (backdrop-filter: blur(1px)) {
-    .landing-page .hero-left-panel,
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .landing-page .landing-topbar,
     .landing-page .landing-nav,
-    .landing-page .page-card,
-    .landing-page .event-card,
-    .landing-page .landing-board-column,
-    .landing-page .landing-board-card {
-        background-color: #f7fbff !important;
+    .landing-page .landing-mobile-actions {
+        background: #f2f7ff;
+    }
+
+    .landing-page .hero-left-panel {
+        background: rgb(12 38 92 / 72%);
     }
 }
 
@@ -452,8 +627,13 @@
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .landing-page .landing-board-card {
-        transition: none;
+@media (max-width: 767.98px) {
+    .landing-page {
+        background-attachment: scroll;
+    }
+
+    .landing-page .hero-stage,
+    .landing-page .landing-mobile-hero {
+        border-radius: 1.25rem;
     }
 }

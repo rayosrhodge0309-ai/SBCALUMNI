@@ -34,11 +34,12 @@
 
     /* Neumorphic depth (blue-tinted shadow + white highlight) */
     --gl-shade: 22 58 120;
-    --gl-raised: 10px 12px 30px rgb(var(--gl-shade) / 11%), -8px -8px 22px rgb(255 255 255 / 78%), inset 0 1px 0 rgb(255 255 255 / 95%);
-    --gl-raised-sm: 5px 6px 14px rgb(var(--gl-shade) / 12%), -4px -4px 10px rgb(255 255 255 / 85%), inset 0 1px 0 rgb(255 255 255 / 95%);
-    --gl-raised-hover: 14px 18px 38px rgb(var(--gl-shade) / 15%), -8px -8px 22px rgb(255 255 255 / 82%), inset 0 1px 0 #fff;
-    --gl-inset: inset 3px 3px 7px rgb(var(--gl-shade) / 11%), inset -3px -3px 7px rgb(255 255 255 / 92%);
-    --gl-inset-deep: inset 4px 4px 10px rgb(var(--gl-shade) / 15%), inset -4px -4px 10px rgb(255 255 255 / 90%);
+    /* White highlights are kept small and faint so edges stay crisp. */
+    --gl-raised: 10px 12px 30px rgb(var(--gl-shade) / 11%), -3px -3px 8px rgb(255 255 255 / 35%), inset 0 1px 0 rgb(255 255 255 / 60%);
+    --gl-raised-sm: 5px 6px 14px rgb(var(--gl-shade) / 12%), -2px -2px 5px rgb(255 255 255 / 40%), inset 0 1px 0 rgb(255 255 255 / 60%);
+    --gl-raised-hover: 14px 18px 38px rgb(var(--gl-shade) / 15%), -3px -3px 9px rgb(255 255 255 / 40%), inset 0 1px 0 rgb(255 255 255 / 70%);
+    --gl-inset: inset 3px 3px 7px rgb(var(--gl-shade) / 11%), inset -2px -2px 4px rgb(255 255 255 / 45%);
+    --gl-inset-deep: inset 4px 4px 10px rgb(var(--gl-shade) / 15%), inset -2px -2px 5px rgb(255 255 255 / 45%);
     --gl-focus: 0 0 0 .22rem rgb(47 111 222 / 22%);
 
     --gl-radius-lg: 1.35rem;
@@ -381,7 +382,7 @@ body .btn-outline-secondary:focus-visible {
     border-color: #fff;
     background: linear-gradient(145deg, #fff, rgb(224 236 255 / 92%));
     color: var(--gl-blue-600);
-    box-shadow: 7px 9px 20px rgb(var(--gl-shade) / 15%), -5px -5px 12px rgb(255 255 255 / 90%), inset 0 1px 0 #fff;
+    box-shadow: 7px 9px 20px rgb(var(--gl-shade) / 15%), -2px -2px 5px rgb(255 255 255 / 40%), inset 0 1px 0 rgb(255 255 255 / 60%);
 }
 
 body .btn-outline-success:hover { background: #e7f7f0; color: #11654c; border-color: #fff; }
@@ -451,7 +452,7 @@ body textarea.form-control:focus {
     border-color: rgb(91 147 232 / 70%);
     background-color: rgb(255 255 255 / 92%);
     color: var(--gl-ink);
-    box-shadow: inset 2px 2px 5px rgb(var(--gl-shade) / 8%), inset -2px -2px 5px #fff, var(--gl-focus);
+    box-shadow: inset 2px 2px 5px rgb(var(--gl-shade) / 8%), inset -1px -1px 3px rgb(255 255 255 / 45%), var(--gl-focus);
 }
 
 body .form-control.is-invalid,
@@ -585,7 +586,7 @@ body .stat-pill,
 body .brand-pill {
     border: 1px solid rgb(255 255 255 / 85%);
     border-radius: 999px;
-    box-shadow: 0 3px 10px rgb(var(--gl-shade) / 10%), inset 0 1px 0 #fff;
+    box-shadow: 0 3px 10px rgb(var(--gl-shade) / 10%), inset 0 1px 0 rgb(255 255 255 / 60%);
 }
 
 body .dashboard-status { background: linear-gradient(145deg, #f3f8ff, #e1ecfd); }
@@ -620,7 +621,7 @@ body .modal-content {
     border: 1px solid rgb(255 255 255 / 85%);
     border-radius: var(--gl-radius-lg);
     background: linear-gradient(160deg, rgb(255 255 255 / 92%), rgb(238 245 255 / 86%));
-    box-shadow: 0 30px 80px rgb(6 26 64 / 30%), inset 0 1px 0 #fff;
+    box-shadow: 0 30px 80px rgb(6 26 64 / 30%), inset 0 1px 0 rgb(255 255 255 / 60%);
     -webkit-backdrop-filter: var(--gl-blur);
     backdrop-filter: var(--gl-blur);
 }
@@ -636,7 +637,7 @@ body .dropdown-menu {
     border: 1px solid rgb(255 255 255 / 85%);
     border-radius: var(--gl-radius);
     background: rgb(250 252 255 / 88%);
-    box-shadow: 0 20px 44px rgb(var(--gl-shade) / 18%), inset 0 1px 0 #fff;
+    box-shadow: 0 20px 44px rgb(var(--gl-shade) / 18%), inset 0 1px 0 rgb(255 255 255 / 60%);
     -webkit-backdrop-filter: var(--gl-blur);
     backdrop-filter: var(--gl-blur);
 }
@@ -853,7 +854,7 @@ body.workspace-shell .school-system-bar .btn-light {
     border: 1px solid #fff;
     background: linear-gradient(145deg, #fff, #e3eefe);
     color: var(--gl-blue-700);
-    box-shadow: 0 8px 18px rgb(3 20 55 / 22%), inset 0 1px 0 #fff;
+    box-shadow: 0 8px 18px rgb(3 20 55 / 22%), inset 0 1px 0 rgb(255 255 255 / 60%);
 }
 
 body.workspace-shell .offcanvas-mobile-nav .offcanvas-header {
@@ -926,7 +927,7 @@ body .portal-password-reset-card {
     background:
         radial-gradient(22rem 14rem at 100% 0%, rgb(140 190 255 / 22%), transparent 70%),
         linear-gradient(160deg, rgb(255 255 255 / 86%), rgb(240 246 255 / 74%));
-    box-shadow: 18px 22px 54px rgb(var(--gl-shade) / 16%), -10px -10px 30px rgb(255 255 255 / 80%), inset 0 1px 0 #fff;
+    box-shadow: 18px 22px 54px rgb(var(--gl-shade) / 16%), -3px -3px 10px rgb(255 255 255 / 35%), inset 0 1px 0 rgb(255 255 255 / 70%);
 }
 
 /* Replace the old gold glow behind auth cards with a cool blue one. */
@@ -947,7 +948,7 @@ body :is(.portal-login-card, .portal-register-card, .portal-password-reset-card)
 body :is(.portal-login-card, .portal-register-card, .portal-password-reset-card) :is(.form-control, .form-select):focus {
     border-color: rgb(91 147 232 / 70%);
     background-color: rgb(255 255 255 / 94%);
-    box-shadow: inset 2px 2px 5px rgb(var(--gl-shade) / 8%), inset -2px -2px 5px #fff, var(--gl-focus);
+    box-shadow: inset 2px 2px 5px rgb(var(--gl-shade) / 8%), inset -1px -1px 3px rgb(255 255 255 / 45%), var(--gl-focus);
 }
 
 body :is(.portal-login-card, .portal-register-card, .portal-password-reset-card) :is(.form-control, .form-select).is-invalid {
