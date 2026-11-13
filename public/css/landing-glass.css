@@ -275,22 +275,19 @@
     max-width: none;
 }
 
-/* Heading and description share one block centered in the panel, with the
-   same width and left edge. The description is justified (straight left and
-   right edges); the large heading stays left-aligned, because justifying a
-   few big words per line leaves wide gaps between them. */
-.landing-page .hero-left-panel .hero-heading,
-.landing-page .hero-left-panel .hero-copy {
-    max-width: 48rem;
-    margin-inline: auto;
+/* Centered heading and description */
+.landing-page .hero-left-panel {
+    text-align: center;
 }
 
 .landing-page .hero-left-panel .hero-heading {
-    text-align: left;
+    max-width: 22ch;
+    margin-inline: auto;
 }
 
 .landing-page .hero-left-panel .hero-copy {
-    text-align: justify;
+    max-width: 46rem;
+    margin-inline: auto;
 }
 
 /* Stat cards: one even row of five on desktop; on narrower screens they wrap
