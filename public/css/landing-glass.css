@@ -1058,42 +1058,6 @@
     cursor: pointer;
 }
 
-.campus-lightbox-nav {
-    position: absolute;
-    top: 50%;
-    z-index: 2;
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    padding: 0;
-    border: 1px solid rgb(255 255 255 / 40%);
-    border-radius: 50%;
-    background: rgb(12 38 92 / 58%);
-    color: #fff;
-    box-shadow: 8px 10px 22px rgb(2 14 44 / 30%), inset 0 1px 0 rgb(255 255 255 / 25%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
-    backdrop-filter: blur(14px) saturate(160%);
-    transform: translateY(-50%);
-    cursor: pointer;
-    touch-action: manipulation;
-}
-
-.campus-lightbox-nav svg {
-    width: 1.3rem;
-    height: 1.3rem;
-}
-
-.campus-lightbox-prev { left: .75rem; }
-.campus-lightbox-next { right: .75rem; }
-
-/* Same soft-blue hover as every other button. */
-.campus-lightbox-nav:is(:hover, :focus-visible) {
-    border-color: rgb(165 198 246 / 95%);
-    background: linear-gradient(150deg, #eef5ff 0%, #dbe9fe 100%);
-    color: #143f94;
-}
-
 .campus-lightbox-caption {
     display: flex;
     flex-wrap: wrap;
@@ -1161,11 +1125,4 @@
 
 .campus-lightbox-media :is(img, video) {
     max-height: calc(100vh - 19rem);
-}
-
-@media (max-width: 575.98px) {
-    .campus-lightbox-nav {
-        width: 2.4rem;
-        height: 2.4rem;
-    }
 }

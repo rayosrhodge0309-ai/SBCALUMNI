@@ -130,7 +130,7 @@
 
     // Landing page campus gallery: an Expand button that opens the current
     // slide (photo or video) full-size in a pop-up, where every slide can be
-    // browsed with arrows, thumbnails, tap, swipe or the keyboard.
+    // browsed by tapping the photo, thumbnails, swipe or the keyboard.
     const gallery = document.querySelectorAll('.campus-gallery-carousel')[0];
     if (gallery && window.bootstrap?.Modal) {
         const expandButton = document.createElement('button');
@@ -157,12 +157,6 @@
                     <div class="modal-body">
                         <div class="campus-lightbox-stage">
                             <div class="campus-lightbox-media"></div>
-                            <button type="button" class="campus-lightbox-nav campus-lightbox-prev" aria-label="Previous photo">
-                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </button>
-                            <button type="button" class="campus-lightbox-nav campus-lightbox-next" aria-label="Next photo">
-                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </button>
                         </div>
                         <div class="campus-lightbox-caption">
                             <span class="campus-lightbox-counter" aria-live="polite"></span>
@@ -183,7 +177,6 @@
         const counterElement = modalElement.querySelector('.campus-lightbox-counter');
         const hintElement = modalElement.querySelector('.campus-lightbox-hint');
         const thumbsElement = modalElement.querySelector('.campus-lightbox-thumbs');
-        const navButtons = [...modalElement.querySelectorAll('.campus-lightbox-nav')];
         const carousel = () => window.bootstrap.Carousel?.getInstance(gallery);
 
         let slides = [];
@@ -259,7 +252,6 @@
             const activeIndex = Math.max(0, items.findIndex((item) => item.classList.contains('active')));
 
             const browsable = slides.length > 1;
-            navButtons.forEach((button) => { button.hidden = !browsable; });
             hintElement.hidden = !browsable;
             thumbsElement.hidden = !browsable;
             stage.classList.toggle('is-browsable', browsable);
@@ -270,14 +262,12 @@
             modal.show();
         });
 
-        // Arrows, thumbnails, and tapping the photo (not a video) for the next one.
+        // Thumbnails, and tapping the photo (not a video) for the next one.
         let suppressClickUntil = 0;
         modalElement.addEventListener('click', (event) => {
             if (slides.length < 2 || Date.now() < suppressClickUntil) return;
             const thumb = event.target.closest('.campus-lightbox-thumb');
             if (thumb) return show(Number(thumb.dataset.index));
-            if (event.target.closest('.campus-lightbox-prev')) return show(index - 1);
-            if (event.target.closest('.campus-lightbox-next')) return show(index + 1);
             if (event.target.closest('.campus-lightbox-media img')) show(index + 1);
         });
 
