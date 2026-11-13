@@ -129,7 +129,8 @@
     }
 
     // Landing page campus gallery: an Expand button that opens the current
-    // slide (photo or video) full-size in a pop-up.
+    // slide (photo or video) full-size in a pop-up, where every slide can be
+    // browsed with arrows, thumbnails, tap, swipe or the keyboard.
     const gallery = document.querySelectorAll('.campus-gallery-carousel')[0];
     if (gallery && window.bootstrap?.Modal) {
         const expandButton = document.createElement('button');
@@ -154,7 +155,20 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="campus-lightbox-media"></div>
+                        <div class="campus-lightbox-stage">
+                            <div class="campus-lightbox-media"></div>
+                            <button type="button" class="campus-lightbox-nav campus-lightbox-prev" aria-label="Previous photo">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <button type="button" class="campus-lightbox-nav campus-lightbox-next" aria-label="Next photo">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        </div>
+                        <div class="campus-lightbox-caption">
+                            <span class="campus-lightbox-counter" aria-live="polite"></span>
+                            <span class="campus-lightbox-hint">Tap photo or swipe to browse</span>
+                        </div>
+                        <div class="campus-lightbox-thumbs" role="group" aria-label="Choose a photo"></div>
                         <p class="campus-lightbox-detail mb-0"></p>
                     </div>
                 </div>
@@ -162,42 +176,140 @@
         document.body.appendChild(modalElement);
 
         const modal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+        const stage = modalElement.querySelector('.campus-lightbox-stage');
         const mediaHolder = modalElement.querySelector('.campus-lightbox-media');
         const titleElement = modalElement.querySelector('.modal-title');
         const detailElement = modalElement.querySelector('.campus-lightbox-detail');
+        const counterElement = modalElement.querySelector('.campus-lightbox-counter');
+        const hintElement = modalElement.querySelector('.campus-lightbox-hint');
+        const thumbsElement = modalElement.querySelector('.campus-lightbox-thumbs');
+        const navButtons = [...modalElement.querySelectorAll('.campus-lightbox-nav')];
         const carousel = () => window.bootstrap.Carousel?.getInstance(gallery);
 
-        expandButton.addEventListener('click', () => {
-            const slide = gallery.querySelector('.carousel-item.active');
-            const source = slide?.querySelector('.campus-gallery-image');
-            if (!source) return;
+        let slides = [];
+        let index = 0;
+
+        // Read every slide from the carousel each time, so new slides are included.
+        const readSlides = () => [...gallery.querySelectorAll('.carousel-item')].map((slide) => {
+            const source = slide.querySelector('.campus-gallery-image');
+            if (!source) return null;
+            return {
+                isVideo: source.tagName === 'VIDEO',
+                src: source.currentSrc || source.getAttribute('src') || '',
+                alt: source.getAttribute('alt') || '',
+                title: slide.querySelector('.campus-gallery-title')?.textContent.trim() || '',
+                detail: slide.querySelector('.campus-gallery-detail')?.textContent.trim() || '',
+            };
+        }).filter((slide) => slide && slide.src);
+
+        const buildThumbs = () => {
+            thumbsElement.replaceChildren(...slides.map((slide, slideIndex) => {
+                const thumb = document.createElement('button');
+                thumb.type = 'button';
+                thumb.className = 'campus-lightbox-thumb';
+                thumb.dataset.index = String(slideIndex);
+                thumb.setAttribute('aria-label', `${slide.isVideo ? 'Video' : 'Photo'} ${slideIndex + 1} of ${slides.length}`);
+                if (slide.isVideo) {
+                    thumb.textContent = 'Video';
+                } else {
+                    const image = document.createElement('img');
+                    image.src = slide.src;
+                    image.alt = '';
+                    image.loading = 'lazy';
+                    thumb.append(image);
+                }
+                return thumb;
+            }));
+        };
+
+        const show = (nextIndex) => {
+            if (!slides.length) return;
+            index = (nextIndex + slides.length) % slides.length; // wraps around
+            const slide = slides[index];
 
             let media;
-            if (source.tagName === 'VIDEO') {
+            if (slide.isVideo) {
                 media = document.createElement('video');
-                media.src = source.currentSrc || source.src;
+                media.src = slide.src;
                 media.controls = true;
                 media.playsInline = true;
                 media.autoplay = true;
             } else {
                 media = document.createElement('img');
-                media.src = source.currentSrc || source.src;
-                media.alt = source.alt || '';
+                media.src = slide.src;
+                media.alt = slide.alt;
             }
             mediaHolder.replaceChildren(media);
 
-            const title = slide.querySelector('.campus-gallery-title')?.textContent.trim();
-            const detail = slide.querySelector('.campus-gallery-detail')?.textContent.trim();
-            titleElement.textContent = title || 'Campus gallery';
-            detailElement.textContent = detail || '';
-            detailElement.hidden = !detail;
+            titleElement.textContent = slide.title || 'Campus gallery';
+            detailElement.textContent = slide.detail;
+            detailElement.hidden = !slide.detail;
+            counterElement.textContent = `${index + 1} of ${slides.length} · ${slide.isVideo ? 'Video' : 'Photo'}`;
+            thumbsElement.querySelectorAll('.campus-lightbox-thumb').forEach((thumb) => {
+                const current = Number(thumb.dataset.index) === index;
+                thumb.setAttribute('aria-current', String(current));
+                if (current) thumb.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            });
+        };
+
+        expandButton.addEventListener('click', () => {
+            slides = readSlides();
+            if (!slides.length) return;
+            const items = [...gallery.querySelectorAll('.carousel-item')];
+            const activeIndex = Math.max(0, items.findIndex((item) => item.classList.contains('active')));
+
+            const browsable = slides.length > 1;
+            navButtons.forEach((button) => { button.hidden = !browsable; });
+            hintElement.hidden = !browsable;
+            thumbsElement.hidden = !browsable;
+            stage.classList.toggle('is-browsable', browsable);
+            buildThumbs();
+            show(Math.min(activeIndex, slides.length - 1));
 
             carousel()?.pause();
             modal.show();
         });
 
+        // Arrows, thumbnails, and tapping the photo (not a video) for the next one.
+        let suppressClickUntil = 0;
+        modalElement.addEventListener('click', (event) => {
+            if (slides.length < 2 || Date.now() < suppressClickUntil) return;
+            const thumb = event.target.closest('.campus-lightbox-thumb');
+            if (thumb) return show(Number(thumb.dataset.index));
+            if (event.target.closest('.campus-lightbox-prev')) return show(index - 1);
+            if (event.target.closest('.campus-lightbox-next')) return show(index + 1);
+            if (event.target.closest('.campus-lightbox-media img')) show(index + 1);
+        });
+
+        modalElement.addEventListener('keydown', (event) => {
+            if (slides.length < 2 || event.target.closest('video')
+                || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            show(event.key === 'Home' ? 0 : event.key === 'End' ? slides.length - 1 : index + (event.key === 'ArrowRight' ? 1 : -1));
+        });
+
+        // Swipe left/right on touch screens.
+        let touchStart = null;
+        stage.addEventListener('touchstart', (event) => {
+            touchStart = event.touches.length === 1 && !event.target.closest('video')
+                ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : null;
+        }, { passive: true });
+        stage.addEventListener('touchend', (event) => {
+            const start = touchStart;
+            touchStart = null;
+            if (!start || slides.length < 2 || !event.changedTouches.length) return;
+            const dx = event.changedTouches[0].clientX - start.x;
+            const dy = event.changedTouches[0].clientY - start.y;
+            if (Math.abs(dx) >= 45 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                suppressClickUntil = Date.now() + 500; // don't also count the tap
+                show(index + (dx < 0 ? 1 : -1));
+            }
+        }, { passive: true });
+
         modalElement.addEventListener('hidden.bs.modal', () => {
             mediaHolder.replaceChildren(); // stops any playing video
+            // Continue the slideshow from the photo that was being viewed.
+            if (slides.length > 1) carousel()?.to(index);
             carousel()?.cycle();
             expandButton.focus();
         });
