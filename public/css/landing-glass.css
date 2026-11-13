@@ -468,10 +468,10 @@
 .landing-page .campus-carousel-indicators [data-bs-target] {
     display: grid;
     place-items: center;
-    flex: 0 0 2.75rem;
-    width: 2.75rem;
-    height: 2.75rem;
-    min-height: 2.75rem;
+    flex: 0 0 2rem;
+    width: 2rem;
+    height: 2rem;
+    min-height: 2rem;
     padding: 0;
     border-radius: 50%;
     opacity: .8;
@@ -479,8 +479,8 @@
 
 .landing-page .campus-carousel-indicators [data-bs-target]::before {
     content: "";
-    width: 1.15rem;
-    height: .22rem;
+    width: .8rem;
+    height: .18rem;
     border-radius: 999px;
     background: rgb(255 255 255 / 65%);
 }
