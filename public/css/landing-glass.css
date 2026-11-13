@@ -38,42 +38,52 @@
 }
 
 /*
- * Moving background: two fixed "aurora" layers of soft blue light drift
- * slowly behind the page. Only transform/opacity animate (GPU-friendly), and
- * the glass panels blur them as they pass underneath.
+ * Background, back to front (both layers are fixed behind the page):
+ *   ::before  the campus photo (same image as the hero, set by the admin)
+ *             washed with a translucent white-blue overlay.
+ *   ::after   moving blue light plus glossy glass bubbles. Only
+ *             transform/opacity animate (GPU-friendly); the glass panels
+ *             blur this layer as it passes underneath.
+ * The photo URL is relative to this file, so it works both at the domain
+ * root (production) and under /alumni-link/public (local XAMPP).
  */
 .landing-page::before,
 .landing-page::after {
     content: "";
     position: fixed;
-    inset: -25vmax;
     z-index: -1;
     pointer-events: none;
-    will-change: transform;
 }
 
 .landing-page::before {
+    inset: 0;
     background:
-        radial-gradient(34vmax 30vmax at 22% 26%, rgb(86 150 255 / 54%), transparent 70%),
-        radial-gradient(30vmax 26vmax at 78% 34%, rgb(130 194 255 / 58%), transparent 70%),
-        radial-gradient(36vmax 30vmax at 50% 82%, rgb(110 162 255 / 46%), transparent 72%),
-        linear-gradient(165deg, #f4f8ff 0%, #e9f1fd 45%, #e0ebfb 100%);
-    animation: landing-aurora-a 14s ease-in-out infinite alternate;
+        /* Frosted white-blue wash: lighter at the top so the photo shows,
+           denser lower down so long sections stay easy to read. */
+        linear-gradient(180deg, rgb(244 249 255 / 70%) 0%, rgb(236 244 255 / 78%) 45%, rgb(226 238 253 / 86%) 100%),
+        radial-gradient(70vmax 50vmax at 50% 0%, rgb(255 255 255 / 30%), transparent 70%),
+        url("../landing-media/hero") center 30% / cover no-repeat,
+        #e3edfb;
 }
 
 .landing-page::after {
+    inset: -25vmax;
+    will-change: transform;
     background:
-        radial-gradient(26vmax 22vmax at 70% 70%, rgb(60 122 240 / 40%), transparent 70%),
-        radial-gradient(24vmax 20vmax at 30% 60%, rgb(255 255 255 / 75%), transparent 70%),
-        radial-gradient(22vmax 18vmax at 60% 20%, rgb(165 210 255 / 56%), transparent 70%),
-        conic-gradient(from 210deg at 50% 50%, transparent 0deg, rgb(110 168 255 / 18%) 60deg, transparent 140deg, rgb(190 224 255 / 22%) 230deg, transparent 320deg);
+        /* Glossy glass bubbles. Each = a soft white highlight up and to the
+           left of center, over a blue body that deepens toward a bright rim. */
+        radial-gradient(circle 2.6vmax at calc(30% - 2.6vmax) calc(64% - 2.8vmax), rgb(255 255 255 / 95%), rgb(255 255 255 / 0%) 100%),
+        radial-gradient(circle 8vmax at 30% 64%, rgb(214 234 255 / 78%) 0%, rgb(130 182 248 / 70%) 45%, rgb(62 128 228 / 72%) 82%, rgb(225 240 255 / 85%) 96%, rgb(255 255 255 / 0%) 100%),
+        radial-gradient(circle 1.3vmax at calc(74% - 1.2vmax) calc(34% - 1.3vmax), rgb(255 255 255 / 95%), rgb(255 255 255 / 0%) 100%),
+        radial-gradient(circle 3.8vmax at 74% 34%, rgb(214 234 255 / 74%) 0%, rgb(130 182 248 / 66%) 45%, rgb(62 128 228 / 68%) 82%, rgb(225 240 255 / 82%) 96%, rgb(255 255 255 / 0%) 100%),
+        radial-gradient(circle .8vmax at calc(63% - .7vmax) calc(74% - .8vmax), rgb(255 255 255 / 95%), rgb(255 255 255 / 0%) 100%),
+        radial-gradient(circle 2.2vmax at 63% 74%, rgb(214 234 255 / 70%) 0%, rgb(130 182 248 / 62%) 45%, rgb(62 128 228 / 64%) 82%, rgb(225 240 255 / 80%) 96%, rgb(255 255 255 / 0%) 100%),
+        /* Moving blue light */
+        radial-gradient(28vmax 24vmax at 72% 68%, rgb(60 122 240 / 30%), transparent 70%),
+        radial-gradient(30vmax 26vmax at 26% 30%, rgb(86 150 255 / 34%), transparent 70%),
+        radial-gradient(24vmax 20vmax at 58% 22%, rgb(165 210 255 / 40%), transparent 70%),
+        conic-gradient(from 210deg at 50% 50%, transparent 0deg, rgb(110 168 255 / 14%) 60deg, transparent 140deg, rgb(190 224 255 / 18%) 230deg, transparent 320deg);
     animation: landing-aurora-b 18s ease-in-out infinite alternate;
-}
-
-@keyframes landing-aurora-a {
-    0% { transform: translate3d(-8%, -5%, 0) scale(1) rotate(0deg); }
-    50% { transform: translate3d(7%, 4%, 0) scale(1.1) rotate(10deg); }
-    100% { transform: translate3d(-3%, 8%, 0) scale(1.04) rotate(-8deg); }
 }
 
 @keyframes landing-aurora-b {
