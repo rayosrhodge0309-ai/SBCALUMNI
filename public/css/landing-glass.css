@@ -54,9 +54,8 @@
     pointer-events: none;
 }
 
-/* Campus photo across the top of the page: lightly washed in white-blue,
-   then faded out downward into the soft blue background below. It scrolls
-   with the page, like the reference. */
+/* The real campus photo (no overlay) across the top of the page. It scrolls
+   with the page and only its bottom edge fades into the soft blue below. */
 .landing-page::before {
     position: absolute;
     top: 0;
@@ -64,9 +63,7 @@
     right: 0;
     /* Covers the header, hero and gallery; only the bottom edge fades out. */
     height: 92rem;
-    background:
-        linear-gradient(180deg, rgb(242 248 255 / 58%) 0%, rgb(234 244 255 / 66%) 50%, rgb(226 239 254 / 78%) 100%),
-        url("../landing-media/hero") center 22% / cover no-repeat;
+    background: url("../landing-media/hero") center 22% / cover no-repeat;
     -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 82%, transparent 100%);
     mask-image: linear-gradient(180deg, #000 0%, #000 82%, transparent 100%);
 }
@@ -254,31 +251,42 @@
 
 /* ------------------------------------------------------------ Hero */
 
-.landing-page .hero-stage,
+/* No photo box: the hero is only the glass panel, floating directly over the
+   page's campus photo background. */
+.landing-page .hero-stage {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    /* The fade-in animation and isolation would make this box its own layer,
+       and the glass panel could then only blur the (now empty) box instead
+       of the campus photo behind it. */
+    isolation: auto;
+    animation: none;
+}
+
+.landing-page .hero-stage::before,
+.landing-page .hero-stage > .hero-campus-backdrop,
+.landing-page .landing-mobile-hero > .hero-campus-backdrop {
+    display: none;
+}
+
+/* Mobile: the hero card itself is the glass panel. */
 .landing-page .landing-mobile-hero {
     overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 30%);
-    border-radius: 1.75rem;
-    box-shadow: 24px 30px 70px rgb(var(--lg-shade) / 30%), 6px 8px 18px rgb(var(--lg-shade) / 16%);
+    border: 1px solid rgb(255 255 255 / 34%);
+    border-radius: 1.5rem;
+    box-shadow: 18px 22px 50px rgb(2 14 44 / 30%), inset 0 1px 0 rgb(255 255 255 / 30%);
 }
 
-.landing-page .hero-stage {
-    background:
-        radial-gradient(40rem 26rem at 88% 10%, rgb(90 160 255 / 55%), transparent 70%),
-        radial-gradient(30rem 22rem at 70% 100%, rgb(60 130 240 / 45%), transparent 70%),
-        linear-gradient(125deg, #0a2155 0%, #143f94 55%, #2b6fd6 100%);
-}
-
-.landing-page .hero-stage::before {
-    background: linear-gradient(110deg, rgb(8 26 70 / 55%), rgb(20 63 148 / 18%) 58%, rgb(10 40 100 / 30%));
-}
-
-/* Frosted glass panel over the hero image */
+/* Frosted glass panel. A light navy tint keeps the white text readable over
+   any part of the photo. */
 .landing-page .hero-left-panel {
     padding: clamp(1.5rem, 3vw, 2.6rem) !important;
     border: 1px solid rgb(255 255 255 / 34%);
     border-radius: 1.5rem;
-    background: linear-gradient(150deg, rgb(255 255 255 / 22%), rgb(255 255 255 / 8%));
+    background: linear-gradient(150deg, rgb(255 255 255 / 20%), rgb(255 255 255 / 6%)), linear-gradient(150deg, rgb(10 33 85 / 42%), rgb(20 63 148 / 30%));
     color: #fff;
     box-shadow: 18px 22px 50px rgb(2 14 44 / 34%), inset 0 1px 0 rgb(255 255 255 / 35%), inset 0 0 0 1px rgb(255 255 255 / 6%);
     -webkit-backdrop-filter: var(--lg-blur);
