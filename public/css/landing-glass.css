@@ -1113,3 +1113,10 @@
 .campus-lightbox-media :is(img, video) {
     max-height: calc(100vh - 19rem);
 }
+
+/* Campus gallery: no arrow buttons. Slides still autoplay and can be changed
+   with the slide dots, swiping, or the Expand pop-up. */
+.landing-page .campus-gallery-carousel .carousel-control-prev,
+.landing-page .campus-gallery-carousel .carousel-control-next {
+    display: none !important;
+}
