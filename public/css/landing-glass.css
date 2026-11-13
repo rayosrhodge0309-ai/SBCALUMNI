@@ -41,7 +41,7 @@
  * Background, back to front (both layers are fixed behind the page):
  *   ::before  the campus photo (same image as the hero, set by the admin)
  *             washed with a translucent white-blue overlay.
- *   ::after   moving blue light plus glossy glass bubbles. Only
+ *   ::after   moving blue light. Only
  *             transform/opacity animate (GPU-friendly); the glass panels
  *             blur this layer as it passes underneath.
  * The photo URL is relative to this file, so it works both at the domain
@@ -71,7 +71,7 @@
     mask-image: linear-gradient(180deg, #000 0%, #000 45%, rgb(0 0 0 / 60%) 68%, transparent 92%);
 }
 
-/* Moving blue light + glass bubbles, fixed to the window. Painted after the
+/* Moving blue light, fixed to the window. Painted after the
    photo, so it drifts over the photo and the plain blue area alike. The
    base color underneath comes from the page body. */
 .landing-page::after {
@@ -79,14 +79,6 @@
     inset: -25vmax;
     will-change: transform;
     background:
-        /* Glossy glass bubbles. Each = a soft white highlight up and to the
-           left of center, over a blue body that deepens toward a bright rim. */
-        radial-gradient(circle 2.6vmax at calc(30% - 2.6vmax) calc(64% - 2.8vmax), rgb(255 255 255 / 95%), rgb(255 255 255 / 0%) 100%),
-        radial-gradient(circle 8vmax at 30% 64%, rgb(214 234 255 / 78%) 0%, rgb(130 182 248 / 70%) 45%, rgb(62 128 228 / 72%) 82%, rgb(225 240 255 / 85%) 96%, rgb(255 255 255 / 0%) 100%),
-        radial-gradient(circle 1.3vmax at calc(74% - 1.2vmax) calc(34% - 1.3vmax), rgb(255 255 255 / 95%), rgb(255 255 255 / 0%) 100%),
-        radial-gradient(circle 3.8vmax at 74% 34%, rgb(214 234 255 / 74%) 0%, rgb(130 182 248 / 66%) 45%, rgb(62 128 228 / 68%) 82%, rgb(225 240 255 / 82%) 96%, rgb(255 255 255 / 0%) 100%),
-        radial-gradient(circle .8vmax at calc(63% - .7vmax) calc(74% - .8vmax), rgb(255 255 255 / 95%), rgb(255 255 255 / 0%) 100%),
-        radial-gradient(circle 2.2vmax at 63% 74%, rgb(214 234 255 / 70%) 0%, rgb(130 182 248 / 62%) 45%, rgb(62 128 228 / 64%) 82%, rgb(225 240 255 / 80%) 96%, rgb(255 255 255 / 0%) 100%),
         /* Moving blue light */
         radial-gradient(28vmax 24vmax at 72% 68%, rgb(60 122 240 / 30%), transparent 70%),
         radial-gradient(30vmax 26vmax at 26% 30%, rgb(86 150 255 / 34%), transparent 70%),
