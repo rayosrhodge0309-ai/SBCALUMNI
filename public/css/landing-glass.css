@@ -31,13 +31,63 @@
 
     position: relative;
     color: var(--lg-ink);
+    /* Transparent so the moving layers below show through. No `isolation`
+       here: a stacking context would trap the feed's modals under Bootstrap's
+       body-level backdrop. */
+    background: transparent;
+}
+
+/*
+ * Moving background: two fixed "aurora" layers of soft blue light drift
+ * slowly behind the page. Only transform/opacity animate (GPU-friendly), and
+ * the glass panels blur them as they pass underneath.
+ */
+.landing-page::before,
+.landing-page::after {
+    content: "";
+    position: fixed;
+    inset: -25vmax;
+    z-index: -1;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.landing-page::before {
     background:
-        radial-gradient(44rem 34rem at 4% 8%, rgb(120 176 255 / 42%), transparent 70%),
-        radial-gradient(40rem 32rem at 98% 30%, rgb(150 208 255 / 44%), transparent 70%),
-        radial-gradient(48rem 38rem at 30% 62%, rgb(182 214 255 / 40%), transparent 72%),
-        radial-gradient(42rem 34rem at 88% 92%, rgb(132 178 255 / 36%), transparent 72%),
-        linear-gradient(165deg, #f4f8ff 0%, #e8f0fc 45%, #dde9fa 100%);
-    background-attachment: fixed;
+        radial-gradient(34vmax 30vmax at 22% 26%, rgb(96 158 255 / 42%), transparent 70%),
+        radial-gradient(30vmax 26vmax at 78% 34%, rgb(140 200 255 / 46%), transparent 70%),
+        radial-gradient(36vmax 30vmax at 50% 82%, rgb(120 170 255 / 34%), transparent 72%),
+        linear-gradient(165deg, #f4f8ff 0%, #e9f1fd 45%, #e0ebfb 100%);
+    animation: landing-aurora-a 28s ease-in-out infinite alternate;
+}
+
+.landing-page::after {
+    background:
+        radial-gradient(26vmax 22vmax at 70% 70%, rgb(70 130 240 / 30%), transparent 70%),
+        radial-gradient(24vmax 20vmax at 30% 60%, rgb(255 255 255 / 70%), transparent 70%),
+        radial-gradient(22vmax 18vmax at 60% 20%, rgb(175 215 255 / 45%), transparent 70%),
+        conic-gradient(from 210deg at 50% 50%, transparent 0deg, rgb(120 175 255 / 12%) 60deg, transparent 140deg, rgb(200 228 255 / 16%) 230deg, transparent 320deg);
+    animation: landing-aurora-b 36s ease-in-out infinite alternate;
+}
+
+@keyframes landing-aurora-a {
+    0% { transform: translate3d(-6%, -4%, 0) scale(1) rotate(0deg); }
+    50% { transform: translate3d(5%, 3%, 0) scale(1.08) rotate(8deg); }
+    100% { transform: translate3d(-2%, 6%, 0) scale(1.03) rotate(-6deg); }
+}
+
+@keyframes landing-aurora-b {
+    0% { transform: translate3d(5%, 4%, 0) scale(1.05) rotate(0deg); opacity: .85; }
+    50% { transform: translate3d(-6%, -3%, 0) scale(.96) rotate(-12deg); opacity: 1; }
+    100% { transform: translate3d(3%, -6%, 0) scale(1.06) rotate(10deg); opacity: .8; }
+}
+
+/* People who ask for less motion get the same colors, standing still. */
+@media (prefers-reduced-motion: reduce) {
+    .landing-page::before,
+    .landing-page::after {
+        animation: none;
+    }
 }
 
 /* ------------------------------------------------------------ Header */
@@ -810,10 +860,6 @@
 }
 
 @media (max-width: 767.98px) {
-    .landing-page {
-        background-attachment: scroll;
-    }
-
     .landing-page .hero-stage,
     .landing-page .landing-mobile-hero {
         border-radius: 1.25rem;
